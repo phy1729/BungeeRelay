@@ -61,7 +61,7 @@ public class IRC {
                 out.println("CAPAB START 1202");
             }
             if (ex[1].equals("END")) {
-                out.println("CAPAB CAPABILITIES :NICKMAX=16 CHANMAX=64 MAXMODES=20 IDENTMAX=11 MAXQUIT=255 MAXTOPIC=307 MAXKICK=255 MAXGECOS=128 MAXAWAY=200 IP6SUPPORT=0 PROTOCOL=1202 HALFOP=0 PREFIX=" + prefixes + " CHANMODES=b,k,l,imnpst USERMODES=,,s,iow SVSPART=1");
+                out.println("CAPAB CAPABILITIES :PROTOCOL=1202");
                 out.println("CAPAB END");
                 out.println("BURST " + startTime);
                 out.println("VERSION :0.1");
