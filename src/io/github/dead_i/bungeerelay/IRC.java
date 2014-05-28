@@ -35,7 +35,7 @@ public class IRC {
     public static HashMap<String, Channel> chans = new HashMap<String, Channel>();
     Plugin plugin;
 
-    private static final char[] argModes = { 'b', 'k', 'H', 'l' };
+    private static String argModes = "bkHl";
 
     public IRC(Socket s, FileConfiguration c, Plugin p) throws IOException {
         sock = s;
@@ -95,6 +95,20 @@ public class IRC {
         if (ex[0].equals("CAPAB") && ex[1].equals("CAPABILITIES")) {
             if (data.contains("CHANMODES=")) chanModes = data.split("CHANMODES=")[1].split(" ")[0];
             if (data.contains("PREFIX=")) prefixes = data.split("PREFIX=")[1].split(" ")[0];
+            // Dynamically find which modes require arguments
+            for (String s:ex) {
+                if (s.contains("CHANMODES="))
+                {
+                    String chanmodes = s.split("=")[1];
+                    String[] chanmodeSets = chanmodes.split(",");
+
+                    argModes = "";
+                    // The first three sets take arguments
+                    for (int i; i < 3; ++i) {
+                        argModes += chanmodeSets[i];
+                    }
+                }
+            }
         }
 
         if (ex[1].equals("FJOIN")) {
