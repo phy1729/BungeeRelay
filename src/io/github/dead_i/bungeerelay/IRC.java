@@ -35,6 +35,8 @@ public class IRC {
     public static HashMap<String, Channel> chans = new HashMap<String, Channel>();
     Plugin plugin;
 
+    private static final char[] argModes = { 'b', 'k', 'H', 'l' };
+
     public IRC(Socket s, FileConfiguration c, Plugin p) throws IOException {
         sock = s;
         config = c;
@@ -44,6 +46,17 @@ public class IRC {
         in = new BufferedReader(new InputStreamReader(sock.getInputStream()));
         out = new PrintWriter(sock.getOutputStream(), true);
         while (sock.isConnected()) handleData(in.readLine());
+    }
+
+    private int countChar(String s, Character c)
+    {
+        int count = 0;
+        for (Character charInString:s.toCharArray()) {
+            if (charInString.equals(c)) {
+                ++count;
+            }
+        }
+        return count;
     }
 
     public void handleData(String data) throws IOException {
@@ -89,7 +102,14 @@ public class IRC {
                 Long ts = Long.parseLong(ex[3]);
                 if (!ts.equals(Util.getChanTS(ex[2]))) chans.get(ex[2]).ts = ts;
             }
-            chans.get(ex[2]).users.add(ex[5].split(",")[1]);
+            
+            String modes = ex[4];
+            int countArgModes = 0;
+            for (Character c:argModes) {
+                countArgModes += countChar (modes, c);
+            }
+
+            chans.get(ex[2]).users.add(ex[5+countArgModes].split(",")[1]);
         }
 
         if (ex[1].equals("ENDBURST")) {
