@@ -119,7 +119,7 @@ public class IRC {
             
             String modes = ex[4];
             int countArgModes = 0;
-            for (Character c:argModes) {
+            for (Character c:argModes.toCharArray()) {
                 countArgModes += countChar (modes, c);
             }
 
