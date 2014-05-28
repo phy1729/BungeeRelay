@@ -104,7 +104,7 @@ public class IRC {
 
                     argModes = "";
                     // The first three sets take arguments
-                    for (int i; i < 3; ++i) {
+                    for (int i = 0; i < 3; ++i) {
                         argModes += chanmodeSets[i];
                     }
                 }
