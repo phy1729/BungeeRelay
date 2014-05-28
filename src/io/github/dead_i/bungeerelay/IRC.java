@@ -35,7 +35,7 @@ public class IRC {
     public static HashMap<String, Channel> chans = new HashMap<String, Channel>();
     Plugin plugin;
 
-    private static String argModes = "bkHl";
+    private static String argModes = "";
 
     public IRC(Socket s, FileConfiguration c, Plugin p) throws IOException {
         sock = s;
