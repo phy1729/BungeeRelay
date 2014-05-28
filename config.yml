@@ -86,7 +86,7 @@ server:
   # helpful for users to distinguish between Minecraft players and normal IRC users.
   # For example, if usersuffix was "/minecraft", I appear on IRC as "Dead_i/minecraft"
   userprefix: ""
-  usersuffix: "|mc"
+  usersuffix: ""
 
   # Set to "true" to make BungeeRelay say each message it receives raw in console.
   # Used for debugging purposes only. For general use, leave "false".
