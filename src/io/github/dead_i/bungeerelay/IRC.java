@@ -193,7 +193,7 @@ public class IRC {
                 }else if (cm[0].contains(m) || cm[1].contains(m) || (cm[2].contains(m) && d.equals("+"))) {
                     s = s + ex[v] + " ";
                     v++;
-                }else if (ex.length >= v && users.containsKey(ex[v])) {
+                }else if (ex.length > v && users.containsKey(ex[v])) {
                     s = s + users.get(ex[v]) + " ";
                     v++;
                 }
