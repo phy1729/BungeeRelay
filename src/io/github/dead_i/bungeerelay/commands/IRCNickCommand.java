@@ -32,7 +32,7 @@ public class IRCNickCommand extends Command {
             return;
         }
 		
-		IRC.out.println(":" + IRC.uids.get(sender) + " NICK: " + msg);
+		IRC.out.println(":" + IRC.uids.get(sender) + " NICK " + msg);
 		
     }
 }
