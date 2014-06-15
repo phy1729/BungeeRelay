@@ -1,0 +1,38 @@
+package io.github.dead_i.bungeerelay.commands;
+
+import io.github.dead_i.bungeerelay.IRC;
+import io.github.dead_i.bungeerelay.Util;
+import net.md_5.bungee.api.ChatColor;
+import net.md_5.bungee.api.CommandSender;
+import net.md_5.bungee.api.chat.TextComponent;
+import net.md_5.bungee.api.plugin.Command;
+import net.md_5.bungee.api.plugin.Plugin;
+
+public class IRCNickCommand extends Command {
+    Plugin plugin;
+    public IRCNickCommand(Plugin plugin) {
+        super("ircnick", "irc.nick");
+        this.plugin = plugin;
+    }
+
+    @Override
+    public void execute(CommandSender sender, String[] args) {
+        if (args.length == 0) {
+            sender.sendMessage(new TextComponent(ChatColor.RED + "Usage: /ircnick <nick>"));
+            return;
+        }
+		if (!IRC.sock.isConnected()) {
+            sender.sendMessage(new TextComponent(ChatColor.RED + "The proxy is not connected to IRC."));
+            return;
+        }
+		
+		String uid = Util.getUidByNick(args[0]);
+        if (uid != null) {
+            sender.sendMessage(new TextComponent(ChatColor.RED + "The nick " + args[0] + " is already in use."));
+            return;
+        }
+		
+		IRC.out.println(":" + IRC.uids.get(sender) + " NICK: " + msg);
+		
+    }
+}
