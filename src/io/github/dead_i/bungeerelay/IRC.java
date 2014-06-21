@@ -22,9 +22,10 @@ public class IRC {
     public static BufferedReader in;
     public static PrintWriter out;
     public static FileConfiguration config;
-    public static String mainUid;
-    public static String currentUid;
-    public static String prefixes;
+    public static final String SID = config.getString("server.id")
+    public static final String botUID = SID + "AAAAAA";
+    public static String currentUid = SID + "AAAAAB";
+    public static String prefixModes;
     public static String chanModes;
     public static long startTime = System.currentTimeMillis() / 1000;
     public static boolean authenticated = false;
@@ -37,12 +38,7 @@ public class IRC {
 
     private static String argModes = "";
 
-    public IRC(Socket s, FileConfiguration c, Plugin p) throws IOException {
-        sock = s;
-        config = c;
-        plugin = p;
-        mainUid = config.getString("server.id") + "AAAAAA";;
-        currentUid = mainUid;
+    public IRC(Socket sock, FileConfiguration config, Plugin plugin) throws IOException {
         in = new BufferedReader(new InputStreamReader(sock.getInputStream()));
         out = new PrintWriter(sock.getOutputStream(), true);
         while (sock.isConnected()) handleData(in.readLine());
@@ -82,7 +78,8 @@ public class IRC {
                             }
                         }
                         if (s.contains("PREFIX=")) {
-                                prefixes = s.split("=")[1];
+                            // Grab the modes inside the parens after the "="
+                            prefixModes = s.split("=")[1].split("\\(")[1].split("\\)")[0];
                         }
                     }
                 }
@@ -102,25 +99,24 @@ public class IRC {
                     sock.close();
                 }
                 plugin.getLogger().info("Authenticating with server...");
-	        out.println("SERVER " + config.getString("server.servername") + " " + config.getString("server.sendpass") + " 0 " + config.getString("server.id") + " :" + config.getString("server.realname"));
+                out.println("SERVER " + config.getString("server.servername") + " " + config.getString("server.sendpass") + " 0 " + SID + " :" + config.getString("server.realname"));
                 authenticated = true;
             }
 
         } else { // We have already authenticated
             if (ex[1].equals("ENDBURST")) { // Remote has finished bursting; now we BURST
                 out.println("BURST " + startTime);
-                out.println("VERSION :0.1");
-                out.println("UID " + mainUid + " " + startTime + " " + config.getString("bot.nick") + " BungeeRelay " + config.getString("bot.host") + " " + config.getString("bot.ident") + " BungeeRelay " + startTime + " +o :" + config.getString("bot.realname"));
-                Util.incrementUid();
-                out.println(":" + mainUid + " OPERTYPE " + config.getString("bot.opertype"));
+                out.println("VERSION :BungeeRelay-0.1");
+                out.println("UID " + botUID + " " + startTime + " " + config.getString("bot.nick") + " BungeeRelay " + config.getString("bot.host") + " " + config.getString("bot.ident") + " BungeeRelay " + startTime + " +o :" + config.getString("bot.realname"));
+                out.println(":" + botUID + " OPERTYPE " + config.getString("bot.opertype"));
                 out.println("ENDBURST");
                 String chan = config.getString("server.channel");
                 String topic = config.getString("server.topic");
-                String botmodes = config.getString("bot.modes");
                 if (chan.isEmpty()) {
                     for (ServerInfo si : plugin.getProxy().getServers().values()) {
                         chan = config.getString("server.chanprefix") + si.getName();
-                        Util.sendMainJoin(chan, botmodes, topic.replace("{SERVERNAME}", si.getName()));
+                        Util.sendBotJoin(chan);
+                        Util.setChannelTopic(chan, topic.replace("{SERVERNAME}", si.getName()));
                         for (ProxiedPlayer p : si.getPlayers()) {
                             Util.sendUserConnect(p);
                             Util.sendChannelJoin(p, chan);
@@ -128,7 +124,8 @@ public class IRC {
                         }
                     }
                 } else {
-                    Util.sendMainJoin(chan, botmodes, topic.replace("{SERVERNAME}", ""));
+                    Util.sendBotJoin(chan);
+                    Util.setChannelTopic(chan, topic.replace("{SERVERNAME}", ""));
                     for (ProxiedPlayer p : plugin.getProxy().getPlayers()) {
                         Util.sendUserConnect(p);
                         Util.sendChannelJoin(p, chan);
@@ -137,7 +134,8 @@ public class IRC {
                 }
                 chan = config.getString("server.staff");
                 if (!chan.isEmpty()) {
-                    Util.sendMainJoin(chan, botmodes, config.getString("server.stafftopic"));
+                    Util.sendBotJoin(chan);
+                    Util.setChannelTopic(chan, config.getString("server.stafftopic"));
                     Util.giveChannelModes(chan, config.getString("server.staffmodes"));
                 }
             }
@@ -145,6 +143,7 @@ public class IRC {
             if (ex[1].equals("ERROR")) {
                 sock.close();
                 authenticated = false;
+                throw new IOException(); // This will make us reconnect
             }
 
             if (ex[1].equals("FJOIN")) {
@@ -229,7 +228,7 @@ public class IRC {
             }
 
             if (ex[1].equals("PING")) {
-                out.println("PONG " + config.getString("server.id") + " "+ex[2]);
+                out.println("PONG " + SID + " "+ex[2]);
             }
 
             if (ex[1].equals("PRIVMSG")) {

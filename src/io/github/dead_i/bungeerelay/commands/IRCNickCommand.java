@@ -21,16 +21,16 @@ public class IRCNickCommand extends Command {
             sender.sendMessage(new TextComponent(ChatColor.RED + "Usage: /ircnick <nick>"));
             return;
         }
-		if (!IRC.sock.isConnected()) {
+        if (!IRC.sock.isConnected()) {
             sender.sendMessage(new TextComponent(ChatColor.RED + "The proxy is not connected to IRC."));
             return;
         }
 
-		String uid = Util.getUidByNick(args[0]);
+        String uid = Util.getUidByNick(args[0]);
         if (uid != null) {
             sender.sendMessage(new TextComponent(ChatColor.RED + "The nick " + args[0] + " is already in use."));
             return;
         }
-	IRC.out.println(":" + IRC.uids.get(sender) + " NICK " + args[0] + " " + System.currentTimeMillis() / 1000);
+        IRC.out.println(":" + IRC.uids.get(sender) + " NICK " + args[0] + " " + System.currentTimeMillis() / 1000);
     }
 }

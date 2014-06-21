@@ -29,63 +29,65 @@ public class Util {
         incrementUid(8);
     }
 
-    public static void sendUserConnect(ProxiedPlayer p) {
-        String name = IRC.config.getString("server.userprefix") + p.getName() + IRC.config.getString("server.usersuffix");
-        IRC.times.put(p, System.currentTimeMillis() / 1000);
-        IRC.uids.put(p, IRC.currentUid);
+    public static void sendUserConnect(ProxiedPlayer player) {
+        String name = IRC.config.getString("server.userprefix") + player.getName() + IRC.config.getString("server.usersuffix");
+        IRC.times.put(player, System.currentTimeMillis() / 1000);
+        IRC.uids.put(player, IRC.currentUid);
         IRC.users.put(IRC.currentUid, name);
-        IRC.out.println("UID " + IRC.currentUid + " " + System.currentTimeMillis() / 1000 + " " + name + " " + p.getAddress().getHostName() + " " + p.getAddress().getHostName() + " " + p.getName() + " " + p.getAddress().getHostString() + " " + IRC.times.get(p) + " +r :Minecraft Player");
+        IRC.out.println("UID " + IRC.currentUid + " " + System.currentTimeMillis() / 1000 + " " + name + " " + player.getAddress().getHostName() + " " + player.getAddress().getHostName() + " " + player.getName() + " " + player.getAddress().getHostString() + " " + IRC.times.get(player) + " +r :Minecraft Player");
     }
 
-    public static void sendChannelJoin(ProxiedPlayer p, String c) {
-        String uid = IRC.uids.get(p);
-        IRC.out.println("FJOIN " + c + " " + System.currentTimeMillis() / 1000 + " +nt :," + uid);
-        giveChannelModes(p, c);
+    public static void sendChannelJoin(ProxiedPlayer player, String channel) {
+        String prefix = "";
+        if (player.hasPermission("irc.owner")) prefix += "q";
+        if (player.hasPermission("irc.protect")) prefix += "a";
+        if (player.hasPermission("irc.op")) prefix += "o";
+        if (player.hasPermission("irc.halfop")) prefix += "h";
+        if (player.hasPermission("irc.voice")) prefix += "v";
+        prefix = verifyPrefix(prefix);
+        IRC.out.println("FJOIN " + channel + " " + System.currentTimeMillis() / 1000 + " :" + prefix + "," + IRC.uids.get(player));
     }
 
-    public static void giveChannelModes(ProxiedPlayer p, String c) {
-        String modes = "+";
-        if (p.hasPermission("irc.owner")) modes += "";
-        if (p.hasPermission("irc.protect")) modes += "a";
-        if (p.hasPermission("irc.op")) modes += "o";
-        if (p.hasPermission("irc.halfop")) modes += "h";
-        if (p.hasPermission("irc.voice")) modes += "v";
-        giveChannelModes(c, modes, IRC.uids.get(p));
+    public static void sendBotJoin(String channel) {
+    String prefix = verifyPrefix(IRC.config.getString("bot.modes"));
+        IRC.out.println("FJOIN " + channel + " " + getChanTS(channel) + " :" + prefix + "," + IRC.botUID);
     }
 
-    public static void giveChannelModes(String c, String m, String s) {
-        if (!m.isEmpty()) {
-            String target = "";
-            for (int i=0; i<m.length(); i++) {
-                target += s + " ";
-            }
-            giveChannelModes(c, "+" + m + " " + target.trim());
-        }
+    private static String verifyPrefix(String prefix) {
+    // Gracefully degrade to the next highest mode if the server doesn't support one
+    // +o and +v are built-in so no need to check for those
+    String finalPrefix = "";
+    switch (true)
+        case prefix.contains("q"):
+            if (IRC.prefixModes.contains("q") finalPrefix += "q" && break;
+        case prefix.contains("a"):
+            if (IRC.prefixModes.contains("a") finalPrefix += "a" && break;
+        case prefix.contains("o"):
+            finalPrefix += "o" && break;
+        case prefix.contains("h"):
+            if (IRC.prefixModes.contains("h") finalPrefix += "h" && break;
+        case prefix.contains("v"):
+            finalPrefix += "v" && break;
+    return finalPrefix;
     }
 
-    public static boolean giveChannelModes(String c, String m) {
-        String prefixModes = IRC.prefixes.split("\\(")[1].split("\\)")[0];
+    public static boolean giveChannelModes(String channel, String m) {
         String modes = m.split(" ")[0];
         for (int i=0; i<modes.length(); i++) {
             String mode = Character.toString(modes.charAt(i));
-            if (!prefixModes.contains(mode) && !IRC.chanModes.contains(mode) && !mode.equals("+") && !mode.equals("-")) {
+            if (!IRC.prefixModes.contains(mode) && !IRC.chanModes.contains(mode) && !mode.equals("+") && !mode.equals("-")) {
                 proxy.getLogger().warning("Tried to set the +" + mode + " mode, but the IRC server stated earlier that it wasn't compatible with this mode.");
                 proxy.getLogger().warning("If you want to use " + mode + ", enable appropriate module in your IRC server's configuration files.");
                 proxy.getLogger().warning("Skipping...");
                 return false;
             }
         }
-        IRC.out.println(":" + IRC.mainUid + " FMODE " + c + " " + getChanTS(c) + " " + m);
+        IRC.out.println(":" + IRC.SID + " FMODE " + channel + " " + getChanTS(channel) + " " + m);
         return true;
     }
 
-    public static void sendMainJoin(String c, String m, String t) {
-        long chanTS = getChanTS(c);
-        IRC.out.println("FJOIN " + c + " " + chanTS + " +nt :," + IRC.mainUid);
-
-        giveChannelModes(c, m, IRC.mainUid);
-
-        if (!t.isEmpty()) IRC.out.println(":" + IRC.mainUid + " TOPIC " + c + " :" + t);
+    public static void setChannelTopic(String channel, String topic) {
+    if (!t.isEmpty()) IRC.out.println(":" + SID + " TOPIC " + channel + " :" + topic);
     }
 
     public static List<String> getChannels() {
