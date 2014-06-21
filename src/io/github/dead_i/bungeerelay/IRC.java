@@ -22,7 +22,7 @@ public class IRC {
     public static BufferedReader in;
     public static PrintWriter out;
     public static FileConfiguration config;
-    public static final String SID = config.getString("server.id")
+    public static final String SID = config.getString("server.id");
     public static final String botUID = SID + "AAAAAA";
     public static String currentUid = SID + "AAAAAB";
     public static String prefixModes;
