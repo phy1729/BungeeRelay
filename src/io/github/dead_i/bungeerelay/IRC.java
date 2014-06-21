@@ -242,7 +242,7 @@ public class IRC {
         if (ex[1].equals("FJOIN")) {
             for (ProxiedPlayer p : Util.getPlayersByChannel(ex[2])) {
                 p.sendMessage(new TextComponent(ChatColor.translateAlternateColorCodes('&', config.getString("formats.join")
-                        .replace("{SENDER}", users.get(ex[5].split(",")[1])))));
+                        .replace("{SENDER}", users.get(ex[6].split(",")[1])))));
             }
         }
 
