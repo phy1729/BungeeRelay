@@ -157,6 +157,10 @@ public class IRC {
             out.println("ENDBURST");
         }
 
+	if (ex[1].equals("ERROR")) {
+	    authenticated = false;
+	}
+
         if (ex[1].equals("PING")) {
             out.println("PONG " + config.getString("server.id") + " "+ex[2]);
         }
