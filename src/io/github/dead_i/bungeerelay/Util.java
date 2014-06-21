@@ -9,33 +9,30 @@ import java.util.*;
 public class Util {
     private static ProxyServer proxy = ProxyServer.getInstance();
 
-    //FIXME: Doesn't wrap properly
     public static void incrementUid(int pos) {
         StringBuilder sb = new StringBuilder(IRC.currentUid);
         if (IRC.currentUid.charAt(pos) == 'Z') {
             sb.setCharAt(pos, '0');
             IRC.currentUid = sb.toString();
-        }else if (IRC.currentUid.charAt(pos) == '9') {
+        } else if (IRC.currentUid.charAt(pos) == '9') {
             sb.setCharAt(pos, 'A');
             IRC.currentUid = sb.toString();
             if (pos == 3) return;
             incrementUid(pos - 1);
-        }else{
+        } else {
             sb.setCharAt(pos, (char) (IRC.currentUid.charAt(pos) + 1));
             IRC.currentUid = sb.toString();
         }
     }
 
     public static void incrementUid() {
-        incrementUid(8);
+        do {
+            incrementUid(8);
+        } while (IRC.uids.containsValue(IRC.currentUid));
     }
 
     public static void sendUserConnect(ProxiedPlayer player) {
-        String name = IRC.config.getString("server.userprefix") + player.getName() + IRC.config.getString("server.usersuffix");
-        IRC.times.put(player, System.currentTimeMillis() / 1000);
-        IRC.uids.put(player, IRC.currentUid);
-        IRC.users.put(IRC.currentUid, name);
-        IRC.out.println("UID " + IRC.currentUid + " " + System.currentTimeMillis() / 1000 + " " + name + " " + player.getAddress().getHostName() + " " + player.getAddress().getHostName() + " " + player.getName() + " " + player.getAddress().getHostString() + " " + IRC.times.get(player) + " +r :Minecraft Player");
+        IRC.out.println("UID " + IRC.uids.get(player) + " " + IRC.nickTimes.get(player) + " " + name + " " + player.getAddress().getHostName() + " " + player.getAddress().getHostName() + " " + player.getName() + " " + player.getAddress().getHostString() + " " + IRC.times.get(player) + " +r :Minecraft Player");
     }
 
     public static void sendChannelJoin(ProxiedPlayer player, String channel) {
@@ -46,7 +43,7 @@ public class Util {
         if (player.hasPermission("irc.halfop")) prefix += "h";
         if (player.hasPermission("irc.voice")) prefix += "v";
         prefix = verifyPrefix(prefix);
-        IRC.out.println("FJOIN " + channel + " " + System.currentTimeMillis() / 1000 + " :" + prefix + "," + IRC.uids.get(player));
+        IRC.out.println("FJOIN " + channel + " " + IRC.times.get(player) + " :" + prefix + "," + IRC.uids.get(player));
     }
 
     public static void sendBotJoin(String channel) {
@@ -60,16 +57,16 @@ public class Util {
         String finalPrefix = "";
         switch (true) {
             case prefix.contains("q"):
-                if (IRC.prefixModes.contains("q") finalPrefix += "q" && break;
+                if (IRC.prefixModes.contains("q")) { finalPrefix += "q"; break; }
             case prefix.contains("a"):
-                if (IRC.prefixModes.contains("a") finalPrefix += "a" && break;
+                if (IRC.prefixModes.contains("a")) { finalPrefix += "a"; break; }
             case prefix.contains("o"):
-                finalPrefix += "o" && break;
+                finalPrefix += "o"; break;
             case prefix.contains("h"):
-                if (IRC.prefixModes.contains("h") finalPrefix += "h" && break;
+                if (IRC.prefixModes.contains("h")) { finalPrefix += "h"; break; }
             case prefix.contains("v"):
-                finalPrefix += "v" && break;
-	}
+                finalPrefix += "v"; break;
+        }
         return finalPrefix;
     }
 
@@ -99,7 +96,7 @@ public class Util {
             for (ServerInfo si : proxy.getServers().values()) {
                 out.add(IRC.config.getString("server.chanprefix") + si.getName());
             }
-        }else{
+        } else {
             out.add(channel);
         }
         return out;
@@ -114,7 +111,7 @@ public class Util {
             ServerInfo si = proxy.getServerInfo(c);
             if (si == null) return Collections.emptyList();
             return si.getPlayers();
-        }else{
+        } else {
             return proxy.getPlayers();
         }
     }

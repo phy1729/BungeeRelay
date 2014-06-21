@@ -30,6 +30,7 @@ public class IRC {
     public static long startTime = System.currentTimeMillis() / 1000;
     public static boolean authenticated = false;
     public static HashMap<ProxiedPlayer, Long> times = new HashMap<ProxiedPlayer, Long>();
+    public static HashMap<ProxiedPlayer, Long> nickTimes = new HashMap<ProxiedPlayer, Long>();
     public static HashMap<ProxiedPlayer, String> uids = new HashMap<ProxiedPlayer, String>();
     public static HashMap<ProxiedPlayer, String> replies = new HashMap<ProxiedPlayer, String>();
     public static HashMap<String, String> users = new HashMap<String, String>();
@@ -120,7 +121,6 @@ public class IRC {
                         for (ProxiedPlayer p : si.getPlayers()) {
                             Util.sendUserConnect(p);
                             Util.sendChannelJoin(p, chan);
-                            Util.incrementUid();
                         }
                     }
                 } else {
@@ -129,7 +129,6 @@ public class IRC {
                     for (ProxiedPlayer p : plugin.getProxy().getPlayers()) {
                         Util.sendUserConnect(p);
                         Util.sendChannelJoin(p, chan);
-                        Util.incrementUid();
                     }
                 }
                 chan = config.getString("server.staff");
