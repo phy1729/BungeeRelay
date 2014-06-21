@@ -9,6 +9,7 @@ import java.util.*;
 public class Util {
     private static ProxyServer proxy = ProxyServer.getInstance();
 
+    //FIXME: Doesn't wrap properly
     public static void incrementUid(int pos) {
         StringBuilder sb = new StringBuilder(IRC.currentUid);
         if (IRC.currentUid.charAt(pos) == 'Z') {
@@ -49,26 +50,27 @@ public class Util {
     }
 
     public static void sendBotJoin(String channel) {
-    String prefix = verifyPrefix(IRC.config.getString("bot.modes"));
+        String prefix = verifyPrefix(IRC.config.getString("bot.modes"));
         IRC.out.println("FJOIN " + channel + " " + getChanTS(channel) + " :" + prefix + "," + IRC.botUID);
     }
 
     private static String verifyPrefix(String prefix) {
-    // Gracefully degrade to the next highest mode if the server doesn't support one
-    // +o and +v are built-in so no need to check for those
-    String finalPrefix = "";
-    switch (true)
-        case prefix.contains("q"):
-            if (IRC.prefixModes.contains("q") finalPrefix += "q" && break;
-        case prefix.contains("a"):
-            if (IRC.prefixModes.contains("a") finalPrefix += "a" && break;
-        case prefix.contains("o"):
-            finalPrefix += "o" && break;
-        case prefix.contains("h"):
-            if (IRC.prefixModes.contains("h") finalPrefix += "h" && break;
-        case prefix.contains("v"):
-            finalPrefix += "v" && break;
-    return finalPrefix;
+        // Gracefully degrade to the next highest mode if the server doesn't support one
+        // +o and +v are built-in so no need to check for those
+        String finalPrefix = "";
+        switch (true) {
+            case prefix.contains("q"):
+                if (IRC.prefixModes.contains("q") finalPrefix += "q" && break;
+            case prefix.contains("a"):
+                if (IRC.prefixModes.contains("a") finalPrefix += "a" && break;
+            case prefix.contains("o"):
+                finalPrefix += "o" && break;
+            case prefix.contains("h"):
+                if (IRC.prefixModes.contains("h") finalPrefix += "h" && break;
+            case prefix.contains("v"):
+                finalPrefix += "v" && break;
+	}
+        return finalPrefix;
     }
 
     public static boolean giveChannelModes(String channel, String m) {
@@ -87,7 +89,7 @@ public class Util {
     }
 
     public static void setChannelTopic(String channel, String topic) {
-    if (!t.isEmpty()) IRC.out.println(":" + SID + " TOPIC " + channel + " :" + topic);
+        IRC.out.println(":" + SID + " TOPIC " + channel + " :" + topic);
     }
 
     public static List<String> getChannels() {
@@ -106,7 +108,7 @@ public class Util {
     public static Collection<ProxiedPlayer> getPlayersByChannel(String c) {
         if (IRC.config.getString("server.staff").equalsIgnoreCase(c)) {
             return Collections.emptyList();
-        }else if (IRC.config.getString("server.channel").isEmpty()) {
+        } else if (IRC.config.getString("server.channel").isEmpty()) {
             String pref = IRC.config.getString("server.chanprefix");
             if (c.startsWith(pref)) c = c.substring(pref.length());
             ServerInfo si = proxy.getServerInfo(c);
@@ -127,13 +129,5 @@ public class Util {
     public static Long getChanTS(String c) {
         if (!IRC.chans.containsKey(c)) IRC.chans.put(c, new Channel(System.currentTimeMillis() / 1000));
         return IRC.chans.get(c).ts;
-    }
-
-    public static String sliceStringArray(String[] a, Integer l) {
-        String s = "";
-        for (int i=l; i<a.length; i++) {
-            s += a[i] + " ";
-        }
-        return s.trim();
     }
 }
