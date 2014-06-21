@@ -25,7 +25,7 @@ public class IRCNickCommand extends Command {
             sender.sendMessage(new TextComponent(ChatColor.RED + "The proxy is not connected to IRC."));
             return;
         }
-		
+
 		String uid = Util.getUidByNick(args[0]);
         if (uid != null) {
             sender.sendMessage(new TextComponent(ChatColor.RED + "The nick " + args[0] + " is already in use."));
