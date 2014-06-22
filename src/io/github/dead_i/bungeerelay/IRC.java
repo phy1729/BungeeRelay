@@ -103,6 +103,8 @@ public class IRC {
                 if (ex[1].equals("END")) { // The remote has finished sending us it's capabilities now we ignore that and tell it we can do everything
                     out.println("CAPAB CAPABILITIES :PROTOCOL=1202");
                     out.println("CAPAB END");
+                    plugin.getLogger().info("Authenticating with server...");
+                    out.println("SERVER " + config.getString("server.servername") + " " + config.getString("server.sendpass") + " 0 " + SID + " :" + config.getString("server.realname"));
                 }
             }
 
@@ -114,8 +116,6 @@ public class IRC {
                     out.println("ERROR :Password received was incorrect");
                     sock.close();
                 }
-                plugin.getLogger().info("Authenticating with server...");
-                out.println("SERVER " + config.getString("server.servername") + " " + config.getString("server.sendpass") + " 0 " + SID + " :" + config.getString("server.realname"));
                 authenticated = true;
             }
 
