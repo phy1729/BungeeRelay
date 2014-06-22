@@ -43,12 +43,12 @@ public class Util {
         if (player.hasPermission("irc.halfop")) prefix += "h";
         if (player.hasPermission("irc.voice")) prefix += "v";
         prefix = verifyPrefix(prefix);
-        IRC.out.println(":" + IRC.SID + " FJOIN " + channel + " " + IRC.times.get(player) + " :" + prefix + "," + IRC.uids.get(player));
+        IRC.out.println(":" + IRC.SID + " FJOIN " + channel + " " + IRC.times.get(player) + " + :" + prefix + "," + IRC.uids.get(player));
     }
 
     public static void sendBotJoin(String channel) {
         String prefix = verifyPrefix(IRC.config.getString("bot.modes"));
-        IRC.out.println(":" + IRC.SID + " FJOIN " + channel + " " + getChanTS(channel) + " :," + IRC.botUID);
+        IRC.out.println(":" + IRC.SID + " FJOIN " + channel + " " + getChanTS(channel) + " + :," + IRC.botUID);
         String target="";
         for (int i=0; i<prefix.length(); i++) {
             target += IRC.botUID + " ";
