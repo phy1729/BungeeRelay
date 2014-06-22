@@ -71,7 +71,7 @@ public class IRC {
         out.println(":" + SID + " BURST " + startTime);
         out.println(":" + SID + " VERSION :BungeeRelay-0.1");
         out.println(":" + SID + " UID " + botUID + " " + startTime + " " + config.getString("bot.nick") + " BungeeRelay " + config.getString("bot.host") + " " + config.getString("bot.ident") + " BungeeRelay " + startTime + " +o :" + config.getString("bot.realname"));
-        out.println(":" + SID + " OPERTYPE " + config.getString("bot.opertype"));
+        out.println(":" + botUID + " OPERTYPE " + config.getString("bot.opertype"));
         out.println(":" + SID + " ENDBURST");
         String chan = config.getString("server.channel");
         String topic = config.getString("server.topic");
