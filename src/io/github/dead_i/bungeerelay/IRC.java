@@ -22,13 +22,13 @@ public class IRC {
     public static BufferedReader in;
     public static PrintWriter out;
     public static FileConfiguration config;
-    public static String SID
-    public static String botUID
-    public static String currentUid
+    public static String SID;
+    public static String botUID;
+    public static String currentUid;
     public static String prefixModes;
     public static String chanModes;
-    public static long startTime
-    public static boolean authenticated
+    public static long startTime;
+    public static boolean authenticated;
     public static HashMap<ProxiedPlayer, Long> times = new HashMap<ProxiedPlayer, Long>();
     public static HashMap<String, Long> nickTimes = new HashMap<String, Long>();
     public static HashMap<ProxiedPlayer, String> uids = new HashMap<ProxiedPlayer, String>();
