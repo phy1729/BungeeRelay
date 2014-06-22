@@ -146,7 +146,9 @@ public class IRC {
             }
 
             if (ex[1].equals("ERROR")) {
+                sock.close();
                 authenticated = false;
+                throw new IOException(); // This will make us reconnect
             }
 
             if (ex[1].equals("FJOIN")) {
