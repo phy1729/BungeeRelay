@@ -28,7 +28,7 @@ public class IRC {
     public static String prefixModes;
     public static String chanModes;
     public static long startTime = System.currentTimeMillis() / 1000;
-    public static boolean authenticated = false;
+    public static boolean authenticated;
     public static HashMap<ProxiedPlayer, Long> times = new HashMap<ProxiedPlayer, Long>();
     public static HashMap<ProxiedPlayer, String> uids = new HashMap<ProxiedPlayer, String>();
     public static HashMap<ProxiedPlayer, String> replies = new HashMap<ProxiedPlayer, String>();
@@ -46,6 +46,7 @@ public class IRC {
         SID = config.getString("server.id");
         botUID = SID + "AAAAAA";
         currentUid = SID + "AAAAAB";
+        authenticated = false;
 
         in = new BufferedReader(new InputStreamReader(sock.getInputStream()));
         out = new PrintWriter(sock.getOutputStream(), true);
@@ -74,8 +75,6 @@ public class IRC {
         if (!authenticated) {
             if (ex[0].equals("CAPAB")) {
                 if (ex[1].equals("START")) {
-                    plugin.getLogger().info("Authenticating with server...");
-                    out.println("SERVER " + config.getString("server.servername") + " " + config.getString("server.sendpass") + " 0 " + SID + " :" + config.getString("server.realname"));
                     out.println("CAPAB START 1202");
                 }
 
@@ -98,23 +97,26 @@ public class IRC {
                     }
                 }
 
-                if (ex[1].equals("END")) {
+                if (ex[1].equals("END")) { // The remote has finished sending us it's capabilities now we ignore that and tell it we can do everything
                     out.println("CAPAB CAPABILITIES :PROTOCOL=1202");
                     out.println("CAPAB END");
+                    plugin.getLogger().info("Authenticating with server...");
+                    out.println("SERVER " + config.getString("server.servername") + " " + config.getString("server.sendpass") + " 0 " + SID + " :" + config.getString("server.realname"));
                     out.println("BURST " + startTime);
                     out.println("VERSION :0.1");
                     out.println("UID " + botUID + " " + startTime + " " + config.getString("bot.nick") + " BungeeRelay " + config.getString("bot.host") + " " + config.getString("bot.ident") + " BungeeRelay " + startTime + " +o :" + config.getString("bot.realname"));
                     out.println(":" + botUID + " OPERTYPE " + config.getString("bot.opertype"));
-                    authenticated = true;
                 }
             }
 
-            if (ex[0].equals("SERVER") && !ex[2].equals(config.getString("server.recvpass"))) {
-                plugin.getLogger().warning("The server "+ex[1]+" presented the wrong password.");
-                plugin.getLogger().warning("Stopping connection due to security reasons.");
-                plugin.getLogger().warning("Remember that the recvpass and sendpass are opposite to the ones in your links.conf");
-                out.println("ERROR :Password received was incorrect");
-                sock.close();
+            if (ex[0].equals("SERVER")) {
+                if (!ex[2].equals(config.getString("server.recvpass"))) {
+                    plugin.getLogger().warning("The server "+ex[1]+" presented the wrong password.");
+                    plugin.getLogger().warning("Remember that the recvpass and sendpass are opposite to the ones in your links.conf");
+                    out.println("ERROR :Password received was incorrect");
+                    sock.close();
+                }
+                authenticated = true;
             }
 
         } else { // We have already authenticated
