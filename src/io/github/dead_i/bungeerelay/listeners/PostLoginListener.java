@@ -17,15 +17,15 @@ public class PostLoginListener implements Listener {
     @EventHandler
     public void onPostLogin(PostLoginEvent event) {
         if (!IRC.sock.isConnected()) return;
-        ProxiedPlayer p = event.getPlayer();
+        ProxiedPlayer player = event.getPlayer();
         String name = IRC.config.getString("server.userprefix") + player.getName() + IRC.config.getString("server.usersuffix");
         IRC.times.put(player, System.currentTimeMillis() / 1000);
         IRC.nickTimes.put(player, IRC.times.get(player));
         IRC.users.put(IRC.currentUid, name);
         IRC.uids.put(player, IRC.currentUid);
         Util.incrementUid();
-        Util.sendUserConnect(p);
+        Util.sendUserConnect(player);
         String chan = IRC.config.getString("server.channel");
-        if (!chan.isEmpty()) Util.sendChannelJoin(p, chan);
+        if (!chan.isEmpty()) Util.sendChannelJoin(player, chan);
     }
 }
