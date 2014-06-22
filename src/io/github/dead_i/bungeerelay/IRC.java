@@ -77,6 +77,10 @@ public class IRC {
 
         if (!authenticated) {
             if (ex[0].equals("CAPAB")) {
+                if (ex[1].equals("START")) {
+                    out.println("CAPAB START 1202");
+                }
+
                 if (ex[1].equals("CAPABILITIES")) {
                     // Dynamically find which modes require arguments
                     for (String s:ex) {
@@ -97,7 +101,6 @@ public class IRC {
                 }
 
                 if (ex[1].equals("END")) { // The remote has finished sending us it's capabilities now we ignore that and tell it we can do everything
-                    out.println("CAPAB START 1202");
                     out.println("CAPAB END");
                 }
             }
