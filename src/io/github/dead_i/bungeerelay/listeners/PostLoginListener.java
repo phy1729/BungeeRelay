@@ -20,7 +20,7 @@ public class PostLoginListener implements Listener {
         ProxiedPlayer player = event.getPlayer();
         String name = IRC.config.getString("server.userprefix") + player.getName() + IRC.config.getString("server.usersuffix");
         IRC.times.put(player, System.currentTimeMillis() / 1000);
-        IRC.nickTimes.put(player, IRC.times.get(player));
+        IRC.nickTimes.put(IRC.currentUid, IRC.times.get(player));
         IRC.users.put(IRC.currentUid, name);
         IRC.uids.put(player, IRC.currentUid);
         Util.incrementUid();
