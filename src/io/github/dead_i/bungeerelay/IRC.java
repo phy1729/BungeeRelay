@@ -1,7 +1,6 @@
 package io.github.dead_i.bungeerelay;
 
 import net.craftminecraft.bungee.bungeeyaml.bukkitapi.file.FileConfiguration;
-import net.craftminecraft.bungee.bungeeyaml.pluginapi.ConfigurablePlugin;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.config.ServerInfo;
@@ -22,14 +21,14 @@ public class IRC {
     public static Socket sock;
     public static BufferedReader in;
     public static PrintWriter out;
-    public static FileConfiguration config = getConfig();
-    public static final String SID = config.getString("server.id");
-    public static final String botUID = SID + "AAAAAA";
-    public static String currentUid = SID + "AAAAAB";
+    public static FileConfiguration config;
+    public static String SID
+    public static String botUID
+    public static String currentUid
     public static String prefixModes;
     public static String chanModes;
-    public static long startTime = System.currentTimeMillis() / 1000;
-    public static boolean authenticated = false;
+    public static long startTime
+    public static boolean authenticated
     public static HashMap<ProxiedPlayer, Long> times = new HashMap<ProxiedPlayer, Long>();
     public static HashMap<String, Long> nickTimes = new HashMap<String, Long>();
     public static HashMap<ProxiedPlayer, String> uids = new HashMap<ProxiedPlayer, String>();
@@ -40,7 +39,13 @@ public class IRC {
 
     private static String argModes = "";
 
-    public IRC(Socket sock, Plugin plugin) throws IOException {
+    public IRC(Socket sock, FileConfiguration config, Plugin plugin) throws IOException {
+        SID = config.getString("server.id");
+        botUID = SID + "AAAAAA";
+        currentUid = SID + "AAAAAB";
+        startTime = System.currentTimeMillis() / 1000;
+	authenticated = false;
+
         in = new BufferedReader(new InputStreamReader(sock.getInputStream()));
         out = new PrintWriter(sock.getOutputStream(), true);
         while (sock.isConnected()) handleData(in.readLine());
