@@ -155,8 +155,7 @@ public class IRC {
             }
 
         } else { // We have already authenticated
-            if (ex[1].equals("ENDBURST")) { // Remote has finished bursting; now we BURST
-                doBurst();
+            if (ex[1].equals("ENDBURST")) { // We BURST first so do nothing
             }
 
             if (ex[1].equals("ERROR")) {
