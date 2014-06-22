@@ -127,6 +127,10 @@ formats:
   # How private messages appear if it was sent with /me in Minecraft.
   privateme: "&7[PM] &d* [IRC] {SENDER} {MESSAGE}"
 
+  # The output of the global /say command in Minecraft
+  # Parameters: message
+  saycommand: "&d[SERVER] {MESSAGE}"
+
   # How mode changes will appear in Minecraft
   # Parameters: sender, mode
   mode: "&7{SENDER} set mode {MODE}"
@@ -146,10 +150,6 @@ formats:
   # How kicks will appear in Minecraft
   # Parameters: sender, target, reason
   kick: "&7{SENDER} kicked {TARGET} from the channel ({REASON})"
-
-  # The output of the global /say command in Minecraft
-  # Parameters: message
-  saycommand: "&d[SERVER] {MESSAGE}"
 
   # The message players will be disconnected with if they are kicked through IRC.
   # Parameters: sender, target, reason
