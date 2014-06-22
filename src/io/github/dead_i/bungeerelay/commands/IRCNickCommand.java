@@ -26,8 +26,7 @@ public class IRCNickCommand extends Command {
             return;
         }
 
-        String uid = Util.getUidByNick(args[0]);
-        if (uid != null) {
+        if (Util.getUidByNick(args[0]) != null) {
             sender.sendMessage(new TextComponent(ChatColor.RED + "The nick " + args[0] + " is already in use."));
             return;
         }

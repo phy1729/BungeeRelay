@@ -108,14 +108,30 @@ public class IRC {
         if (config.getBoolean("server.debug")) plugin.getLogger().info("Received: "+data);
 
         String[] ex = data.trim().split(" ");
+        String command, subcommand, sender;
+        if (ex[0].charAt(0) == ":") { // We have a sender
+            sender = ex[0].substring(1);
+            command = ex[1];
+            subcommand = ex[2];
+        } else {
+            sender = "";
+            command = ex[0];
+            subcommand = ex[1];
+        }
+
+        if (command.equals("ERROR")) {
+            sock.close();
+            authenticated = false;
+            throw new IOException(); // This will make us reconnect
+        }
 
         if (!authenticated) {
-            if (ex[0].equals("CAPAB")) {
-                if (ex[1].equals("START")) {
+            if (command.equals("CAPAB")) {
+                if (subcommand.equals("START")) {
                     out.println("CAPAB START 1202");
                 }
 
-                if (ex[1].equals("CAPABILITIES")) {
+                if (subcommand.equals("CAPABILITIES")) {
                     // Dynamically find which modes require arguments
                     for (String s:ex) {
                         if (s.contains("CHANMODES=")) {
@@ -134,7 +150,7 @@ public class IRC {
                     }
                 }
 
-                if (ex[1].equals("END")) { // The remote has finished sending us it's capabilities now we ignore that and tell it we can do everything
+                if (subcommand.equals("END")) { // The remote has finished sending us it's capabilities now we ignore that and tell it we can do everything
                     out.println("CAPAB CAPABILITIES :PROTOCOL=1202");
                     out.println("CAPAB END");
                     plugin.getLogger().info("Authenticating with server...");
@@ -142,10 +158,9 @@ public class IRC {
                 }
             }
 
-            if (ex[0].equals("SERVER")) {
+            if (command.equals("SERVER")) {
                 if (!ex[2].equals(config.getString("server.recvpass"))) {
                     plugin.getLogger().warning("The server "+ex[1]+" presented the wrong password.");
-                    plugin.getLogger().warning("Stopping connection due to security reasons.");
                     plugin.getLogger().warning("Remember that the recvpass and sendpass are opposite to the ones in your links.conf");
                     out.println("ERROR :Password received was incorrect");
                     sock.close();
@@ -155,16 +170,10 @@ public class IRC {
             }
 
         } else { // We have already authenticated
-            if (ex[1].equals("ENDBURST")) { // We BURST first so do nothing
+            if (command.equals("ENDBURST")) { // We BURST'd first so do nothing
             }
 
-            if (ex[1].equals("ERROR")) {
-                sock.close();
-                authenticated = false;
-                throw new IOException(); // This will make us reconnect
-            }
-
-            if (ex[1].equals("FJOIN")) {
+            if (command.equals("FJOIN")) {
                 if (!chans.containsKey(ex[2])) {
                     Long ts = Long.parseLong(ex[3]);
                     if (!ts.equals(Util.getChanTS(ex[2]))) chans.get(ex[2]).ts = ts;
@@ -181,7 +190,7 @@ public class IRC {
                 }
             }
 
-            if (ex[1].equals("FMODE")) {
+            if (command.equals("FMODE")) {
                 String s = "";
                 String d = "+";
                 int v = 5;
@@ -201,15 +210,15 @@ public class IRC {
                 }
                 for (ProxiedPlayer p : Util.getPlayersByChannel(ex[2])) {
                     p.sendMessage(new TextComponent(ChatColor.translateAlternateColorCodes('&', config.getString("formats.mode")
-                            .replace("{SENDER}", users.get(ex[0].substring(1)))
+                            .replace("{SENDER}", users.get(sender))
                             .replace("{MODE}", ex[4] + " " + s))));
                 }
             }
 
-            if (ex[1].equals("KICK")) {
+            if (command.equals("KICK")) {
                 String reason = Util.sliceStringArray(ex, 4).substring(1);
                 String target = users.get(ex[3]);
-                String sender = users.get(ex[0].substring(1));
+                String senderNick = users.get(sender);
                 for (ProxiedPlayer p : Util.getPlayersByChannel(ex[2])) {
                     p.sendMessage(new TextComponent(ChatColor.translateAlternateColorCodes('&', config.getString("formats.kick")
                             .replace("{SENDER}", sender)
@@ -231,7 +240,7 @@ public class IRC {
                 users.remove(ex[3]);
             }
 
-            if (ex[1].equals("PART")) {
+            if (command.equals("PART")) {
                 String reason;
                 if (ex.length > 3) {
                     reason = Util.sliceStringArray(ex, 3).substring(1);
@@ -240,23 +249,23 @@ public class IRC {
                 }
                 for (ProxiedPlayer p : Util.getPlayersByChannel(ex[2])) {
                     p.sendMessage(new TextComponent(ChatColor.translateAlternateColorCodes('&', config.getString("formats.part")
-                            .replace("{SENDER}", users.get(ex[0].substring(1)))
+                            .replace("{SENDER}", users.get(sender))
                             .replace("{REASON}", reason))));
                 }
             }
 
-            if (ex[1].equals("PING")) {
+            if (command.equals("PING")) {
                 out.println(":" + SID + " PONG " + SID + " "+ex[2]);
             }
 
-            if (ex[1].equals("PRIVMSG")) {
-                String from = users.get(ex[0].substring(1));
+            if (command.equals("PRIVMSG")) {
+                String from = users.get(sender);
                 String player = users.get(ex[2]);
                 int prefixlen = config.getString("server.userprefix").length();
                 int suffixlen = config.getString("server.usersuffix").length();
                 Collection<ProxiedPlayer> players = new ArrayList<ProxiedPlayer>();
                 boolean isPM;
-                if (player != null && prefixlen < player.length() && suffixlen < player.length()) {
+                if (player != null && prefixlen + suffixlen < player.length()) {
                     ProxiedPlayer to = plugin.getProxy().getPlayer(player.substring(prefixlen, player.length() - suffixlen));
                     isPM = (users.containsKey(ex[2]) && to != null);
                     if (isPM) {
@@ -275,7 +284,6 @@ public class IRC {
                         len = 3;
                     }
                     String s = Util.sliceStringArray(ex, len);
-                    String ch = Character.toString((char) 1);
                     String out;
                     if (len == 4) {
                         if (isPM) {
@@ -283,7 +291,7 @@ public class IRC {
                         } else {
                             out = config.getString("formats.me");
                         }
-                        s = s.replaceAll(ch, "");
+                        s = s.replaceAll(Character.toString((char) 1), "");
                     } else {
                         if (isPM) {
                             out = config.getString("formats.privatemsg");
@@ -298,7 +306,7 @@ public class IRC {
                 }
             }
 
-            if (ex[1].equals("QUIT")) {
+            if (command.equals("QUIT")) {
                 String reason;
                 if (ex.length > 3) {
                     reason = Util.sliceStringArray(ex, 2).substring(1);
@@ -312,18 +320,18 @@ public class IRC {
                     }else if (!ch.getKey().equals(chan)) {
                         continue;
                     }
-                    if (!ch.getValue().users.contains(ex[0].substring(1))) continue;
+                    if (!ch.getValue().users.contains(sender)) continue;
                     for (ProxiedPlayer p : Util.getPlayersByChannel(chan)) {
                         p.sendMessage(new TextComponent(ChatColor.translateAlternateColorCodes('&', config.getString("formats.quit")
-                                .replace("{SENDER}", users.get(ex[0].substring(1)))
+                                .replace("{SENDER}", users.get(sender))
                                 .replace("{REASON}", reason))));
                     }
                 }
-                users.remove(ex[0].substring(1));
+                users.remove(sender);
             }
 
 
-            if (ex[1].equals("UID")) {
+            if (command.equals("UID")) {
                 users.put(ex[2], ex[4]);
             }
         }

@@ -1,5 +1,5 @@
 name: BungeeRelay
-version: 0.6.1
-author: maldridge, geppettodivacin, siosilvar
+version: 0.7
+author: phy1729, maldridge, geppettodivacin, siosilvar
 main: io.github.dead_i.bungeerelay.Main
 depends: [BungeeYAML]
