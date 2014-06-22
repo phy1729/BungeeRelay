@@ -26,7 +26,9 @@ public class Util {
     }
 
     public static void incrementUid() {
-        incrementUid(8);
+        do {
+            incrementUid(8);
+        } while (IRC.uids.containsValue(IRC.currentUid));
     }
 
     public static void sendUserConnect(ProxiedPlayer p) {
