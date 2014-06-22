@@ -49,7 +49,8 @@ public class Util {
     public static void sendBotJoin(String channel) {
         String prefix = verifyPrefix(IRC.config.getString("bot.modes"));
         IRC.out.println(":" + IRC.SID + " FJOIN " + channel + " " + getChanTS(channel) + " :," + IRC.botUID);
-        for (int i=0, String target=""; i<m.length(); i++) {
+        String target="";
+        for (int i=0; i<m.length(); i++) {
             target += IRC.botUID + " ";
         }
         IRC.out.println(":" + IRC.SID + " FMODE " + channel + " " + getChanTS(channel) + " " prefix + " " + target.trim());
