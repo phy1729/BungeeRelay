@@ -151,6 +151,10 @@ formats:
   # Parameters: message
   saycommand: "&d[SERVER] {MESSAGE}"
 
+  # The ident of a user connecting to IRC.
+  # Parameters: {IDENT}
+  ident: "{IDENT}"
+
   # The message players will be disconnected with if they are kicked through IRC.
   # Parameters: sender, target, reason
   disconnectkick: "&7You were kicked by {SENDER} through IRC.&r\n\n{REASON}"
