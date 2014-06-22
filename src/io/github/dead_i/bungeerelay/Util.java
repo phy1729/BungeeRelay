@@ -76,17 +76,17 @@ public class Util {
                 return false;
             }
         }
-        IRC.out.println(":" + IRC.mainUid + " FMODE " + channel + " " + getChanTS(channel) + " " + m);
+        IRC.out.println(":" + IRC.SID + " FMODE " + channel + " " + getChanTS(channel) + " " + m);
         return true;
     }
 
     public static void sendMainJoin(String c, String m, String t) {
         long chanTS = getChanTS(c);
-        IRC.out.println("FJOIN " + c + " " + chanTS + " +nt :," + IRC.mainUid);
+        IRC.out.println("FJOIN " + c + " " + chanTS + " +nt :," + IRC.botUID);
 
-        giveChannelModes(c, m, IRC.mainUid);
+        giveChannelModes(c, m, IRC.botUID);
 
-        if (!t.isEmpty()) IRC.out.println(":" + IRC.mainUid + " TOPIC " + c + " :" + t);
+        if (!t.isEmpty()) IRC.out.println(":" + IRC.SID + " TOPIC " + c + " :" + t);
     }
 
     public static List<String> getChannels() {

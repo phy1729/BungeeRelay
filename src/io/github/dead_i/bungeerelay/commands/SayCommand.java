@@ -28,6 +28,6 @@ public class SayCommand extends Command {
             sender.sendMessage(new TextComponent(ChatColor.RED + "The proxy is not connected to IRC."));
             return;
         }
-        for (String c : Util.getChannels()) IRC.out.println(":" + IRC.mainUid + " PRIVMSG " + c + " :" + msg.toString());
+        for (String c : Util.getChannels()) IRC.out.println(":" + IRC.SID + " PRIVMSG " + c + " :" + msg.toString());
     }
 }

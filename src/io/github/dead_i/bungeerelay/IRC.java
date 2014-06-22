@@ -22,7 +22,8 @@ public class IRC {
     public static BufferedReader in;
     public static PrintWriter out;
     public static FileConfiguration config;
-    public static String mainUid;
+    public static String SID;
+    public static String botUID;
     public static String currentUid;
     public static String prefixModes;
     public static String chanModes;
@@ -41,8 +42,11 @@ public class IRC {
         sock = s;
         config = c;
         plugin = p;
-        mainUid = config.getString("server.id") + "AAAAAA";;
-        currentUid = mainUid;
+
+        SID = config.getString("server.id");
+        botUID = SID + "AAAAAA";
+        currentUid = SID + "AAAAAB";
+
         in = new BufferedReader(new InputStreamReader(sock.getInputStream()));
         out = new PrintWriter(sock.getOutputStream(), true);
         while (sock.isConnected()) handleData(in.readLine());
@@ -71,7 +75,7 @@ public class IRC {
             if (ex[0].equals("CAPAB")) {
                 if (ex[1].equals("START")) {
                     plugin.getLogger().info("Authenticating with server...");
-                    out.println("SERVER " + config.getString("server.servername") + " " + config.getString("server.sendpass") + " 0 " + config.getString("server.id") + " :" + config.getString("server.realname"));
+                    out.println("SERVER " + config.getString("server.servername") + " " + config.getString("server.sendpass") + " 0 " + SID + " :" + config.getString("server.realname"));
                     out.println("CAPAB START 1202");
                 }
 
@@ -99,8 +103,8 @@ public class IRC {
                     out.println("CAPAB END");
                     out.println("BURST " + startTime);
                     out.println("VERSION :0.1");
-                    out.println("UID " + mainUid + " " + startTime + " " + config.getString("bot.nick") + " BungeeRelay " + config.getString("bot.host") + " " + config.getString("bot.ident") + " BungeeRelay " + startTime + " +o :" + config.getString("bot.realname"));
-                    out.println(":" + mainUid + " OPERTYPE " + config.getString("bot.opertype"));
+                    out.println("UID " + botUID + " " + startTime + " " + config.getString("bot.nick") + " BungeeRelay " + config.getString("bot.host") + " " + config.getString("bot.ident") + " BungeeRelay " + startTime + " +o :" + config.getString("bot.realname"));
+                    out.println(":" + botUID + " OPERTYPE " + config.getString("bot.opertype"));
                     authenticated = true;
                 }
             }
@@ -115,7 +119,6 @@ public class IRC {
 
         } else { // We have already authenticated
             if (ex[1].equals("ENDBURST")) {
-                Util.incrementUid();
                 String chan = config.getString("server.channel");
                 String topic = config.getString("server.topic");
                 String botmodes = config.getString("bot.modes");
@@ -233,7 +236,7 @@ public class IRC {
             }
 
             if (ex[1].equals("PING")) {
-                out.println("PONG " + config.getString("server.id") + " "+ex[2]);
+                out.println("PONG " + SID + " "+ex[2]);
             }
 
             if (ex[1].equals("PRIVMSG")) {
