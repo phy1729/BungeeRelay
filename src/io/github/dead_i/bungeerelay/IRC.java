@@ -66,7 +66,8 @@ public class IRC {
         if (data == null) throw new IOException();
         if (data.isEmpty()) return;
 
-        if (config.getBoolean("server.debug")) plugin.getLogger().info("Received: "+data);
+        if (config.getBoolean("server.debug"))
+		plugin.getLogger().info("Received: "+data);
 
         String[] ex = data.trim().split(" ");
 
