@@ -53,7 +53,7 @@ public class Util {
         for (int i=0; i<prefix.length(); i++) {
             target += IRC.botUID + " ";
         }
-        IRC.out.println(":" + IRC.SID + " FMODE " + channel + " " + getChanTS(channel) + " " + prefix + " " + target.trim());
+        IRC.out.println(":" + IRC.botUID + " FMODE " + channel + " " + getChanTS(channel) + " " + prefix + " " + target.trim());
     }
 
     private static String verifyPrefix(String prefix) {
@@ -88,7 +88,7 @@ public class Util {
     }
 
     public static void setChannelTopic(String channel, String topic) {
-        IRC.out.println(":" + IRC.SID + " TOPIC " + channel + " :" + topic);
+        if (!topic.isEmpty()) IRC.out.println(":" + IRC.SID + " TOPIC " + channel + " :" + topic);
     }
 
     public static List<String> getChannels() {
