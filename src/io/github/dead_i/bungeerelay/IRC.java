@@ -21,7 +21,7 @@ public class IRC {
     public static Socket sock;
     public static BufferedReader in;
     public static PrintWriter out;
-    public static FileConfiguration config;
+    public static FileConfiguration config = getConfig();
     public static final String SID = config.getString("server.id");
     public static final String botUID = SID + "AAAAAA";
     public static String currentUid = SID + "AAAAAB";
@@ -39,7 +39,7 @@ public class IRC {
 
     private static String argModes = "";
 
-    public IRC(Socket sock, FileConfiguration config, Plugin plugin) throws IOException {
+    public IRC(Socket sock, Plugin plugin) throws IOException {
         in = new BufferedReader(new InputStreamReader(sock.getInputStream()));
         out = new PrintWriter(sock.getOutputStream(), true);
         while (sock.isConnected()) handleData(in.readLine());
