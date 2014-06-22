@@ -39,12 +39,17 @@ public class IRC {
 
     private static String argModes = "";
 
-    public IRC(Socket sock, FileConfiguration config, Plugin plugin) throws IOException {
+    public IRC(Socket s, FileConfiguration c, Plugin p) throws IOException {
+        // Yes this is required
+        sock = s;
+        config = c;
+        plugin = p;
+
         SID = config.getString("server.id");
         botUID = SID + "AAAAAA";
         currentUid = SID + "AAAAAB";
         startTime = System.currentTimeMillis() / 1000;
-	authenticated = false;
+        authenticated = false;
 
         in = new BufferedReader(new InputStreamReader(sock.getInputStream()));
         out = new PrintWriter(sock.getOutputStream(), true);
@@ -66,8 +71,7 @@ public class IRC {
         if (data == null) throw new IOException();
         if (data.isEmpty()) return;
 
-        if (config.getBoolean("server.debug"))
-		plugin.getLogger().info("Received: "+data);
+        if (config.getBoolean("server.debug")) plugin.getLogger().info("Received: "+data);
 
         String[] ex = data.trim().split(" ");
 
