@@ -24,7 +24,7 @@ public class IRC {
     public static FileConfiguration config;
     public static String mainUid;
     public static String currentUid;
-    public static String prefixes;
+    public static String prefixModes;
     public static String chanModes;
     public static long startTime = System.currentTimeMillis() / 1000;
     public static boolean authenticated = false;
@@ -76,20 +76,20 @@ public class IRC {
                 }
 
                 if (ex[1].equals("CAPABILITIES")) {
-                    if (data.contains("CHANMODES=")) chanModes = data.split("CHANMODES=")[1].split(" ")[0];
-                    if (data.contains("PREFIX=")) prefixes = data.split("PREFIX=")[1].split(" ")[0];
                     // Dynamically find which modes require arguments
                     for (String s:ex) {
-                        if (s.contains("CHANMODES="))
-                        {
-                            String chanmodes = s.split("=")[1];
-                            String[] chanmodeSets = chanmodes.split(",");
-
+                        if (s.contains("CHANMODES=")) {
+                            chanModes = s.split("=")[1];
+                            String[] chanmodeSets = chanModes.split(",");
                             argModes = "";
                             // The first three sets take arguments
                             for (int i = 0; i < 3; ++i) {
                                 argModes += chanmodeSets[i];
                             }
+                        }
+                        if (s.contains("PREFIX=")) {
+                            // Grab the modes inside the parens after the "="
+                            prefixModes = s.split("=")[1].split("\\(")[1].split("\\)")[0];
                         }
                     }
                 }

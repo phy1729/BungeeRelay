@@ -65,19 +65,18 @@ public class Util {
         }
     }
 
-    public static boolean giveChannelModes(String c, String m) {
-        String prefixModes = IRC.prefixes.split("\\(")[1].split("\\)")[0];
+    public static boolean giveChannelModes(String channel, String m) {
         String modes = m.split(" ")[0];
         for (int i=0; i<modes.length(); i++) {
             String mode = Character.toString(modes.charAt(i));
-            if (!prefixModes.contains(mode) && !IRC.chanModes.contains(mode) && !mode.equals("+") && !mode.equals("-")) {
+            if (!IRC.prefixModes.contains(mode) && !IRC.chanModes.contains(mode) && !mode.equals("+") && !mode.equals("-")) {
                 proxy.getLogger().warning("Tried to set the +" + mode + " mode, but the IRC server stated earlier that it wasn't compatible with this mode.");
                 proxy.getLogger().warning("If you want to use " + mode + ", enable appropriate module in your IRC server's configuration files.");
                 proxy.getLogger().warning("Skipping...");
                 return false;
             }
         }
-        IRC.out.println(":" + IRC.mainUid + " FMODE " + c + " " + getChanTS(c) + " " + m);
+        IRC.out.println(":" + IRC.mainUid + " FMODE " + channel + " " + getChanTS(channel) + " " + m);
         return true;
     }
 
