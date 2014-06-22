@@ -32,7 +32,7 @@ public class Util {
     }
 
     public static void sendUserConnect(ProxiedPlayer player) {
-        IRC.out.println("UID " + IRC.uids.get(player) + " " + IRC.nickTimes.get(player) + " " + name + " " + player.getAddress().getHostName() + " " + player.getAddress().getHostName() + " " + player.getName() + " " + player.getAddress().getHostString() + " " + IRC.times.get(player) + " +r :Minecraft Player");
+        IRC.out.println("UID " + IRC.uids.get(player) + " " + IRC.nickTimes.get(player) + " " + IRC.users.get(IRC.uids.get(player)) + " " + player.getAddress().getHostName() + " " + player.getAddress().getHostName() + " " + player.getName() + " " + player.getAddress().getHostString() + " " + IRC.times.get(player) + " +r :Minecraft Player");
     }
 
     public static void sendChannelJoin(ProxiedPlayer player, String channel) {
@@ -55,18 +55,15 @@ public class Util {
         // Gracefully degrade to the next highest mode if the server doesn't support one
         // +o and +v are built-in so no need to check for those
         String finalPrefix = "";
-        switch (true) {
-            case prefix.contains("q"):
-                if (IRC.prefixModes.contains("q")) { finalPrefix += "q"; break; }
-            case prefix.contains("a"):
-                if (IRC.prefixModes.contains("a")) { finalPrefix += "a"; break; }
-            case prefix.contains("o"):
-                finalPrefix += "o"; break;
-            case prefix.contains("h"):
-                if (IRC.prefixModes.contains("h")) { finalPrefix += "h"; break; }
-            case prefix.contains("v"):
-                finalPrefix += "v"; break;
-        }
+        if (prefix.contains("q") && IRC.prefixModes.contains("q")) finalPrefix += "q";
+        if ((prefix.contains("q") && !IRC.prefixModes.contains("q") || prefix.contains("a"))
+            && IRC.prefixModes.contains("a")) finalPrefix += "a";
+        if ((prefix.contains("q") && !IRC.prefixModes.contains("q") || prefix.contains("a"))
+            && !IRC.prefixModes.contains("a")
+            || prefix.contains("o")) finalPrefix += "o";
+        if (prefix.contains("h") && IRC.prefixModes.contains("h")) finalPrefix += "h";
+        if (prefix.contains("h") && !IRC.prefixModes.contains("h") ||
+            prefix.contains("v")) finalPrefix += "v";
         return finalPrefix;
     }
 
@@ -86,7 +83,7 @@ public class Util {
     }
 
     public static void setChannelTopic(String channel, String topic) {
-        IRC.out.println(":" + SID + " TOPIC " + channel + " :" + topic);
+        IRC.out.println(":" + IRC.SID + " TOPIC " + channel + " :" + topic);
     }
 
     public static List<String> getChannels() {
