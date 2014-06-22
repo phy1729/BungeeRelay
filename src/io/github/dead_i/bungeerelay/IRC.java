@@ -68,11 +68,11 @@ public class IRC {
     }
 
     private void doBurst() {
-        out.println("BURST " + startTime);
-        out.println("VERSION :BungeeRelay-0.1");
-        out.println("UID " + botUID + " " + startTime + " " + config.getString("bot.nick") + " BungeeRelay " + config.getString("bot.host") + " " + config.getString("bot.ident") + " BungeeRelay " + startTime + " +o :" + config.getString("bot.realname"));
-        out.println(":" + botUID + " OPERTYPE " + config.getString("bot.opertype"));
-        out.println("ENDBURST");
+        out.println(":" + SID + " BURST " + startTime);
+        out.println(":" + SID + " VERSION :BungeeRelay-0.1");
+        out.println(":" + SID + " UID " + botUID + " " + startTime + " " + config.getString("bot.nick") + " BungeeRelay " + config.getString("bot.host") + " " + config.getString("bot.ident") + " BungeeRelay " + startTime + " +o :" + config.getString("bot.realname"));
+        out.println(":" + SID + " OPERTYPE " + config.getString("bot.opertype"));
+        out.println(":" + SID + " ENDBURST");
         String chan = config.getString("server.channel");
         String topic = config.getString("server.topic");
         if (chan.isEmpty()) {
@@ -247,7 +247,7 @@ public class IRC {
             }
 
             if (ex[1].equals("PING")) {
-                out.println("PONG " + SID + " "+ex[2]);
+                out.println(":" + SID + " PONG " + SID + " "+ex[2]);
             }
 
             if (ex[1].equals("PRIVMSG")) {

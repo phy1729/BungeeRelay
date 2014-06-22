@@ -32,7 +32,7 @@ public class Util {
     }
 
     public static void sendUserConnect(ProxiedPlayer player) {
-        IRC.out.println("UID " + IRC.uids.get(player) + " " + IRC.nickTimes.get(IRC.uids.get(player)) + " " + IRC.users.get(IRC.uids.get(player)) + " " + player.getAddress().getHostName() + " " + player.getAddress().getHostName() + " " + player.getName() + " " + player.getAddress().getHostString() + " " + IRC.times.get(player) + " +r :Minecraft Player");
+        IRC.out.println(":" + IRC.SID + " UID " + IRC.uids.get(player) + " " + IRC.nickTimes.get(IRC.uids.get(player)) + " " + IRC.users.get(IRC.uids.get(player)) + " " + player.getAddress().getHostName() + " " + player.getAddress().getHostName() + " " + player.getName() + " " + player.getAddress().getHostString() + " " + IRC.times.get(player) + " +r :Minecraft Player");
     }
 
     public static void sendChannelJoin(ProxiedPlayer player, String channel) {
@@ -43,12 +43,12 @@ public class Util {
         if (player.hasPermission("irc.halfop")) prefix += "h";
         if (player.hasPermission("irc.voice")) prefix += "v";
         prefix = verifyPrefix(prefix);
-        IRC.out.println("FJOIN " + channel + " " + IRC.times.get(player) + " :" + prefix + "," + IRC.uids.get(player));
+        IRC.out.println(":" + IRC.SID + " FJOIN " + channel + " " + IRC.times.get(player) + " :" + prefix + "," + IRC.uids.get(player));
     }
 
     public static void sendBotJoin(String channel) {
         String prefix = verifyPrefix(IRC.config.getString("bot.modes"));
-        IRC.out.println("FJOIN " + channel + " " + getChanTS(channel) + " :" + prefix + "," + IRC.botUID);
+        IRC.out.println(":" + IRC.SID + " FJOIN " + channel + " " + getChanTS(channel) + " :" + prefix + "," + IRC.botUID);
     }
 
     private static String verifyPrefix(String prefix) {
