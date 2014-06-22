@@ -18,10 +18,13 @@ public class PostLoginListener implements Listener {
     public void onPostLogin(PostLoginEvent event) {
         if (!IRC.sock.isConnected()) return;
         ProxiedPlayer player = event.getPlayer();
-        String name = IRC.config.getString("server.userprefix") + player.getName() + IRC.config.getString("server.usersuffix");
         IRC.times.put(player, System.currentTimeMillis() / 1000);
         IRC.nickTimes.put(IRC.currentUid, IRC.times.get(player));
-        IRC.users.put(IRC.currentUid, name);
+        if (Util.getUidByNick(args[0]) = null) { // No collison, use their nick
+            IRC.users.put(IRC.currentUid, player.getName());
+        } else {
+            IRC.users.put(IRC.currentUid, IRC.config.getString("server.userprefix") + player.getName() + IRC.config.getString("server.usersuffix"));
+        }
         IRC.uids.put(player, IRC.currentUid);
         Util.incrementUid();
         Util.sendUserConnect(player);
