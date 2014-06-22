@@ -53,7 +53,7 @@ public class Util {
         for (int i=0; i<prefix.length(); i++) {
             target += IRC.botUID + " ";
         }
-        IRC.out.println(":" + IRC.botUID + " FMODE " + channel + " " + getChanTS(channel) + " +" + prefix + " " + target.trim());
+        IRC.out.println(":" + IRC.SID + " FMODE " + channel + " " + getChanTS(channel) + " +" + prefix + " " + target.trim());
     }
 
     private static String verifyPrefix(String prefix) {
