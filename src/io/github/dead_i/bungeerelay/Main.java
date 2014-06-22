@@ -35,7 +35,7 @@ public class Main extends ConfigurablePlugin {
         getProxy().getPluginManager().registerCommand(this, new PMCommand(this));
         getProxy().getPluginManager().registerCommand(this, new PMReplyCommand(this));
         getProxy().getPluginManager().registerCommand(this, new KickCommand(this));
-	getProxy().getPluginManager().registerCommand(this, new IRCNickCommand(this));
+        getProxy().getPluginManager().registerCommand(this, new IRCNickCommand(this));
 
         // Register aliases
         getProxy().getPluginManager().registerCommand(this, new PMRCommand(this));
@@ -62,7 +62,7 @@ public class Main extends ConfigurablePlugin {
     public void handleDisconnect() {
         getLogger().info("Disconnected from server.");
         int reconnect = getConfig().getInt("server.reconnect");
-        if (reconnect > -1) {
+        if (reconnect >= 0) {
             getLogger().info("Reconnecting in " + reconnect / 1000 + " seconds...");
             getProxy().getScheduler().schedule(this, new Runnable() {
                 @Override

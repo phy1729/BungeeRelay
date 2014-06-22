@@ -129,7 +129,7 @@ formats:
 
   # How mode changes will appear in Minecraft
   # Parameters: sender, mode
-  mode: "&7{SENDER} sets mode {MODE}"
+  mode: "&7{SENDER} set mode {MODE}"
 
   # How joins will appear in Minecraft
   # Parameters: sender
@@ -162,5 +162,3 @@ formats:
   # Default kick message if the user does not define one when using /kick in-game.
   Parameters: sender
   defaultkick: "Kicked by a moderator from within Minecraft"
-
-# End of configuration.

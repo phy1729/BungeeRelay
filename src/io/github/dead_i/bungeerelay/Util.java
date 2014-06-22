@@ -14,12 +14,12 @@ public class Util {
         if (IRC.currentUid.charAt(pos) == 'Z') {
             sb.setCharAt(pos, '0');
             IRC.currentUid = sb.toString();
-        }else if (IRC.currentUid.charAt(pos) == '9') {
+        } else if (IRC.currentUid.charAt(pos) == '9') {
             sb.setCharAt(pos, 'A');
             IRC.currentUid = sb.toString();
             if (pos == 3) return;
             incrementUid(pos - 1);
-        }else{
+        } else {
             sb.setCharAt(pos, (char) (IRC.currentUid.charAt(pos) + 1));
             IRC.currentUid = sb.toString();
         }
@@ -95,7 +95,7 @@ public class Util {
             for (ServerInfo si : proxy.getServers().values()) {
                 out.add(IRC.config.getString("server.chanprefix") + si.getName());
             }
-        }else{
+        } else {
             out.add(channel);
         }
         return out;
@@ -104,13 +104,13 @@ public class Util {
     public static Collection<ProxiedPlayer> getPlayersByChannel(String c) {
         if (IRC.config.getString("server.staff").equalsIgnoreCase(c)) {
             return Collections.emptyList();
-        }else if (IRC.config.getString("server.channel").isEmpty()) {
+        } else if (IRC.config.getString("server.channel").isEmpty()) {
             String pref = IRC.config.getString("server.chanprefix");
             if (c.startsWith(pref)) c = c.substring(pref.length());
             ServerInfo si = proxy.getServerInfo(c);
             if (si == null) return Collections.emptyList();
             return si.getPlayers();
-        }else{
+        } else {
             return proxy.getPlayers();
         }
     }
