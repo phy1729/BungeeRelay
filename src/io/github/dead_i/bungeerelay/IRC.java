@@ -67,6 +67,40 @@ public class IRC {
         return count;
     }
 
+    private void doBurst() {
+        out.println("BURST " + startTime);
+        out.println("VERSION :BungeeRelay-0.1");
+        out.println("UID " + botUID + " " + startTime + " " + config.getString("bot.nick") + " BungeeRelay " + config.getString("bot.host") + " " + config.getString("bot.ident") + " BungeeRelay " + startTime + " +o :" + config.getString("bot.realname"));
+        out.println(":" + botUID + " OPERTYPE " + config.getString("bot.opertype"));
+        out.println("ENDBURST");
+        String chan = config.getString("server.channel");
+        String topic = config.getString("server.topic");
+        if (chan.isEmpty()) {
+            for (ServerInfo si : plugin.getProxy().getServers().values()) {
+                chan = config.getString("server.chanprefix") + si.getName();
+                Util.sendBotJoin(chan);
+                Util.setChannelTopic(chan, topic.replace("{SERVERNAME}", si.getName()));
+                for (ProxiedPlayer p : si.getPlayers()) {
+                    Util.sendUserConnect(p);
+                    Util.sendChannelJoin(p, chan);
+                }
+            }
+        } else {
+            Util.sendBotJoin(chan);
+            Util.setChannelTopic(chan, topic.replace("{SERVERNAME}", ""));
+            for (ProxiedPlayer p : plugin.getProxy().getPlayers()) {
+                Util.sendUserConnect(p);
+                Util.sendChannelJoin(p, chan);
+            }
+        }
+        chan = config.getString("server.staff");
+        if (!chan.isEmpty()) {
+            Util.sendBotJoin(chan);
+            Util.setChannelTopic(chan, config.getString("server.stafftopic"));
+            Util.giveChannelModes(chan, config.getString("server.staffmodes"));
+        }
+    }
+
     public void handleData(String data) throws IOException {
         if (data == null) throw new IOException();
         if (data.isEmpty()) return;
@@ -117,41 +151,12 @@ public class IRC {
                     sock.close();
                 }
                 authenticated = true;
+                doBurst();
             }
 
         } else { // We have already authenticated
             if (ex[1].equals("ENDBURST")) { // Remote has finished bursting; now we BURST
-                out.println("BURST " + startTime);
-                out.println("VERSION :BungeeRelay-0.1");
-                out.println("UID " + botUID + " " + startTime + " " + config.getString("bot.nick") + " BungeeRelay " + config.getString("bot.host") + " " + config.getString("bot.ident") + " BungeeRelay " + startTime + " +o :" + config.getString("bot.realname"));
-                out.println(":" + botUID + " OPERTYPE " + config.getString("bot.opertype"));
-                out.println("ENDBURST");
-                String chan = config.getString("server.channel");
-                String topic = config.getString("server.topic");
-                if (chan.isEmpty()) {
-                    for (ServerInfo si : plugin.getProxy().getServers().values()) {
-                        chan = config.getString("server.chanprefix") + si.getName();
-                        Util.sendBotJoin(chan);
-                        Util.setChannelTopic(chan, topic.replace("{SERVERNAME}", si.getName()));
-                        for (ProxiedPlayer p : si.getPlayers()) {
-                            Util.sendUserConnect(p);
-                            Util.sendChannelJoin(p, chan);
-                        }
-                    }
-                } else {
-                    Util.sendBotJoin(chan);
-                    Util.setChannelTopic(chan, topic.replace("{SERVERNAME}", ""));
-                    for (ProxiedPlayer p : plugin.getProxy().getPlayers()) {
-                        Util.sendUserConnect(p);
-                        Util.sendChannelJoin(p, chan);
-                    }
-                }
-                chan = config.getString("server.staff");
-                if (!chan.isEmpty()) {
-                    Util.sendBotJoin(chan);
-                    Util.setChannelTopic(chan, config.getString("server.stafftopic"));
-                    Util.giveChannelModes(chan, config.getString("server.staffmodes"));
-                }
+                doBurst();
             }
 
             if (ex[1].equals("ERROR")) {
