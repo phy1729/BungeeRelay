@@ -101,6 +101,7 @@ public class IRC {
                 }
 
                 if (ex[1].equals("END")) { // The remote has finished sending us it's capabilities now we ignore that and tell it we can do everything
+                    out.println("CAPAB CAPABILITIES :PROTOCOL=1202");
                     out.println("CAPAB END");
                 }
             }
