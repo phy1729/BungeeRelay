@@ -1,3 +1,5 @@
+package io.github.dead_i.bungeerelay;
+
 public class User {
     public String nick;
     public long connectTime;
