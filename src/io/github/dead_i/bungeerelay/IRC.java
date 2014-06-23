@@ -114,7 +114,7 @@ public class IRC {
 
         String[] ex = data.trim().split(" ");
         String command, subcommand, sender;
-        if (ex[0].charAt(0) == ":") { // We have a sender
+        if (ex[0].charAt(0) == ':') { // We have a sender
             sender = ex[0].substring(1);
             command = ex[1];
             subcommand = ex[2];
