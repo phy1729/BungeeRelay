@@ -18,22 +18,22 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class IRC {
-    public static Socket sock;
-    public static BufferedReader in;
-    public static PrintWriter out;
-    public static FileConfiguration config;
-    public static String SID;
-    public static String currentUid;
-    public static String prefixModes;
-    public static String chanModes;
-    public static long startTime;
-    public static boolean authenticated;
-    public static boolean capabState;
-    public static String channel;
-    public static long channelTS;
-    public static HashMap<ProxiedPlayer, String> uids = new HashMap<ProxiedPlayer, String>();
-    public static HashMap<ProxiedPlayer, String> replies = new HashMap<ProxiedPlayer, String>();
-    public static HashMap<String, User> users = new HashMap<String, User>();
+    public Socket sock;
+    public BufferedReader in;
+    public PrintWriter out;
+    public FileConfiguration config;
+    public String SID;
+    public String currentUid;
+    public String prefixModes;
+    public String chanModes;
+    public long startTime;
+    public boolean authenticated;
+    public boolean capabState;
+    public String channel;
+    public long channelTS;
+    public HashMap<ProxiedPlayer, String> uids = new HashMap<ProxiedPlayer, String>();
+    public HashMap<ProxiedPlayer, String> replies = new HashMap<ProxiedPlayer, String>();
+    public HashMap<String, User> users = new HashMap<String, User>();
     Plugin plugin;
 
     private static String argModes = "";
