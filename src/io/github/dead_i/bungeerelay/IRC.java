@@ -167,7 +167,7 @@ public class IRC {
                 doBurst();
 
             } else {
-                plugin.getLogger().error("Unrecognized command during authentication: " + data);
+                plugin.getLogger().warning("Unrecognized command during authentication: " + data);
                 out.println("ERROR :Unrecognized command during authentication " + command);
             }
 
@@ -328,7 +328,7 @@ public class IRC {
             } else if (command.equals("UID")) {
                 users.put(ex[2], ex[4]);
             } else {
-                plugin.getLogger().error("Unrecognized command: " + data);
+                plugin.getLogger().warning("Unrecognized command: " + data);
                 out.println("ERROR :Unrecognized command " + command);
             }
         }
