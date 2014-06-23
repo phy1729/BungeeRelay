@@ -114,7 +114,7 @@ public class IRC {
 
         if (config.getBoolean("server.debug")) plugin.getLogger().info("Received: "+data);
 
-        String[] ex = data.trim().split(" ");
+        String[] args, ex = data.trim().split(" ");
         String command, sender;
         if (ex[0].charAt(0) == ':') { // We have a sender
             sender = ex[0].substring(1);
