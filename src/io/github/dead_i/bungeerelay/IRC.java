@@ -53,6 +53,11 @@ public class IRC {
 
         in = new BufferedReader(new InputStreamReader(sock.getInputStream()));
         out = new PrintWriter(sock.getOutputStream(), true);
+
+        // Send our capabilities which we pretend we can do everything
+        out.println("CAPAB START 1202");
+        out.println("CAPAB CAPABILITIES :PROTOCOL=1202");
+        out.println("CAPAB END");
         while (sock.isConnected()) handleData(in.readLine());
     }
 
@@ -127,10 +132,6 @@ public class IRC {
 
         if (!authenticated) {
             if (command.equals("CAPAB")) {
-                if (subcommand.equals("START")) {
-                    out.println("CAPAB START 1202");
-                }
-
                 if (subcommand.equals("CAPABILITIES")) {
                     // Dynamically find which modes require arguments
                     for (String s:ex) {
@@ -150,9 +151,7 @@ public class IRC {
                     }
                 }
 
-                if (subcommand.equals("END")) { // The remote has finished sending us it's capabilities now we ignore that and tell it we can do everything
-                    out.println("CAPAB CAPABILITIES :PROTOCOL=1202");
-                    out.println("CAPAB END");
+                if (subcommand.equals("END")) {
                     plugin.getLogger().info("Authenticating with server...");
                     out.println("SERVER " + config.getString("server.servername") + " " + config.getString("server.sendpass") + " 0 " + SID + " :" + config.getString("server.realname"));
                 }
