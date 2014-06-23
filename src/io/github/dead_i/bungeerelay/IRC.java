@@ -206,6 +206,8 @@ public class IRC {
                 }
                 chans.get(args[1]).users.add(args[4+countArgModes].split(",")[1]);
                 for (ProxiedPlayer p : Util.getPlayersByChannel(args[1])) {
+                    if (p == null) plugin.getLogger().warning("p is null! I'm going to die soon.");
+                    else plugin.getLogger().info("Player: " + p.getName());
                     p.sendMessage(new TextComponent(ChatColor.translateAlternateColorCodes('&', config.getString("formats.join")
                             .replace("{SENDER}", users.get(args[5].split(",")[1])))));
                 }
@@ -261,6 +263,7 @@ public class IRC {
 
             } else if (command.equals("METADATA")) {
             } else if (command.equals("NOTICE")) {
+            } else if (command.equals("NICK")) {
             } else if (command.equals("OPERTYPE")) {
             } else if (command.equals("PART")) {
                 String reason;
