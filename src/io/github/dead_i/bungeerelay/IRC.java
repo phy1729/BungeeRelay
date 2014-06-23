@@ -255,6 +255,7 @@ public class IRC {
                 users.remove(ex[3]);
 
             } else if (command.equals("METADATA")) {
+            } else if (command.equals("NOTICE")) {
             } else if (command.equals("OPERTYPE")) {
             } else if (command.equals("PART")) {
                 String reason;
