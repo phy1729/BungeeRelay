@@ -42,14 +42,15 @@ public class Util {
         IRC.out.println(":" + IRC.SID + " FJOIN " + IRC.channel + " " + IRC.channelTS + " + :," + IRC.uids.get(player));
     }
 
-    public static void sendAll(TextComponent message) {
+    public void sendAll(TextComponent message) {
         for (ProxiedPlayer player : IRC.plugin.getProxy().getPlayers()) {
             player.sendMessage(message);
         }
     }
 
     public static void updateTS(String ts) {
-        long timestamp = Long.parseLong(ts).longValue();
+        Long LongTimestamp = Long.parseLong(ts);
+        long timestamp = LongTimestamp.longValue();
         if (timestamp < IRC.channelTS) {
             IRC.channelTS = timestamp;
         }
