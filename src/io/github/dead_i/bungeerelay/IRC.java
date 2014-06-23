@@ -184,6 +184,7 @@ public class IRC {
 
         } else { // We have already authenticated
             if (command.equals("ADDLINE")) {
+            } else if (command.equals("AWAY")) {
             } else if (command.equals("BURST")) {
             } else if (command.equals("ENDBURST")) { // We BURST'd first so do nothing
                 plugin.getLogger().info("Bursting done");
