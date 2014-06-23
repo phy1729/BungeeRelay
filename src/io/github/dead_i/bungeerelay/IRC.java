@@ -29,6 +29,7 @@ public class IRC {
     public static String chanModes;
     public static long startTime;
     public static boolean authenticated;
+    public static boolean capabState;
     public static HashMap<ProxiedPlayer, Long> times = new HashMap<ProxiedPlayer, Long>();
     public static HashMap<String, Long> nickTimes = new HashMap<String, Long>();
     public static HashMap<ProxiedPlayer, String> uids = new HashMap<ProxiedPlayer, String>();
@@ -50,6 +51,7 @@ public class IRC {
         currentUid = SID + "AAAAAB";
         startTime = System.currentTimeMillis() / 1000;
         authenticated = false;
+        capabState = false;
 
         in = new BufferedReader(new InputStreamReader(sock.getInputStream()));
         out = new PrintWriter(sock.getOutputStream(), true);
@@ -163,7 +165,7 @@ public class IRC {
             }
 
         } else if (!authenticated) {
-            } else if (command.equals("SERVER")) {
+            if (command.equals("SERVER")) {
                 if (!ex[2].equals(config.getString("server.recvpass"))) {
                     plugin.getLogger().warning("The server "+ex[1]+" presented the wrong password.");
                     plugin.getLogger().warning("Remember that the recvpass and sendpass are opposite to the ones in your links.conf");
