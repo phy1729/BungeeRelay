@@ -151,14 +151,14 @@ public class IRC {
                     if (s.contains("PREFIX=")) {
                         // Grab the modes inside the parens after the "="
                         prefixModes = s.split("=")[1].split("\\(")[1].split("\\)")[0];
-                    }
+                    } 
+                }
 
-                } else if (ex[1].equals("END")) {
-                    capabState = false;
-                    if (!authenticated) {
-                        plugin.getLogger().info("Authenticating with server...");
-                        out.println("SERVER " + config.getString("server.servername") + " " + config.getString("server.sendpass") + " 0 " + SID + " :" + config.getString("server.realname"));
-                    }
+            } else if (ex[1].equals("END")) {
+                capabState = false;
+                if (!authenticated) {
+                    plugin.getLogger().info("Authenticating with server...");
+                    out.println("SERVER " + config.getString("server.servername") + " " + config.getString("server.sendpass") + " 0 " + SID + " :" + config.getString("server.realname"));
                 }
             }
 
