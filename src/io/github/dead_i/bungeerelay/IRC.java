@@ -302,7 +302,6 @@ public class IRC {
                 Util.sendAll(new TextComponent(ChatColor.translateAlternateColorCodes('&', config.getString("formats.quit")
                             .replace("{SENDER}", users.get(sender))
                             .replace("{REASON}", reason))));
-                }
                 users.remove(sender);
 
             } else if (command.equals("SERVER")) {
