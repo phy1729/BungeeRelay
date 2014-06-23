@@ -35,7 +35,7 @@ public class Util {
     public static void sendUserConnect(ProxiedPlayer player) {
         String playerUID = IRC.uids.get(player);
         User user = IRC.users.get(playerUID);
-        IRC.out.println(":" + IRC.SID + " UID " + playerUID + " " + user.nickTime + " " + user.nick + " " + player.getAddress().getHostName() + " " + player.getAddress().getHostName() + " " + IRC.config.getString("formats.ident").replace("{IDENT}", player.getName()) + " " + player.getAddress().getHostString() + " " + user.signonTime + " +r :Minecraft Player");
+        IRC.out.println(":" + IRC.SID + " UID " + playerUID + " " + user.nickTime + " " + user.nick + " " + player.getAddress().getHostName() + " " + player.getAddress().getHostName() + " " + IRC.config.getString("formats.ident").replace("{IDENT}", player.getName()) + " " + player.getAddress().getHostString() + " " + user.connectTime + " +r :Minecraft Player");
     }
 
     public static void sendChannelJoin(ProxiedPlayer player) {
@@ -43,7 +43,7 @@ public class Util {
     }
 
     public static void sendAll(TextComponent message) {
-        for (ProxiedPlayer player : plugin.getProxy().getPlayers()) {
+        for (ProxiedPlayer player : IRC.plugin.getProxy().getPlayers()) {
             player.sendMessage(message);
         }
     }
@@ -60,8 +60,8 @@ public class Util {
     }
 
     public static String getUidByNick(String nick) {
-        for (Map.Entry<String, String> entry : IRC.users.entrySet()) {
-            if (nick.equalsIgnoreCase(entry.getValue())) return entry.getKey();
+        for (Map.Entry<String, User> entry : IRC.users.entrySet()) {
+            if (nick.equalsIgnoreCase(entry.nick)) return entry.getKey();
         }
         return null;
     }

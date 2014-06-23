@@ -145,13 +145,12 @@ public class IRC {
                 authenticated = true;
                 plugin.getLogger().info("Authentication successful");
                 plugin.getLogger().info("Bursting");
-                doBurst();
                 out.println(":" + SID + " BURST " + startTime);
                 out.println(":" + SID + " VERSION :BungeeRelay-0.1");
                 out.println(":" + SID + " ENDBURST");
                 for (ProxiedPlayer player : plugin.getProxy().getPlayers()) {
                     Util.sendUserConnect(player);
-                    Util.sendChannelJoin(player, channel);
+                    Util.sendChannelJoin(player);
                 }
 
             } else {
@@ -176,7 +175,6 @@ public class IRC {
                 for (Character c:argModes.toCharArray()) {
                     countArgModes += countChar (modes, c);
                 }
-                chans.get(args[1]).users.add(args[4+countArgModes].split(",")[1]);
                 for (ProxiedPlayer p : Util.getPlayersByChannel(args[1])) {
                     p.sendMessage(new TextComponent(ChatColor.translateAlternateColorCodes('&', config.getString("formats.join")
                             .replace("{SENDER}", users.get(args[5].split(",")[1])))));
@@ -185,9 +183,9 @@ public class IRC {
             } else if (command.equals("FMODE")) {
                 // <target> <timestamp> <modes and parameters>
                 if (args[1] == channel) {
-                    Util.updateTS(channel, args[2]);
+                    Util.updateTS(args[2]);
                     String modes;
-                    for (int i=3; i<args.length(); i++) {
+                    for (int i=3; i<args.length; i++) {
                         modes = modes + args[i] + " ";
                     }
                     Util.sendAll(new TextComponent(ChatColor.translateAlternateColorCodes('&', config.getString("formats.mode")
@@ -199,15 +197,15 @@ public class IRC {
             } else if (command.equals("KICK")) {
                 // <channel>{,<channel>} <user>{,<user>} [:<comment>]
                 String reason = Util.sliceStringArray(args, 3).substring(1);
-                String target = users.get(args[2]);
-                String senderNick = users.get(sender);
+                String target = users.get(args[2]).nick;
+                String senderNick = users.get(sender).nick;
                 for (ProxiedPlayer p : Util.getPlayersByChannel(args[1])) {
                     p.sendMessage(new TextComponent(ChatColor.translateAlternateColorCodes('&', config.getString("formats.kick")
                             .replace("{SENDER}", sender)
                             .replace("{TARGET}", target)
                             .replace("{REASON}", reason))));
                 }
-                String full = users.get(args[2]);
+                String full = users.get(args[2]).nick;
                 int prefixlen = config.getString("server.userprefix").length();
                 int suffixlen = config.getString("server.usersuffix").length();
                 if (config.getBoolean("server.kick") && prefixlen < full.length() && suffixlen < full.length()) {
@@ -225,7 +223,8 @@ public class IRC {
             } else if (command.equals("NOTICE")) {
             } else if (command.equals("NICK")) {
                 // <new_nick>
-                Util.sendAll(users.get(sender).nick + " is now known as " + args[1]);
+                // FIXME
+                // Util.sendAll(users.get(sender).nick + " is now known as " + args[1]);
                 users.get(sender).nick = args[1];
             } else if (command.equals("OPERTYPE")) {
             } else if (command.equals("PART")) {
@@ -245,8 +244,8 @@ public class IRC {
                 out.println(":" + SID + " PONG " + SID + " "+args[1]);
 
             } else if (command.equals("PRIVMSG")) {
-                String from = users.get(sender);
-                String player = users.get(args[1]);
+                String from = users.get(sender).nick;
+                String player = users.get(args[1]).nick;
                 int prefixlen = config.getString("server.userprefix").length();
                 int suffixlen = config.getString("server.usersuffix").length();
                 Collection<ProxiedPlayer> players = new ArrayList<ProxiedPlayer>();
