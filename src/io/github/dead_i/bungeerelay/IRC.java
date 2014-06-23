@@ -177,7 +177,7 @@ public class IRC {
                 }
                 for (ProxiedPlayer p : Util.getPlayersByChannel(args[1])) {
                     p.sendMessage(new TextComponent(ChatColor.translateAlternateColorCodes('&', config.getString("formats.join")
-                            .replace("{SENDER}", users.get(args[5].split(",")[1])))));
+                            .replace("{SENDER}", users.get(args[5].split(",")[1]).nick))));
                 }
 
             } else if (command.equals("FMODE")) {
@@ -189,7 +189,7 @@ public class IRC {
                         modes = modes + args[i] + " ";
                     }
                     Util.sendAll(new TextComponent(ChatColor.translateAlternateColorCodes('&', config.getString("formats.mode")
-                                .replace("{SENDER}", users.get(sender))
+                                .replace("{SENDER}", users.get(sender).nick)
                                 .replace("{MODE}", modes))));
                 }
             } else if (command.equals("FTOPIC")) {
@@ -236,7 +236,7 @@ public class IRC {
                 }
                 for (ProxiedPlayer p : Util.getPlayersByChannel(args[1])) {
                     p.sendMessage(new TextComponent(ChatColor.translateAlternateColorCodes('&', config.getString("formats.part")
-                            .replace("{SENDER}", users.get(sender))
+                            .replace("{SENDER}", users.get(sender).nick)
                             .replace("{REASON}", reason))));
                 }
 
@@ -298,7 +298,7 @@ public class IRC {
                     reason = "";
                 }
                 Util.sendAll(new TextComponent(ChatColor.translateAlternateColorCodes('&', config.getString("formats.quit")
-                            .replace("{SENDER}", users.get(sender))
+                            .replace("{SENDER}", users.get(sender).nick)
                             .replace("{REASON}", reason))));
                 users.remove(sender);
 
