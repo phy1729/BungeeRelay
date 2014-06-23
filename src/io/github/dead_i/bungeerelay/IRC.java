@@ -162,12 +162,15 @@ public class IRC {
                     out.println("ERROR :Password received was incorrect");
                     sock.close();
                 }
+                plugin.getLogger().info("Authentication successful");
                 authenticated = true;
+                plugin.getLogger().info("Bursting");
                 doBurst();
             }
 
         } else { // We have already authenticated
             if (command.equals("ENDBURST")) { // We BURST'd first so do nothing
+                plugin.getLogger().info("Bursting done");
             }
 
             if (command.equals("FJOIN")) {
