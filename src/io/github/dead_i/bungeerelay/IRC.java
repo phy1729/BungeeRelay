@@ -183,7 +183,8 @@ public class IRC {
             }
 
         } else { // We have already authenticated
-            if (command.equals("BURST")) { // Ignore this for now
+            if (command.equals("ADDLINE")) {
+            } else if (command.equals("BURST")) {
             } else if (command.equals("ENDBURST")) { // We BURST'd first so do nothing
                 plugin.getLogger().info("Bursting done");
 
@@ -226,6 +227,7 @@ public class IRC {
                             .replace("{SENDER}", users.get(sender))
                             .replace("{MODE}", ex[4] + " " + s))));
                 }
+            } else if (command.equals("FTOPIC")) {
 
             } else if (command.equals("KICK")) {
                 String reason = Util.sliceStringArray(ex, 4).substring(1);
@@ -251,6 +253,8 @@ public class IRC {
                 }
                 users.remove(ex[3]);
 
+            } else if (command.equals("METADATA")) {
+            } else if (command.equals("OPERTYPE")) {
             } else if (command.equals("PART")) {
                 String reason;
                 if (ex.length > 3) {
