@@ -337,6 +337,7 @@ public class IRC {
                 }
                 users.remove(sender);
 
+            } else if (command.equals("SERVER")) {
             } else if (command.equals("UID")) {
                 users.put(ex[2], ex[4]);
             } else if (command.equals("VERSION")) {
