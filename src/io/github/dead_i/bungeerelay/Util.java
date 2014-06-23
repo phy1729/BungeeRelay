@@ -41,8 +41,8 @@ public class Util {
         IRC.out.println(":" + IRC.SID + " FJOIN " + IRC.channel + " " + IRC.channelTS + " + :," + IRC.uids.get(player));
     }
 
-    public static void sendAll(String message) {
-        for (ProxiedPlayer player : plugin.getProxy().getPlayers() {
+    public static void sendAll(TextComponent message) {
+        for (ProxiedPlayer player : plugin.getProxy().getPlayers()) {
             player.sendMessage(message);
         }
     }

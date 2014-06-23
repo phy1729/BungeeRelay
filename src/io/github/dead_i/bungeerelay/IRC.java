@@ -299,8 +299,7 @@ public class IRC {
                 } else {
                     reason = "";
                 }
-                for (ProxiedPlayer player : plugin.getProxy().getPlayers() {
-                    player.sendMessage(new TextComponent(ChatColor.translateAlternateColorCodes('&', config.getString("formats.quit")
+                Util.sendAll(new TextComponent(ChatColor.translateAlternateColorCodes('&', config.getString("formats.quit")
                             .replace("{SENDER}", users.get(sender))
                             .replace("{REASON}", reason))));
                 }
