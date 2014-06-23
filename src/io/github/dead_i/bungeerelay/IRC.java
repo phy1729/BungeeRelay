@@ -183,7 +183,7 @@ public class IRC {
             }
 
         } else { // We have already authenticated
-            if (comamnd.equals("BURST") { // Ignore this for now
+            if (comamnd.equals("BURST")) { // Ignore this for now
             } else if (command.equals("ENDBURST")) { // We BURST'd first so do nothing
                 plugin.getLogger().info("Bursting done");
 
