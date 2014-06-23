@@ -119,9 +119,14 @@ public class IRC {
         if (ex[0].charAt(0) == ':') { // We have a sender
             sender = ex[0].substring(1);
             command = ex[1];
+            String[] args = new String[ ex.length-1 ]();
+            for (int i = 0; i < ex.length-1; i++) {
+                args[i] = ex[i+1];
+            }
         } else {
             sender = "";
             command = ex[0];
+            String[] args = ex;
         }
 
         if (command.equals("ERROR")) {
