@@ -62,7 +62,7 @@ public class Util {
 
     public String getUidByNick(String nick) {
         for (Map.Entry<String, User> entry : IRC.users.entrySet()) {
-            if (nick.equalsIgnoreCase(entry.nick)) return entry.getKey();
+            if (nick.equalsIgnoreCase(entry.getValue().nick)) return entry.getKey();
         }
         return null;
     }
