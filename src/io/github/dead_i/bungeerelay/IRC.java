@@ -125,35 +125,44 @@ public class IRC {
         if (command.equals("ERROR")) {
             sock.close();
             authenticated = false;
+            capabState = false;
             throw new IOException(); // This will make us reconnect
-        }
 
-        if (!authenticated) {
-            if (command.equals("CAPAB")) {
-                if (ex[1].equals("CAPABILITIES")) {
-                    // Dynamically find which modes require arguments
-                    for (String s:ex) {
-                        if (s.contains("CHANMODES=")) {
-                            chanModes = s.split("=")[1];
-                            String[] chanmodeSets = chanModes.split(",");
-                            argModes = "";
-                            // The first three sets take arguments
-                            for (int i = 0; i < 3; ++i) {
-                                argModes += chanmodeSets[i];
-                            }
-                        }
-                        if (s.contains("PREFIX=")) {
-                            // Grab the modes inside the parens after the "="
-                            prefixModes = s.split("=")[1].split("\\(")[1].split("\\)")[0];
+        } else if (command.equals("CAPAB")) {
+            if (ex[1].equals("START")) {
+                capabState = true;
+
+            } else if (!capabState && authenticated) {
+                plugin.getLogger().warning("CAPAB *MUST* start with CAPAB START after authentication");
+                out.println("ERROR :Received CAPAB command without CAPAB START" + command);
+
+            } else if (ex[1].equals("CAPABILITIES")) {
+                // Dynamically find which modes require arguments
+                for (String s:ex) {
+                    if (s.contains("CHANMODES=")) {
+                        chanModes = s.split("=")[1];
+                        String[] chanmodeSets = chanModes.split(",");
+                        argModes = "";
+                        // The first three sets take arguments
+                        for (int i = 0; i < 3; ++i) {
+                            argModes += chanmodeSets[i];
                         }
                     }
-                }
+                    if (s.contains("PREFIX=")) {
+                        // Grab the modes inside the parens after the "="
+                        prefixModes = s.split("=")[1].split("\\(")[1].split("\\)")[0];
+                    }
 
-                if (ex[1].equals("END")) {
-                    plugin.getLogger().info("Authenticating with server...");
-                    out.println("SERVER " + config.getString("server.servername") + " " + config.getString("server.sendpass") + " 0 " + SID + " :" + config.getString("server.realname"));
+                } else if (ex[1].equals("END")) {
+                    capabState = false;
+                    if (!authenticated) {
+                        plugin.getLogger().info("Authenticating with server...");
+                        out.println("SERVER " + config.getString("server.servername") + " " + config.getString("server.sendpass") + " 0 " + SID + " :" + config.getString("server.realname"));
+                    }
                 }
+            }
 
+        } else if (!authenticated) {
             } else if (command.equals("SERVER")) {
                 if (!ex[2].equals(config.getString("server.recvpass"))) {
                     plugin.getLogger().warning("The server "+ex[1]+" presented the wrong password.");
@@ -161,8 +170,8 @@ public class IRC {
                     out.println("ERROR :Password received was incorrect");
                     sock.close();
                 }
-                plugin.getLogger().info("Authentication successful");
                 authenticated = true;
+                plugin.getLogger().info("Authentication successful");
                 plugin.getLogger().info("Bursting");
                 doBurst();
 
@@ -172,7 +181,8 @@ public class IRC {
             }
 
         } else { // We have already authenticated
-            if (command.equals("ENDBURST")) { // We BURST'd first so do nothing
+            if (comamnd.equals("BURST") { // Ignore this for now
+            } else if (command.equals("ENDBURST")) { // We BURST'd first so do nothing
                 plugin.getLogger().info("Bursting done");
 
             } else if (command.equals("FJOIN")) {
