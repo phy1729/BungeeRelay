@@ -339,6 +339,7 @@ public class IRC {
 
             } else if (command.equals("UID")) {
                 users.put(ex[2], ex[4]);
+            } else if (command.equals("VERSION")) {
             } else {
                 plugin.getLogger().warning("Unrecognized command: " + data);
                 out.println("ERROR :Unrecognized command " + command);
