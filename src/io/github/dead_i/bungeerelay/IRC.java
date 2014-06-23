@@ -305,7 +305,8 @@ public class IRC {
             } else if (command.equals("SERVER")) {
             } else if (command.equals("SNONOTICE")) {
             } else if (command.equals("UID")) {
-                users.put(args[1], args[3]);
+                // FIXME
+                // users.put(args[1], args[3]);
             } else if (command.equals("VERSION")) {
             } else {
                 plugin.getLogger().warning("Unrecognized command: " + data);
