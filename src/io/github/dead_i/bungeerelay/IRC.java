@@ -23,18 +23,17 @@ public class IRC {
     public static PrintWriter out;
     public static FileConfiguration config;
     public static String SID;
-    public static String botUID;
     public static String currentUid;
     public static String prefixModes;
     public static String chanModes;
     public static long startTime;
     public static boolean authenticated;
     public static boolean capabState;
-    public static HashMap<ProxiedPlayer, Long> times = new HashMap<ProxiedPlayer, Long>();
-    public static HashMap<String, Long> nickTimes = new HashMap<String, Long>();
+    public static String channel;
+    public static long channelTS;
     public static HashMap<ProxiedPlayer, String> uids = new HashMap<ProxiedPlayer, String>();
     public static HashMap<ProxiedPlayer, String> replies = new HashMap<ProxiedPlayer, String>();
-    public static HashMap<String, String> users = new HashMap<String, String>();
+    public static HashMap<String, String> users = new HashMap<String, String>();  // UID to Nick
     public static HashMap<String, Channel> chans = new HashMap<String, Channel>();
     Plugin plugin;
 
@@ -47,11 +46,12 @@ public class IRC {
         plugin = p;
 
         SID = config.getString("server.id");
-        botUID = SID + "AAAAAA";
-        currentUid = SID + "AAAAAB";
-        startTime = System.currentTimeMillis() / 1000;
+        currentUid = SID + "AAAAAA";
         authenticated = false;
         capabState = false;
+        startTime = System.currentTimeMillis() / 1000;
+        channelTS = startTime;
+        channel = config.getString("server.channel");
 
         in = new BufferedReader(new InputStreamReader(sock.getInputStream()));
         out = new PrintWriter(sock.getOutputStream(), true);
@@ -72,40 +72,6 @@ public class IRC {
             }
         }
         return count;
-    }
-
-    private void doBurst() {
-        out.println(":" + SID + " BURST " + startTime);
-        out.println(":" + SID + " VERSION :BungeeRelay-0.1");
-        out.println(":" + SID + " UID " + botUID + " " + startTime + " " + config.getString("bot.nick") + " BungeeRelay " + config.getString("bot.host") + " " + config.getString("bot.ident") + " BungeeRelay " + startTime + " +o :" + config.getString("bot.realname"));
-        out.println(":" + botUID + " OPERTYPE " + config.getString("bot.opertype"));
-        out.println(":" + SID + " ENDBURST");
-        String chan = config.getString("server.channel");
-        String topic = config.getString("server.topic");
-        if (chan.isEmpty()) {
-            for (ServerInfo si : plugin.getProxy().getServers().values()) {
-                chan = config.getString("server.chanprefix") + si.getName();
-                Util.sendBotJoin(chan);
-                Util.setChannelTopic(chan, topic.replace("{SERVERNAME}", si.getName()));
-                for (ProxiedPlayer p : si.getPlayers()) {
-                    Util.sendUserConnect(p);
-                    Util.sendChannelJoin(p, chan);
-                }
-            }
-        } else {
-            Util.sendBotJoin(chan);
-            Util.setChannelTopic(chan, topic.replace("{SERVERNAME}", ""));
-            for (ProxiedPlayer p : plugin.getProxy().getPlayers()) {
-                Util.sendUserConnect(p);
-                Util.sendChannelJoin(p, chan);
-            }
-        }
-        chan = config.getString("server.staff");
-        if (!chan.isEmpty()) {
-            Util.sendBotJoin(chan);
-            Util.setChannelTopic(chan, config.getString("server.stafftopic"));
-            Util.giveChannelModes(chan, config.getString("server.staffmodes"));
-        }
     }
 
     public void handleData(String data) throws IOException {
@@ -181,6 +147,13 @@ public class IRC {
                 plugin.getLogger().info("Authentication successful");
                 plugin.getLogger().info("Bursting");
                 doBurst();
+                out.println(":" + SID + " BURST " + startTime);
+                out.println(":" + SID + " VERSION :BungeeRelay-0.1");
+                out.println(":" + SID + " ENDBURST");
+                for (ProxiedPlayer player : plugin.getProxy().getPlayers()) {
+                    Util.sendUserConnect(player);
+                    Util.sendChannelJoin(player, channel);
+                }
 
             } else {
                 plugin.getLogger().warning("Unrecognized command during authentication: " + data);
@@ -191,13 +164,13 @@ public class IRC {
             if (command.equals("ADDLINE")) {
             } else if (command.equals("AWAY")) {
             } else if (command.equals("BURST")) {
-            } else if (command.equals("ENDBURST")) { // We BURST'd first so do nothing
+            } else if (command.equals("ENDBURST")) {
                 plugin.getLogger().info("Bursting done");
 
             } else if (command.equals("FJOIN")) {
-                if (!chans.containsKey(args[1])) {
-                    Long ts = Long.parseLong(args[2]);
-                    if (!ts.equals(Util.getChanTS(args[1]))) chans.get(args[1]).ts = ts;
+                // <channel> <timestamp> +[<modes> {mode params}] [:<[statusmodes],uuid> {<[statusmodes],uuid>}]
+                if (args[1] == channel) {
+                    Util.updateTS(args[2]);
                 }
                 String modes = args[3];
                 int countArgModes = 0;
@@ -206,38 +179,26 @@ public class IRC {
                 }
                 chans.get(args[1]).users.add(args[4+countArgModes].split(",")[1]);
                 for (ProxiedPlayer p : Util.getPlayersByChannel(args[1])) {
-                    if (p == null) plugin.getLogger().warning("p is null! I'm going to die soon.");
-                    else plugin.getLogger().info("Player: " + p.getName());
                     p.sendMessage(new TextComponent(ChatColor.translateAlternateColorCodes('&', config.getString("formats.join")
                             .replace("{SENDER}", users.get(args[5].split(",")[1])))));
                 }
 
             } else if (command.equals("FMODE")) {
-                String s = "";
-                String d = "+";
-                int v = 4;
-                for (int i=0; i<args[3].length(); i++) {
-                    String m = Character.toString(args[3].charAt(i));
-                    String[] cm = chanModes.split(",");
-                    if (m.equals("b") && chans.containsKey(args[1])) chans.get(args[1]).bans.add(args[v]);
-                    if (m.equals("+") || m.equals("-")) {
-                        d = m;
-                    }else if (cm[0].contains(m) || cm[1].contains(m) || (cm[2].contains(m) && d.equals("+"))) {
-                        s = s + args[v] + " ";
-                        v++;
-                    }else if (args.length > v && users.containsKey(args[v])) {
-                        s = s + users.get(args[v]) + " ";
-                        v++;
+                // <target> <timestamp> <modes and parameters>
+                if (args[1] == channel) {
+                    Util.updateTS(channel, args[2]);
+                    String modes;
+                    for (int i=3; i<args.length(); i++) {
+                        modes = modes + args[i] + " ";
                     }
-                }
-                for (ProxiedPlayer p : Util.getPlayersByChannel(args[1])) {
-                    p.sendMessage(new TextComponent(ChatColor.translateAlternateColorCodes('&', config.getString("formats.mode")
-                            .replace("{SENDER}", users.get(sender))
-                            .replace("{MODE}", args[3] + " " + s))));
+                    Util.sendAll(new TextComponent(ChatColor.translateAlternateColorCodes('&', config.getString("formats.mode")
+                                .replace("{SENDER}", users.get(sender))
+                                .replace("{MODE}", modes))));
                 }
             } else if (command.equals("FTOPIC")) {
 
             } else if (command.equals("KICK")) {
+                // <channel>{,<channel>} <user>{,<user>} [:<comment>]
                 String reason = Util.sliceStringArray(args, 3).substring(1);
                 String target = users.get(args[2]);
                 String senderNick = users.get(sender);
@@ -264,6 +225,9 @@ public class IRC {
             } else if (command.equals("METADATA")) {
             } else if (command.equals("NOTICE")) {
             } else if (command.equals("NICK")) {
+                // <new_nick>
+                Util.sendAll(users.get(sender).nick + " is now known as " + args[1]);
+                users.get(sender).nick = args[1];
             } else if (command.equals("OPERTYPE")) {
             } else if (command.equals("PART")) {
                 String reason;
@@ -335,23 +299,15 @@ public class IRC {
                 } else {
                     reason = "";
                 }
-                for (Map.Entry<String, Channel> ch : chans.entrySet()) {
-                    String chan = IRC.config.getString("server.channel");
-                    if (chan.isEmpty()) {
-                        chan = ch.getKey();
-                    }else if (!ch.getKey().equals(chan)) {
-                        continue;
-                    }
-                    if (!ch.getValue().users.contains(sender)) continue;
-                    for (ProxiedPlayer p : Util.getPlayersByChannel(chan)) {
-                        p.sendMessage(new TextComponent(ChatColor.translateAlternateColorCodes('&', config.getString("formats.quit")
-                                .replace("{SENDER}", users.get(sender))
-                                .replace("{REASON}", reason))));
-                    }
+                for (ProxiedPlayer player : plugin.getProxy().getPlayers() {
+                    player.sendMessage(new TextComponent(ChatColor.translateAlternateColorCodes('&', config.getString("formats.quit")
+                            .replace("{SENDER}", users.get(sender))
+                            .replace("{REASON}", reason))));
                 }
                 users.remove(sender);
 
             } else if (command.equals("SERVER")) {
+            } else if (command.equals("SNONOTICE")) {
             } else if (command.equals("UID")) {
                 users.put(args[1], args[3]);
             } else if (command.equals("VERSION")) {
