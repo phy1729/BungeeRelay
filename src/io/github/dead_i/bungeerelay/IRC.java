@@ -113,15 +113,13 @@ public class IRC {
         if (config.getBoolean("server.debug")) plugin.getLogger().info("Received: "+data);
 
         String[] ex = data.trim().split(" ");
-        String command, subcommand, sender;
+        String command, sender;
         if (ex[0].charAt(0) == ':') { // We have a sender
             sender = ex[0].substring(1);
             command = ex[1];
-            subcommand = ex[2];
         } else {
             sender = "";
             command = ex[0];
-            subcommand = ex[1];
         }
 
         if (command.equals("ERROR")) {
@@ -132,7 +130,7 @@ public class IRC {
 
         if (!authenticated) {
             if (command.equals("CAPAB")) {
-                if (subcommand.equals("CAPABILITIES")) {
+                if (ex[1].equals("CAPABILITIES")) {
                     // Dynamically find which modes require arguments
                     for (String s:ex) {
                         if (s.contains("CHANMODES=")) {
@@ -151,7 +149,7 @@ public class IRC {
                     }
                 }
 
-                if (subcommand.equals("END")) {
+                if (ex[1].equals("END")) {
                     plugin.getLogger().info("Authenticating with server...");
                     out.println("SERVER " + config.getString("server.servername") + " " + config.getString("server.sendpass") + " 0 " + SID + " :" + config.getString("server.realname"));
                 }
