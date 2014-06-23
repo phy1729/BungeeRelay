@@ -20,16 +20,6 @@ public class ServerConnectListener implements Listener {
     @EventHandler
     public void onServerConnect(ServerConnectEvent event) {
         if (!IRC.sock.isConnected()) return;
-        ProxiedPlayer p = event.getPlayer();
-        String confchan = IRC.config.getString("server.channel");
-        String c = confchan;
-        if (c.isEmpty()) c = IRC.config.getString("server.chanprefix") + event.getTarget().getName();
-
-        if (IRC.chans.get(c).isBanned(p) && IRC.config.getBoolean("server.ban")) {
-            p.disconnect(new TextComponent(ChatColor.translateAlternateColorCodes('&', IRC.config.getString("formats.disconnectban"))));
-            return;
-        }
-
-        if (confchan.isEmpty()) Util.sendChannelJoin(event.getPlayer(), c);
+        Util.sendChannelJoin(event.getPlayer());
     }
 }

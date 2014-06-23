@@ -30,7 +30,7 @@ public class IRCNickCommand extends Command {
             sender.sendMessage(new TextComponent(ChatColor.RED + "The nick " + args[0] + " is already in use."));
             return;
         }
-        IRC.nickTimes.put(IRC.uids.get(sender), System.currentTimeMillis() / 1000);
-        IRC.out.println(":" + IRC.uids.get(sender) + " NICK " + args[0] + " " + IRC.nickTimes.get(IRC.uids.get(sender)));
+        IRC.users.get(IRC.uids.get(sender)).nickTime = System.currentTimeMillis() / 1000;
+        IRC.out.println(":" + IRC.uids.get(sender) + " NICK " + args[0] + " " + IRC.users.get(IRC.uids.get(sender)).nickTime);
     }
 }

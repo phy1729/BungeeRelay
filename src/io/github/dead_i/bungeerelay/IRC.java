@@ -34,7 +34,6 @@ public class IRC {
     public static HashMap<ProxiedPlayer, String> uids = new HashMap<ProxiedPlayer, String>();
     public static HashMap<ProxiedPlayer, String> replies = new HashMap<ProxiedPlayer, String>();
     public static HashMap<String, String> users = new HashMap<String, String>();  // UID to Nick
-    public static HashMap<String, Channel> chans = new HashMap<String, Channel>();
     Plugin plugin;
 
     private static String argModes = "";
