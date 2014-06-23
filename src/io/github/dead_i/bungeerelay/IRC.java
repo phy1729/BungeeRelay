@@ -153,9 +153,8 @@ public class IRC {
                     plugin.getLogger().info("Authenticating with server...");
                     out.println("SERVER " + config.getString("server.servername") + " " + config.getString("server.sendpass") + " 0 " + SID + " :" + config.getString("server.realname"));
                 }
-            }
 
-            if (command.equals("SERVER")) {
+            } else if (command.equals("SERVER")) {
                 if (!ex[2].equals(config.getString("server.recvpass"))) {
                     plugin.getLogger().warning("The server "+ex[1]+" presented the wrong password.");
                     plugin.getLogger().warning("Remember that the recvpass and sendpass are opposite to the ones in your links.conf");
@@ -166,14 +165,17 @@ public class IRC {
                 authenticated = true;
                 plugin.getLogger().info("Bursting");
                 doBurst();
+
+            } else {
+                plugin.getLogger().error("Unrecognized command during authentication: " + data);
+                out.println("ERROR :Unrecognized command during authentication " + command);
             }
 
         } else { // We have already authenticated
             if (command.equals("ENDBURST")) { // We BURST'd first so do nothing
                 plugin.getLogger().info("Bursting done");
-            }
 
-            if (command.equals("FJOIN")) {
+            } else if (command.equals("FJOIN")) {
                 if (!chans.containsKey(ex[2])) {
                     Long ts = Long.parseLong(ex[3]);
                     if (!ts.equals(Util.getChanTS(ex[2]))) chans.get(ex[2]).ts = ts;
@@ -188,9 +190,8 @@ public class IRC {
                     p.sendMessage(new TextComponent(ChatColor.translateAlternateColorCodes('&', config.getString("formats.join")
                             .replace("{SENDER}", users.get(ex[6].split(",")[1])))));
                 }
-            }
 
-            if (command.equals("FMODE")) {
+            } else if (command.equals("FMODE")) {
                 String s = "";
                 String d = "+";
                 int v = 5;
@@ -213,9 +214,8 @@ public class IRC {
                             .replace("{SENDER}", users.get(sender))
                             .replace("{MODE}", ex[4] + " " + s))));
                 }
-            }
 
-            if (command.equals("KICK")) {
+            } else if (command.equals("KICK")) {
                 String reason = Util.sliceStringArray(ex, 4).substring(1);
                 String target = users.get(ex[3]);
                 String senderNick = users.get(sender);
@@ -238,9 +238,8 @@ public class IRC {
                     }
                 }
                 users.remove(ex[3]);
-            }
 
-            if (command.equals("PART")) {
+            } else if (command.equals("PART")) {
                 String reason;
                 if (ex.length > 3) {
                     reason = Util.sliceStringArray(ex, 3).substring(1);
@@ -252,13 +251,11 @@ public class IRC {
                             .replace("{SENDER}", users.get(sender))
                             .replace("{REASON}", reason))));
                 }
-            }
 
-            if (command.equals("PING")) {
+            } else if (command.equals("PING")) {
                 out.println(":" + SID + " PONG " + SID + " "+ex[2]);
-            }
 
-            if (command.equals("PRIVMSG")) {
+            } else if (command.equals("PRIVMSG")) {
                 String from = users.get(sender);
                 String player = users.get(ex[2]);
                 int prefixlen = config.getString("server.userprefix").length();
@@ -304,9 +301,8 @@ public class IRC {
                             .replace("{SENDER}", from)
                             .replace("{MESSAGE}", s)));
                 }
-            }
 
-            if (command.equals("QUIT")) {
+            } else if (command.equals("QUIT")) {
                 String reason;
                 if (ex.length > 3) {
                     reason = Util.sliceStringArray(ex, 2).substring(1);
@@ -328,11 +324,12 @@ public class IRC {
                     }
                 }
                 users.remove(sender);
-            }
 
-
-            if (command.equals("UID")) {
+            } else if (command.equals("UID")) {
                 users.put(ex[2], ex[4]);
+            } else {
+                plugin.getLogger().error("Unrecognized command: " + data);
+                out.println("ERROR :Unrecognized command " + command);
             }
         }
     }
