@@ -147,6 +147,10 @@ formats:
   # Parameters: sender, target, reason
   kick: "&7{SENDER} kicked {TARGET} from the channel ({REASON})"
 
+  # How nick changes will appear in Minecraft
+  # Parameters: old_nick, new_nick
+  nick: "&7{OLD_NICK} is now know as &7{NEW_NICK}"
+
   # The output of the global /say command in Minecraft
   # Parameters: message
   saycommand: "&d[SERVER] {MESSAGE}"

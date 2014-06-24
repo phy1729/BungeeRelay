@@ -169,7 +169,7 @@ public class IRC {
 
             } else if (command.equals("FJOIN")) {
                 // <channel> <timestamp> +[<modes> {mode params}] [:<[statusmodes],uuid> {<[statusmodes],uuid>}]
-                if (args[1] == channel) {
+                if (args[1].equals(channel)) {
                     Util.updateTS(args[2]);
                     String modes = args[3];
                     int countArgModes = 0;
@@ -184,7 +184,7 @@ public class IRC {
 
             } else if (command.equals("FMODE")) {
                 // <target> <timestamp> <modes and parameters>
-                if (args[1] == channel) {
+                if (args[1].equals( channel)) {
                     Util.updateTS(args[2]);
                     String modes = "";
                     for (int i=3; i<args.length; i++) {
@@ -225,8 +225,10 @@ public class IRC {
             } else if (command.equals("NOTICE")) {
             } else if (command.equals("NICK")) {
                 // <new_nick>
-                // FIXME
                 // Util.sendAll(users.get(sender).nick + " is now known as " + args[1]);
+                Util.sendAll(new TextComponent(ChatColor.translateAlternateColorCodes('&', config.getString("formats.nick")
+                        .replace("{OLD_NICK}", users.get(sender).nick)
+                        .replace("{NEW_NICK}", args[1]))));
                 users.get(sender).nick = args[1];
             } else if (command.equals("OPERTYPE")) {
             } else if (command.equals("PART")) {
