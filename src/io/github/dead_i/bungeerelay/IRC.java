@@ -250,9 +250,9 @@ public class IRC {
                 String from = users.get(sender).nick;
                 Collection<ProxiedPlayer> players = new ArrayList<ProxiedPlayer>();
                 boolean isPM;
-                if (args[1].charAt(0) == '#' && args[1] == channel) { // PRIVMSG is for a channel
+                if (args[1].charAt(0) == '#') { // PRIVMSG is for a channel
                     isPM = false;
-                    if (args[1] == channel) {
+                    if (args[1].equals(channel)) {
                         players = Util.getPlayersByChannel(args[1]);
                     }
                 } else {
