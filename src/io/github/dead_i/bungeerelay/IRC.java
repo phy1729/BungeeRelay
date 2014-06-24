@@ -22,6 +22,7 @@ public class IRC {
     public static BufferedReader in;
     public static PrintWriter out;
     public static FileConfiguration config;
+    public static String version = "0.9";
     public static String SID;
     public static String currentUid;
     public static String prefixModes;
@@ -111,6 +112,7 @@ public class IRC {
 
         if (command.equals("ERROR")) {
             sock.close();
+            plugin.getLogger().warning("Remote ERROR'd with message: " + args[1]);
             authenticated = false;
             capabState = false;
             throw new IOException(); // This will make us reconnect
@@ -161,7 +163,7 @@ public class IRC {
                 plugin.getLogger().info("Authentication successful");
                 plugin.getLogger().info("Bursting");
                 out.println(":" + SID + " BURST " + startTime);
-                out.println(":" + SID + " VERSION :BungeeRelay-0.1");
+                out.println(":" + SID + " VERSION :BungeeRelay-" + version);
                 out.println(":" + SID + " ENDBURST");
                 for (ProxiedPlayer player : plugin.getProxy().getPlayers()) {
                     Util.sendUserConnect(player);
@@ -182,7 +184,7 @@ public class IRC {
                 plugin.getLogger().info("Bursting done");
 
             } else if (command.equals("FJOIN")) {
-                // <channel> <timestamp> +[<modes> {mode params}] [:<[statusmodes],uuid> {<[statusmodes],uuid>}]
+                // <channel> <timestamp> +[<modes> {mode params}] [<[statusmodes],uuid> {<[statusmodes],uuid>}]
                 if (args[1].equals(channel)) {
                     Util.updateTS(args[2]);
                     String modes = args[3];
@@ -213,7 +215,7 @@ public class IRC {
             } else if (command.equals("FTOPIC")) {
 
             } else if (command.equals("KICK")) {
-                // <channel>{,<channel>} <user>{,<user>} [:<comment>]
+                // <channel>{,<channel>} <user>{,<user>} [<comment>]
                 String reason = args[3];
                 String target = users.get(args[2]).nick;
                 String senderNick = users.get(sender).nick;
@@ -253,17 +255,15 @@ public class IRC {
                 } else {
                     reason = "";
                 }
-                for (ProxiedPlayer p : Util.getPlayersByChannel(args[1])) {
-                    p.sendMessage(new TextComponent(ChatColor.translateAlternateColorCodes('&', config.getString("formats.part")
-                            .replace("{SENDER}", users.get(sender).nick)
-                            .replace("{REASON}", reason))));
-                }
+                Util.sendAll(new TextComponent(ChatColor.translateAlternateColorCodes('&', config.getString("formats.part")
+                        .replace("{SENDER}", users.get(sender).nick)
+                        .replace("{REASON}", reason))));
 
             } else if (command.equals("PING")) {
                 out.println(":" + SID + " PONG " + SID + " "+args[1]);
 
             } else if (command.equals("PRIVMSG")) {
-                // <msgtarget> :<text to be sent>
+                // <msgtarget> <text to be sent>
                 String from = users.get(sender).nick;
                 Collection<ProxiedPlayer> players = new ArrayList<ProxiedPlayer>();
                 boolean isPM;
@@ -295,7 +295,7 @@ public class IRC {
                                 format = config.getString("formats.me");
                             }
                         } else if (subcommand.equals("VERSION")) {
-                            out.println(":" + uids.get(p) + " NOTICE " + sender + " :" + (char) 1 + "VERSION Minecraft v" + p.getPendingConnection().getVersion() + " proxied by BungeeRelay v0.9" + (char) 1);
+                            out.println(":" + uids.get(p) + " NOTICE " + sender + " :" + (char) 1 + "VERSION Minecraft v" + p.getPendingConnection().getVersion() + " proxied by BungeeRelay v" + version + (char) 1);
                         }
                     } else {
                         if (isPM) {
@@ -318,7 +318,7 @@ public class IRC {
                 } else {
                     reason = "";
                 }
-                Util.sendAll(new TextComponent(ChatColor.translateAlternateColorCodes('&', config.getString("formats.quit")
+                Util.sendAll(new TextComponent(ChatColor.translateAlternateColorCodes('&', config.getString("formats.ircquit")
                             .replace("{SENDER}", users.get(sender).nick)
                             .replace("{REASON}", reason))));
                 users.remove(sender);
@@ -326,7 +326,7 @@ public class IRC {
             } else if (command.equals("SERVER")) {
             } else if (command.equals("SNONOTICE")) {
             } else if (command.equals("UID")) {
-                // <uid> <timestamp> <nick> <hostname> <displayed-hostname> <ident> <ip> <signon time> +<modes {mode params}> :<gecos>
+                // <uid> <timestamp> <nick> <hostname> <displayed-hostname> <ident> <ip> <signon time> +<modes {mode params}> <gecos>
                 users.put(args[1], new User(sender, args[2], args[3], args[8]));
             } else if (command.equals("VERSION")) {
             } else {

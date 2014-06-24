@@ -43,24 +43,15 @@ server:
   reconnect: 3000
 
   # If you want to use 1 single channel for every BungeeCord server, set this value to the
-  # name of the channel (e.g. "#minecraft"). However, if you wish to have separate channels
-  # for each BungeeCord server (recommended!), LEAVE THIS BLANK.
+  # name of the channel (e.g. "#minecraft").
   channel: ""
 
   # This value determines whether the player should be moved/kicked from the server if they
   # are kicked through IRC.
   kick: true
 
-  # This value determines whether the player should be moved/kicked from the server if they
-  # connect through a banned mask (channel mode +b). Compares both their nick and their
-  # connection address.
-  # NOTE: I recommend you set this to false for now while a better system is being worked on,
-  # as currently this ban system is fairly buggy and should not be relied on. W.I.P!
-  ban: false
-
-  # You can set a prefix and suffix to the nicknames of Minecraft IRC users. This can be
-  # helpful for users to distinguish between Minecraft players and normal IRC users.
-  # For example, if usersuffix was "/minecraft", I appear on IRC as "Dead_i/minecraft"
+  # You can set a prefix and suffix to the nicknames of Minecraft IRC users to add in
+  # the case of a collision.
   userprefix: ""
   usersuffix: ""
 
@@ -99,9 +90,13 @@ formats:
   # Parameters: sender, reason
   part: "&7{SENDER} left the channel ({REASON})"
 
-  # How quits will appear in Minecraft
+  # How Minecraft quits will appear in IRC
+  # Parameters: sender
+  mcquit: "&7{SENDER} logged out of Minecraft"
+
+  # How IRC quits will appear in Minecraft
   # Parameters: sender, reason
-  quit: "&7{SENDER} left IRC ({REASON})"
+  ircquit: "&7{SENDER} left IRC ({REASON})"
 
   # How kicks will appear in Minecraft
   # Parameters: sender, target, reason
