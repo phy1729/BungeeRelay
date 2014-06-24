@@ -71,11 +71,10 @@ public class Util {
         return null;
     }
 
-    public static String sliceStringArray(String[] a, Integer l) {
-        String s = "";
-        for (int i=l; i<a.length; i++) {
-            s += a[i] + " ";
+    public static ProxiedPlayer getPlayerByUid(String uid) {
+        for (Map.Entry<ProxiedPlayer, String> entry : IRC.uids.entrySet()) {
+            if (uid.equalsIgnoreCase(entry.getValue())) return entry.getKey();
         }
-        return s.trim();
+        return null;
     }
 }

@@ -80,20 +80,36 @@ public class IRC {
 
         // Normalize input so sender if and is in sender, command is in command,
         // and the arguments are in args and are 1 indexed
-        String[] args, ex = data.trim().split(" ");
+        String[] ex = data.trim().split(" ");
         String command, sender;
+        int offset;
         if (ex[0].charAt(0) == ':') { // We have a sender
             sender = ex[0].substring(1);
             command = ex[1];
-            args = new String[ ex.length-1 ];
-            for (int i = 0; i < ex.length-1; i++) {
-                args[i] = ex[i+1];
-            }
+            offset = 1;
         } else {
             sender = "";
             command = ex[0];
-            args = ex;
+            offset = 0;
         }
+
+        // If any arg aside from sender starts with a colon the rest of the args are considered one arg
+        ArrayList<String> tempArgs = new ArrayList<String>();
+        for (int i = offset; i < ex.length; i++) {
+            if (ex[i].charAt(0) == ':') {
+                String last = ex[i].substring(1); // remove the colon from the first token
+                for (i++ ; i < ex.length; i++) {
+                    last += " " + ex[i];
+                }
+                plugin.getLogger().warning("last: "+last);
+                tempArgs.add(last);
+                break;
+            }
+            tempArgs.add(ex[i]);
+        }
+        String[] args = new String[tempArgs.size()];
+        args = tempArgs.toArray(args);
+        plugin.getLogger().warning("command: "+command);
 
         if (command.equals("ERROR")) {
             sock.close();
@@ -111,10 +127,10 @@ public class IRC {
 
             } else if (args[1].equals("CAPABILITIES")) {
                 // Dynamically find which modes require arguments
-                for (String s:args) {
+                for (String s:args[2].split(" ")) {
                     if (s.contains("CHANMODES=")) {
                         chanModes = s.split("=")[1];
-                        String[] chanmodeSets = chanModes.split(",");
+                        String[] chanmodeSets = chanModes.split(",",-1);
                         argModes = "";
                         // The first three sets take arguments
                         for (int i = 0; i < 3; ++i) {
@@ -124,7 +140,7 @@ public class IRC {
                     if (s.contains("PREFIX=")) {
                         // Grab the modes inside the parens after the "="
                         prefixModes = s.split("=")[1].split("\\(")[1].split("\\)")[0];
-                    } 
+                    }
                 }
 
             } else if (args[1].equals("END")) {
@@ -177,14 +193,16 @@ public class IRC {
                         countArgModes += countChar (modes, c);
                     }
                     for (ProxiedPlayer p : Util.getPlayersByChannel(args[1])) {
-                        p.sendMessage(new TextComponent(ChatColor.translateAlternateColorCodes('&', config.getString("formats.join")
-                                .replace("{SENDER}", users.get(args[4+countArgModes].split(",")[1]).nick))));
+                        for (String user : args[4+countArgModes].split(" ")) {
+                            p.sendMessage(new TextComponent(ChatColor.translateAlternateColorCodes('&', config.getString("formats.join")
+                                .replace("{SENDER}", users.get(user.split(",")[1]).nick))));
+                        }
                     }
                 }
 
             } else if (command.equals("FMODE")) {
                 // <target> <timestamp> <modes and parameters>
-                if (args[1].equals( channel)) {
+                if (args[1].equals(channel)) {
                     Util.updateTS(args[2]);
                     String modes = "";
                     for (int i=3; i<args.length; i++) {
@@ -198,7 +216,7 @@ public class IRC {
 
             } else if (command.equals("KICK")) {
                 // <channel>{,<channel>} <user>{,<user>} [:<comment>]
-                String reason = Util.sliceStringArray(args, 3).substring(1);
+                String reason = args[3];
                 String target = users.get(args[2]).nick;
                 String senderNick = users.get(sender).nick;
                 for (ProxiedPlayer p : Util.getPlayersByChannel(args[1])) {
@@ -233,7 +251,7 @@ public class IRC {
             } else if (command.equals("PART")) {
                 String reason;
                 if (args.length > 2) {
-                    reason = Util.sliceStringArray(args, 2).substring(1);
+                    reason = args[2];
                 } else {
                     reason = "";
                 }
@@ -258,51 +276,49 @@ public class IRC {
                     }
                 } else {
                     isPM = true;
-                    int prefixlen = config.getString("server.userprefix").length();
-                    int suffixlen = config.getString("server.usersuffix").length();
                     String player = users.get(args[1]).nick;
-                    if (player != null && prefixlen + suffixlen < player.length()) {
-                        ProxiedPlayer to = plugin.getProxy().getPlayer(player.substring(prefixlen, player.length() - suffixlen));
-                        isPM = (users.containsKey(args[1]) && to != null);
-                        if (isPM) {
-                            players.add(to);
-                            replies.put(to, from);
-                        }
+                    ProxiedPlayer to = Util.getPlayerByUid(args[1]);
+                    isPM = to != null;
+                    if (isPM) {
+                        players.add(to);
+                        replies.put(to, from);
                     }
                 }
                 for (ProxiedPlayer p : players) {
-                    int len;
-                    if (args[2].equals(":" + (char) 1 + "ACTION")) {
-                        len = 3;
-                    } else {
-                        len = 2;
-                    }
-                    String s = Util.sliceStringArray(args, len);
-                    String out;
-                    if (len == 4) {
-                        if (isPM) {
-                            out = config.getString("formats.privateme");
-                        } else {
-                            out = config.getString("formats.me");
+                    String format="", message = args[2];
+                    if (message.charAt(0) == (char) 1) { // This is a CTCP message
+                        message = message.replaceAll("\001", ""); // Remove the 0x01 at beginning and end
+                        String subcommand = message.split(" ")[0];
+                    plugin.getLogger().warning("char: " + (int) subcommand.charAt(0));
+                        plugin.getLogger().warning("Subcommand: " + subcommand);
+                        if (message.contains(" ")) message = message.split(" ",2)[1]; // Remove subcommand from message
+                        if (subcommand.equals("ACTION")) {
+                            if (isPM) {
+                                format = config.getString("formats.privateme");
+                            } else {
+                                format = config.getString("formats.me");
+                            }
+                        } else if (subcommand.equals("VERSION")) {
+                            out.println(":" + uids.get(p) + " NOTICE " + sender + " :" + (char) 1 + "VERSION Minecraft v" + p.getPendingConnection().getVersion() + " proxied by BungeeRelay v0.9" + (char) 1);
                         }
-                        s = s.replaceAll(Character.toString((char) 1), "");
                     } else {
                         if (isPM) {
-                            out = config.getString("formats.privatemsg");
+                            format = config.getString("formats.privatemsg");
                         } else {
-                            out = config.getString("formats.msg");
+                            format = config.getString("formats.msg");
                         }
-                        s = s.substring(1);
                     }
-                    p.sendMessage(new TextComponent(ChatColor.translateAlternateColorCodes('&', out)
-                            .replace("{SENDER}", from)
-                            .replace("{MESSAGE}", s)));
+                    if (format != "") {
+                        p.sendMessage(new TextComponent(ChatColor.translateAlternateColorCodes('&', format)
+                                .replace("{SENDER}", from)
+                                .replace("{MESSAGE}", message)));
+                    }
                 }
 
             } else if (command.equals("QUIT")) {
                 String reason;
                 if (args.length > 2) {
-                    reason = Util.sliceStringArray(args, 1).substring(1);
+                    reason = args[1];
                 } else {
                     reason = "";
                 }
