@@ -18,15 +18,15 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class IRC {
-    public Socket sock;
-    public BufferedReader in;
-    public PrintWriter out;
-    public FileConfiguration config;
-    public String SID;
+    public final Socket sock;
+    public final BufferedReader in;
+    public final PrintWriter out;
+    public final FileConfiguration config;
+    public final String SID;
     public String currentUid;
     public String prefixModes;
     public String chanModes;
-    public long startTime;
+    public final long startTime;
     public boolean authenticated;
     public boolean capabState;
     public String channel;
@@ -34,15 +34,14 @@ public class IRC {
     public HashMap<ProxiedPlayer, String> uids = new HashMap<ProxiedPlayer, String>();
     public HashMap<ProxiedPlayer, String> replies = new HashMap<ProxiedPlayer, String>();
     public HashMap<String, User> users = new HashMap<String, User>();
-    Plugin plugin;
+    Plugin final plugin;
 
     private static String argModes = "";
 
-    public IRC(Socket s, FileConfiguration c, Plugin p) throws IOException {
-        // Yes this is required
-        sock = s;
-        config = c;
-        plugin = p;
+    public IRC(Socket sock, FileConfiguration config, Plugin plugin) throws IOException {
+        this.sock = sock;
+        this.config = config;
+        this.plugin = plugin;
 
         SID = config.getString("server.id");
         currentUid = SID + "AAAAAA";
@@ -79,6 +78,8 @@ public class IRC {
 
         if (config.getBoolean("server.debug")) plugin.getLogger().info("Received: "+data);
 
+        // Normalize input so sender if and is in sender, command is in command,
+        // and the arguments are in args and are 1 indexed
         String[] args, ex = data.trim().split(" ");
         String command, sender;
         if (ex[0].charAt(0) == ':') { // We have a sender
@@ -156,6 +157,7 @@ public class IRC {
             } else {
                 plugin.getLogger().warning("Unrecognized command during authentication: " + data);
                 out.println("ERROR :Unrecognized command during authentication " + command);
+                sock.close();
             }
 
         } else { // We have already authenticated
