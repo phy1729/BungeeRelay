@@ -49,11 +49,15 @@ public class Util {
     }
 
     public static void updateTS(String ts) {
-        Long LongTimestamp = Long.parseLong(ts);
-        long timestamp = LongTimestamp.longValue();
+        long timestamp = stringToTS(ts);
         if (timestamp < IRC.channelTS) {
             IRC.channelTS = timestamp;
         }
+    }
+
+    public static long stringToTS(String ts) {
+        Long LongTimestamp = Long.parseLong(ts);
+        return LongTimestamp.longValue();
     }
 
     public static Collection<ProxiedPlayer> getPlayersByChannel(String c) {
