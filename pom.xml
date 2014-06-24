@@ -4,6 +4,9 @@
     <artifactId>BungeeRelay</artifactId>
     <name>BungeeRelay</name>
     <version>0.1</version>
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    </properties>
     <build>
         <sourceDirectory>src</sourceDirectory>
         <defaultGoal>clean package</defaultGoal>

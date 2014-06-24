@@ -18,24 +18,24 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class IRC {
-    public final Socket sock;
-    public final BufferedReader in;
-    public final PrintWriter out;
-    public final FileConfiguration config;
-    public final String SID;
-    public String currentUid;
-    public String prefixModes;
-    public String chanModes;
-    public String argModes;
-    public final long startTime;
-    public boolean authenticated;
-    public boolean capabState;
-    public String channel;
-    public long channelTS;
-    public HashMap<ProxiedPlayer, String> uids = new HashMap<ProxiedPlayer, String>();
-    public HashMap<ProxiedPlayer, String> replies = new HashMap<ProxiedPlayer, String>();
-    public HashMap<String, User> users = new HashMap<String, User>();
-    final Plugin plugin;
+    public static Socket sock;
+    public static BufferedReader in;
+    public static PrintWriter out;
+    public static FileConfiguration config;
+    public static String SID;
+    public static String currentUid;
+    public static String prefixModes;
+    public static String chanModes;
+    public static String argModes;
+    public static long startTime;
+    public static boolean authenticated;
+    public static boolean capabState;
+    public static String channel;
+    public static long channelTS;
+    public static HashMap<ProxiedPlayer, String> uids = new HashMap<ProxiedPlayer, String>();
+    public static HashMap<ProxiedPlayer, String> replies = new HashMap<ProxiedPlayer, String>();
+    public static HashMap<String, User> users = new HashMap<String, User>();
+    static Plugin plugin;
 
 
     public IRC(Socket sock, FileConfiguration config, Plugin plugin) throws IOException {
