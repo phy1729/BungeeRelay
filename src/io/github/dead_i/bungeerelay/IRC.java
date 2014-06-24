@@ -35,7 +35,7 @@ public class IRC {
     public HashMap<ProxiedPlayer, String> uids = new HashMap<ProxiedPlayer, String>();
     public HashMap<ProxiedPlayer, String> replies = new HashMap<ProxiedPlayer, String>();
     public HashMap<String, User> users = new HashMap<String, User>();
-    Plugin final plugin;
+    final Plugin plugin;
 
 
     public IRC(Socket sock, FileConfiguration config, Plugin plugin) throws IOException {
