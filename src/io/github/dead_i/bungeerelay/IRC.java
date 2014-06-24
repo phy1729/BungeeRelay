@@ -225,7 +225,6 @@ public class IRC {
             } else if (command.equals("NOTICE")) {
             } else if (command.equals("NICK")) {
                 // <new_nick>
-                // Util.sendAll(users.get(sender).nick + " is now known as " + args[1]);
                 Util.sendAll(new TextComponent(ChatColor.translateAlternateColorCodes('&', config.getString("formats.nick")
                         .replace("{OLD_NICK}", users.get(sender).nick)
                         .replace("{NEW_NICK}", args[1]))));
