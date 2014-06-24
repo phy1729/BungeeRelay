@@ -251,13 +251,15 @@ public class IRC {
                 Collection<ProxiedPlayer> players = new ArrayList<ProxiedPlayer>();
                 boolean isPM;
                 if (args[1].charAt(0) == '#' && args[1] == channel) { // PRIVMSG is for a channel
-                    players = Util.getPlayersByChannel(args[1]);
                     isPM = false;
+                    if (args[1] == channel) {
+                        players = Util.getPlayersByChannel(args[1]);
+                    }
                 } else {
                     isPM = true;
                     int prefixlen = config.getString("server.userprefix").length();
                     int suffixlen = config.getString("server.usersuffix").length();
-                    String player = users.get(ex[2]).nick;
+                    String player = users.get(args[1]).nick;
                     if (player != null && prefixlen + suffixlen < player.length()) {
                         ProxiedPlayer to = plugin.getProxy().getPlayer(player.substring(prefixlen, player.length() - suffixlen));
                         isPM = (users.containsKey(args[1]) && to != null);
