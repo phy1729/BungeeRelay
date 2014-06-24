@@ -35,7 +35,7 @@ public class Util {
     public static void sendUserConnect(ProxiedPlayer player) {
         String playerUID = IRC.uids.get(player);
         User user = IRC.users.get(playerUID);
-        IRC.out.println(":" + IRC.SID + " UID " + playerUID + " " + user.nickTime + " " + user.nick + " " + player.getAddress().getHostName() + " " + player.getAddress().getHostName() + " " + IRC.config.getString("formats.ident").replace("{IDENT}", player.getName()) + " " + player.getAddress().getHostString() + " " + user.connectTime + " +r :Minecraft Player");
+        IRC.out.println(":" + IRC.SID + " UID " + playerUID + " " + user.nickTime + " " + user.nick + " " + player.getAddress().getHostName() + " " + player.getAddress().getHostName() + " " + IRC.config.getString("formats.ident").replace("{IDENT}", player.getName()) + " " + player.getAddress().toString() + " " + user.connectTime + " +r :Minecraft Player");
     }
 
     public static void sendChannelJoin(ProxiedPlayer player) {

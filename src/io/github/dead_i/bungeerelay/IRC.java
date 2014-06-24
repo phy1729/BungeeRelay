@@ -186,7 +186,7 @@ public class IRC {
                 // <target> <timestamp> <modes and parameters>
                 if (args[1] == channel) {
                     Util.updateTS(args[2]);
-                    String modes;
+                    String modes = "";
                     for (int i=3; i<args.length; i++) {
                         modes = modes + args[i] + " ";
                     }
