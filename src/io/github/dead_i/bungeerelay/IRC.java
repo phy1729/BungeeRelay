@@ -101,7 +101,6 @@ public class IRC {
                 for (i++ ; i < ex.length; i++) {
                     last += " " + ex[i];
                 }
-                plugin.getLogger().warning("last: "+last);
                 tempArgs.add(last);
                 break;
             }
@@ -109,7 +108,6 @@ public class IRC {
         }
         String[] args = new String[tempArgs.size()];
         args = tempArgs.toArray(args);
-        plugin.getLogger().warning("command: "+command);
 
         if (command.equals("ERROR")) {
             sock.close();
@@ -289,8 +287,6 @@ public class IRC {
                     if (message.charAt(0) == (char) 1) { // This is a CTCP message
                         message = message.replaceAll("\001", ""); // Remove the 0x01 at beginning and end
                         String subcommand = message.split(" ")[0];
-                    plugin.getLogger().warning("char: " + (int) subcommand.charAt(0));
-                        plugin.getLogger().warning("Subcommand: " + subcommand);
                         if (message.contains(" ")) message = message.split(" ",2)[1]; // Remove subcommand from message
                         if (subcommand.equals("ACTION")) {
                             if (isPM) {
