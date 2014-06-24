@@ -47,16 +47,6 @@ server:
   # for each BungeeCord server (recommended!), LEAVE THIS BLANK.
   channel: ""
 
-  # If you wish to use different channels for different servers, you can apply a prefix to
-  # the channel, such as "#mc-" and then the name. If you don't want a prefix, leave it as
-  # "#". This value is ignored if you put something in "channel" above.
-  chanprefix: "#"
-
-  # If the topic should be set to something in every channel that is being relayed to, enter
-  # a topic below. Leave blank for no change. You can use {SERVERNAME} for the name of the
-  # current server in BungeeCord, but only if "channel" above is blank, of course.
-  topic: "Minecraft Server Chat for {SERVERNAME}"
-
   # This value determines whether the player should be moved/kicked from the server if they
   # are kicked through IRC.
   kick: true
@@ -68,20 +58,6 @@ server:
   # as currently this ban system is fairly buggy and should not be relied on. W.I.P!
   ban: false
 
-  # If you wish for the bot to automatically join a staff channel, specify the channel name.
-  # For no automatic staff channel, leave this blank.
-  staff: "#staff"
-
-  # If you wish the staff channel to have a topic set on join, specify it the topic here.
-  # This value will be ignored if the value of "staff" above is blank.
-  stafftopic: "Minecraft Server Staff"
-
-  # The modes that will automatically be set on the staff channel specified above. +O is
-  # recommended, since with this mode only IRC Ops will be able to join. You could also
-  # use another mode such as +k (channel key) or +i (invite only, if you have Services).
-  # This value will be  ignored if the value of "staff" above is blank.
-  staffmodes: "+O"
-
   # You can set a prefix and suffix to the nicknames of Minecraft IRC users. This can be
   # helpful for users to distinguish between Minecraft players and normal IRC users.
   # For example, if usersuffix was "/minecraft", I appear on IRC as "Dead_i/minecraft"
@@ -91,22 +67,6 @@ server:
   # Set to "true" to make BungeeRelay say each message it receives raw in console.
   # Used for debugging purposes only. For general use, leave "false".
   debug: false
-
-# This section concerns the main bot that will join every channel. This bot will do things
-# such as modes, answer commands, and messages from the console.
-bot:
-  # Generic details that will be visible to the user.
-  nick: "Minecraft"
-  ident: "Minecraft"
-  realname: "A BungeeCord server running BungeeRelay"
-  host: "Minecraft/ServiceBot"
-
-  # The type of oper this bot appears as. This appears when someone does a /whois on it.
-  opertype: "Minecraft Service Bot"
-
-  # The modes this bot should automatically get.
-  # Change this to "ov" if you do not have the modules loaded for all of these modes.
-  modes: "qaohv"
 
 # This section contains the format of each message going to your Minecraft servers.
 # Accepts colour codes, and each parameter is capital and surrounded in curly brackets.
