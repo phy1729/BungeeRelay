@@ -171,15 +171,15 @@ public class IRC {
                 // <channel> <timestamp> +[<modes> {mode params}] [:<[statusmodes],uuid> {<[statusmodes],uuid>}]
                 if (args[1] == channel) {
                     Util.updateTS(args[2]);
-                }
-                String modes = args[3];
-                int countArgModes = 0;
-                for (Character c:argModes.toCharArray()) {
-                    countArgModes += countChar (modes, c);
-                }
-                for (ProxiedPlayer p : Util.getPlayersByChannel(args[1])) {
-                    p.sendMessage(new TextComponent(ChatColor.translateAlternateColorCodes('&', config.getString("formats.join")
-                            .replace("{SENDER}", users.get(args[4+countArgModes].split(",")[1]).nick))));
+                    String modes = args[3];
+                    int countArgModes = 0;
+                    for (Character c:argModes.toCharArray()) {
+                        countArgModes += countChar (modes, c);
+                    }
+                    for (ProxiedPlayer p : Util.getPlayersByChannel(args[1])) {
+                        p.sendMessage(new TextComponent(ChatColor.translateAlternateColorCodes('&', config.getString("formats.join")
+                                .replace("{SENDER}", users.get(args[4+countArgModes].split(",")[1]).nick))));
+                    }
                 }
 
             } else if (command.equals("FMODE")) {
