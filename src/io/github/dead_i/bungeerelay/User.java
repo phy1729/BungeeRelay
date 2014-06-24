@@ -5,13 +5,14 @@ public class User {
     public long connectTime;
     public long nickTime;
     public boolean local;
-    public String server; // User's server's SID if local = false
+    public String server;
 
     public User(String nick) {
         local = true;
         this.nick = nick;
         connectTime = System.currentTimeMillis() / 1000;
         nickTime = connectTime;
+        server = IRC.SID;
     }
 
     public User(String server, String nickTime, String nick, String connectTime) {

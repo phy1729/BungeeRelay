@@ -259,6 +259,7 @@ public class IRC {
                     isPM = true;
                     int prefixlen = config.getString("server.userprefix").length();
                     int suffixlen = config.getString("server.usersuffix").length();
+                    plugin.getLogger().warning("PRIVMSG args[1]: '" + args[1] + "'");
                     String player = users.get(args[1]).nick;
                     if (player != null && prefixlen + suffixlen < player.length()) {
                         ProxiedPlayer to = plugin.getProxy().getPlayer(player.substring(prefixlen, player.length() - suffixlen));
