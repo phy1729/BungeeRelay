@@ -26,6 +26,7 @@ public class IRC {
     public String currentUid;
     public String prefixModes;
     public String chanModes;
+    public String argModes;
     public final long startTime;
     public boolean authenticated;
     public boolean capabState;
@@ -36,7 +37,6 @@ public class IRC {
     public HashMap<String, User> users = new HashMap<String, User>();
     Plugin final plugin;
 
-    private static String argModes = "";
 
     public IRC(Socket sock, FileConfiguration config, Plugin plugin) throws IOException {
         this.sock = sock;
