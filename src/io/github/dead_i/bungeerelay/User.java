@@ -14,7 +14,7 @@ public class User {
         nickTime = connectTime;
     }
 
-    public User(String server, String nick, String nickTime, String connectTime) {
+    public User(String server, String nickTime, String nick, String connectTime) {
         local = false;
         this.server = server;
         this.nick = nick;
