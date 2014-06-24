@@ -246,23 +246,27 @@ public class IRC {
                 out.println(":" + SID + " PONG " + SID + " "+args[1]);
 
             } else if (command.equals("PRIVMSG")) {
+                // <msgtarget> :<text to be sent>
                 String from = users.get(sender).nick;
-                String player = users.get(args[1]).nick;
-                int prefixlen = config.getString("server.userprefix").length();
-                int suffixlen = config.getString("server.usersuffix").length();
                 Collection<ProxiedPlayer> players = new ArrayList<ProxiedPlayer>();
                 boolean isPM;
-                if (player != null && prefixlen + suffixlen < player.length()) {
-                    ProxiedPlayer to = plugin.getProxy().getPlayer(player.substring(prefixlen, player.length() - suffixlen));
-                    isPM = (users.containsKey(args[1]) && to != null);
-                    if (isPM) {
-                        players.add(to);
-                        replies.put(to, from);
-                    }
-                } else {
+                if (args[1].charAt(0) == '#' && args[1] == channel) { // PRIVMSG is for a channel
+                    players = Util.getPlayersByChannel(args[1]);
                     isPM = false;
+                } else {
+                    isPM = true;
+                    int prefixlen = config.getString("server.userprefix").length();
+                    int suffixlen = config.getString("server.usersuffix").length();
+                    String player = users.get(ex[2]).nick;
+                    if (player != null && prefixlen + suffixlen < player.length()) {
+                        ProxiedPlayer to = plugin.getProxy().getPlayer(player.substring(prefixlen, player.length() - suffixlen));
+                        isPM = (users.containsKey(args[1]) && to != null);
+                        if (isPM) {
+                            players.add(to);
+                            replies.put(to, from);
+                        }
+                    }
                 }
-                if (!isPM) players = Util.getPlayersByChannel(args[1]);
                 for (ProxiedPlayer p : players) {
                     int len;
                     if (args[2].equals(":" + (char) 1 + "ACTION")) {
