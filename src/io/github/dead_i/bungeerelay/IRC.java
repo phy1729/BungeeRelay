@@ -179,7 +179,7 @@ public class IRC {
                 }
                 for (ProxiedPlayer p : Util.getPlayersByChannel(args[1])) {
                     p.sendMessage(new TextComponent(ChatColor.translateAlternateColorCodes('&', config.getString("formats.join")
-                            .replace("{SENDER}", users.get(args[5].split(",")[1]).nick))));
+                            .replace("{SENDER}", users.get(args[4+countArgModes].split(",")[1]).nick))));
                 }
 
             } else if (command.equals("FMODE")) {
