@@ -177,10 +177,7 @@ public class IRC {
             }
 
         } else { // We have already authenticated
-            if (command.equals("ADDLINE")) {
-            } else if (command.equals("AWAY")) {
-            } else if (command.equals("BURST")) {
-            } else if (command.equals("ENDBURST")) {
+            if (command.equals("ENDBURST")) {
                 plugin.getLogger().info("Bursting done");
 
             } else if (command.equals("FJOIN")) {
@@ -212,7 +209,6 @@ public class IRC {
                                 .replace("{SENDER}", users.get(sender).nick)
                                 .replace("{MODE}", modes))));
                 }
-            } else if (command.equals("FTOPIC")) {
 
             } else if (command.equals("KICK")) {
                 // <channel>{,<channel>} <user>{,<user>} [<comment>]
@@ -239,7 +235,7 @@ public class IRC {
                 }
                 users.remove(args[2]);
 
-            } else if (command.equals("METADATA")) {
+            } else if (command.equals("KILL")) {
             } else if (command.equals("NOTICE")) {
             } else if (command.equals("NICK")) {
                 // <new_nick>
@@ -247,7 +243,6 @@ public class IRC {
                         .replace("{OLD_NICK}", users.get(sender).nick)
                         .replace("{NEW_NICK}", args[1]))));
                 users.get(sender).nick = args[1];
-            } else if (command.equals("OPERTYPE")) {
             } else if (command.equals("PART")) {
                 String reason;
                 if (args.length > 2) {
@@ -323,11 +318,17 @@ public class IRC {
                             .replace("{REASON}", reason))));
                 users.remove(sender);
 
-            } else if (command.equals("SERVER")) {
-            } else if (command.equals("SNONOTICE")) {
             } else if (command.equals("UID")) {
                 // <uid> <timestamp> <nick> <hostname> <displayed-hostname> <ident> <ip> <signon time> +<modes {mode params}> <gecos>
                 users.put(args[1], new User(sender, args[2], args[3], args[8]));
+            } else if (command.equals("ADDLINE")) {
+            } else if (command.equals("AWAY")) {
+            } else if (command.equals("BURST")) {
+            } else if (command.equals("FTOPIC")) {
+            } else if (command.equals("METADATA")) {
+            } else if (command.equals("OPERTYPE")) {
+            } else if (command.equals("SERVER")) {
+            } else if (command.equals("SNONOTICE")) {
             } else if (command.equals("VERSION")) {
             } else {
                 plugin.getLogger().warning("Unrecognized command: " + data);
