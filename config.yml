@@ -92,7 +92,7 @@ formats:
 
   # How Minecraft quits will appear in IRC
   # Parameters: sender
-  mcquit: "&7{SENDER} logged out of Minecraft"
+  mcquit: "{SENDER} logged out of Minecraft"
 
   # How IRC quits will appear in Minecraft
   # Parameters: sender, reason
