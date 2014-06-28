@@ -45,9 +45,6 @@ server:
   # Name of the channel.
   channel: "#minecraft"
 
-  # If the topic should be set to something, enter a topic below. Leave blank for no change.
-  topic: "Minecraft Server Chat"
-
   # This value determines whether the player should be moved/kicked from the server if they
   # are kicked through IRC.
   kick: true

@@ -165,9 +165,8 @@ public class IRC {
                 out.println("UID " + botUID + " " + startTime + " " + config.getString("bot.nick") + " BungeeRelay " + config.getString("bot.host") + " " + config.getString("bot.ident") + " BungeeRelay " + startTime + " +o :" + config.getString("bot.realname"));
                 out.println(":" + botUID + " OPERTYPE " + config.getString("bot.opertype"));
                 String chan = config.getString("server.channel");
-                String topic = config.getString("server.topic");
                 String botmodes = config.getString("bot.modes");
-                Util.sendMainJoin(chan, botmodes, topic);
+                Util.sendMainJoin(chan, botmodes);
                 for (ProxiedPlayer p : plugin.getProxy().getPlayers()) {
                     Util.sendUserConnect(p);
                     Util.sendChannelJoin(p, chan);
