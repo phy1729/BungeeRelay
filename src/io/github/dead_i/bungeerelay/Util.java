@@ -80,13 +80,6 @@ public class Util {
         return true;
     }
 
-    public static void sendMainJoin(String c, String m) {
-        long chanTS = getChanTS(c);
-        IRC.out.println("FJOIN " + c + " " + chanTS + " +nt :," + IRC.botUID);
-
-        giveChannelModes(c, m, IRC.botUID);
-    }
-
     public static Collection<ProxiedPlayer> getPlayersByChannel(String c) {
         return proxy.getPlayers();
     }

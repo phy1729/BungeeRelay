@@ -23,7 +23,6 @@ public class IRC {
     public static PrintWriter out;
     public static FileConfiguration config;
     public static String SID;
-    public static String botUID;
     public static String currentUid;
     public static String prefixModes;
     public static String chanModes;
@@ -45,8 +44,7 @@ public class IRC {
         plugin = p;
 
         SID = config.getString("server.id");
-        botUID = SID + "AAAAAA";
-        currentUid = SID + "AAAAAB";
+        currentUid = SID + "AAAAAA";
         authenticated = false;
         capabState = false;
 
@@ -162,11 +160,7 @@ public class IRC {
                 plugin.getLogger().info("Bursting");
                 out.println("BURST " + startTime);
                 out.println("VERSION :0.1");
-                out.println("UID " + botUID + " " + startTime + " " + config.getString("bot.nick") + " BungeeRelay " + config.getString("bot.host") + " " + config.getString("bot.ident") + " BungeeRelay " + startTime + " +o :" + config.getString("bot.realname"));
-                out.println(":" + botUID + " OPERTYPE " + config.getString("bot.opertype"));
                 String chan = config.getString("server.channel");
-                String botmodes = config.getString("bot.modes");
-                Util.sendMainJoin(chan, botmodes);
                 for (ProxiedPlayer p : plugin.getProxy().getPlayers()) {
                     Util.sendUserConnect(p);
                     Util.sendChannelJoin(p, chan);

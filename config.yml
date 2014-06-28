@@ -66,22 +66,6 @@ server:
   # Used for debugging purposes only. For general use, leave "false".
   debug: false
 
-# This section concerns the main bot that will join every channel. This bot will do things
-# such as modes, answer commands, and messages from the console.
-bot:
-  # Generic details that will be visible to the user.
-  nick: "Minecraft"
-  ident: "Minecraft"
-  realname: "A BungeeCord server running BungeeRelay"
-  host: "Minecraft/ServiceBot"
-
-  # The type of oper this bot appears as. This appears when someone does a /whois on it.
-  opertype: "Minecraft Service Bot"
-
-  # The modes this bot should automatically get.
-  # Change this to "ov" if you do not have the modules loaded for all of these modes.
-  modes: "qaohv"
-
 # This section contains the format of each message going to your Minecraft servers.
 # Accepts colour codes, and each parameter is capital and surrounded in curly brackets.
 # Leaving a particular message empty is acceptable.
