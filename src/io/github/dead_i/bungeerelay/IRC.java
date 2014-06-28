@@ -30,6 +30,7 @@ public class IRC {
     public static long startTime = System.currentTimeMillis() / 1000;
     public static boolean authenticated;
     public static HashMap<ProxiedPlayer, Long> times = new HashMap<ProxiedPlayer, Long>();
+    public static boolean capabState;
     public static HashMap<ProxiedPlayer, String> uids = new HashMap<ProxiedPlayer, String>();
     public static HashMap<ProxiedPlayer, String> replies = new HashMap<ProxiedPlayer, String>();
     public static HashMap<String, String> users = new HashMap<String, String>();
@@ -47,9 +48,15 @@ public class IRC {
         botUID = SID + "AAAAAA";
         currentUid = SID + "AAAAAB";
         authenticated = false;
+        capabState = false;
 
         in = new BufferedReader(new InputStreamReader(sock.getInputStream()));
         out = new PrintWriter(sock.getOutputStream(), true);
+
+        // Send our capabilities where we pretend we can do everything
+        out.println("CAPAB START 1202");
+        out.println("CAPAB CAPABILITIES :PROTOCOL=1202");
+        out.println("CAPAB END");
         while (sock.isConnected()) handleData(in.readLine());
     }
 
@@ -101,41 +108,49 @@ public class IRC {
         String[] args = new String[tempArgs.size()];
         args = tempArgs.toArray(args);
 
-        if (!authenticated) {
-            if (command.equals("CAPAB")) {
-                if (args[1].equals("START")) {
-                    out.println("CAPAB START 1202");
+        if (command.equals("ERROR")) {
+            sock.close();
+            plugin.getLogger().warning("Remote ERROR'd with message: " + args[1]);
+            authenticated = false;
+            capabState = false;
+            throw new IOException(); // This will make us reconnect
 
-                } else if (args[1].equals("CAPABILITIES")) {
-                    // Dynamically find which modes require arguments
-                    for (String s:args[2].split(" ")) {
-                        if (s.contains("CHANMODES=")) {
-                            chanModes = s.split("=")[1];
-                            String[] chanmodeSets = chanModes.split(",");
-                            argModes = "";
-                            // The first three sets take arguments
-                            for (int i = 0; i < 3; ++i) {
-                                argModes += chanmodeSets[i];
-                            }
-                        }
-                        if (s.contains("PREFIX=")) {
-                            // Grab the modes inside the parens after the "="
-                            prefixModes = s.split("=")[1].split("\\(")[1].split("\\)")[0];
+        } else if (command.equals("CAPAB")) {
+            if (args[1].equals("START")) {
+                capabState = true;
+
+            } else if (!capabState && authenticated) {
+                plugin.getLogger().warning("CAPAB *MUST* start with CAPAB START after authentication");
+                out.println("ERROR :Received CAPAB command without CAPAB START");
+
+            } else if (args[1].equals("CAPABILITIES")) {
+                // Dynamically find which modes require arguments
+                for (String s:args[2].split(" ")) {
+                    if (s.contains("CHANMODES=")) {
+                        chanModes = s.split("=")[1];
+                        String[] chanmodeSets = chanModes.split(",",-1);
+                        argModes = "";
+                        // The first three sets take arguments
+                        for (int i = 0; i < 3; ++i) {
+                            argModes += chanmodeSets[i];
                         }
                     }
-
-                } else if (args[1].equals("END")) {
-                    out.println("CAPAB CAPABILITIES :PROTOCOL=1202");
-                    out.println("CAPAB END");
-                    plugin.getLogger().info("Authenticating with server...");
-                    out.println("SERVER " + config.getString("server.servername") + " " + config.getString("server.sendpass") + " 0 " + SID + " :" + config.getString("server.realname"));
-                    out.println("BURST " + startTime);
-                    out.println("VERSION :0.1");
-                    out.println("UID " + botUID + " " + startTime + " " + config.getString("bot.nick") + " BungeeRelay " + config.getString("bot.host") + " " + config.getString("bot.ident") + " BungeeRelay " + startTime + " +o :" + config.getString("bot.realname"));
-                    out.println(":" + botUID + " OPERTYPE " + config.getString("bot.opertype"));
+                    if (s.contains("PREFIX=")) {
+                        // Grab the modes inside the parens after the "="
+                        prefixModes = s.split("=")[1].split("\\(")[1].split("\\)")[0];
+                    }
                 }
 
-            } else if (command.equals("SERVER")) {
+            } else if (args[1].equals("END")) {
+                capabState = false;
+                if (!authenticated) {
+                    plugin.getLogger().info("Authenticating with server...");
+                    out.println("SERVER " + config.getString("server.servername") + " " + config.getString("server.sendpass") + " 0 " + SID + " :" + config.getString("server.realname"));
+                }
+            }
+
+        } else if (!authenticated) {
+            if (command.equals("SERVER")) {
                 if (!args[2].equals(config.getString("server.recvpass"))) {
                     plugin.getLogger().warning("The server "+args[1]+" presented the wrong password.");
                     plugin.getLogger().warning("Remember that the recvpass and sendpass are opposite to the ones in your links.conf");
@@ -143,10 +158,12 @@ public class IRC {
                     sock.close();
                 }
                 authenticated = true;
-            }
-
-        } else { // We have already authenticated
-            if (command.equals("ENDBURST")) {
+                plugin.getLogger().info("Authentication successful");
+                plugin.getLogger().info("Bursting");
+                out.println("BURST " + startTime);
+                out.println("VERSION :0.1");
+                out.println("UID " + botUID + " " + startTime + " " + config.getString("bot.nick") + " BungeeRelay " + config.getString("bot.host") + " " + config.getString("bot.ident") + " BungeeRelay " + startTime + " +o :" + config.getString("bot.realname"));
+                out.println(":" + botUID + " OPERTYPE " + config.getString("bot.opertype"));
                 String chan = config.getString("server.channel");
                 String topic = config.getString("server.topic");
                 String botmodes = config.getString("bot.modes");
@@ -174,12 +191,16 @@ public class IRC {
                     Util.giveChannelModes(chan, config.getString("server.staffmodes"));
                 }
                 out.println("ENDBURST");
+
+            } else {
+                plugin.getLogger().warning("Unrecognized command during authentication: " + data);
+                out.println("ERROR :Unrecognized command during authentication " + command);
+                sock.close();
             }
 
-            if (command.equals("ERROR")) {
-                sock.close();
-                authenticated = false;
-                throw new IOException(); // This will make us reconnect
+        } else { // We have already authenticated
+            if (command.equals("ENDBURST")) {
+                plugin.getLogger().info("Bursting done");
 
             } else if (command.equals("FJOIN")) {
                 if (!chans.containsKey(args[1])) {
