@@ -127,12 +127,4 @@ public class Util {
         if (!IRC.chans.containsKey(c)) IRC.chans.put(c, new Channel(System.currentTimeMillis() / 1000));
         return IRC.chans.get(c).ts;
     }
-
-    public static String sliceStringArray(String[] a, Integer l) {
-        String s = "";
-        for (int i=l; i<a.length; i++) {
-            s += a[i] + " ";
-        }
-        return s.trim();
-    }
 }

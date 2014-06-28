@@ -67,20 +67,49 @@ public class IRC {
     public void handleData(String data) throws IOException {
         if (data == null) throw new IOException();
         if (data.isEmpty()) return;
-        data = data.trim();
-        String[] ex = data.split(" ");
 
         if (config.getBoolean("server.debug")) plugin.getLogger().info("Received: "+data);
 
+        // Normalize input so sender if and is in sender, command is in command,
+        // and the arguments are in args and are 1 indexed
+        String[] ex = data.trim().split(" ");
+        String command, sender;
+        int offset;
+        if (ex[0].charAt(0) == ':') { // We have a sender
+            sender = ex[0].substring(1);
+            command = ex[1];
+            offset = 1;
+        } else {
+            sender = "";
+            command = ex[0];
+            offset = 0;
+        }
+
+        // If any arg aside from sender starts with a colon the rest of the args are considered one arg
+        ArrayList<String> tempArgs = new ArrayList<String>();
+        for (int i = offset; i < ex.length; i++) {
+            if (ex[i].charAt(0) == ':') {
+                String last = ex[i].substring(1); // remove the colon from the first token
+                for (i++ ; i < ex.length; i++) {
+                    last += " " + ex[i];
+                }
+                tempArgs.add(last);
+                break;
+            }
+            tempArgs.add(ex[i]);
+        }
+        String[] args = new String[tempArgs.size()];
+        args = tempArgs.toArray(args);
+
         if (!authenticated) {
-            if (ex[0].equals("CAPAB")) {
-                if (ex[1].equals("START")) {
+            if (command.equals("CAPAB")) {
+                if (args[1].equals("START")) {
                     out.println("CAPAB START 1202");
                 }
 
-                if (ex[1].equals("CAPABILITIES")) {
+                if (args[1].equals("CAPABILITIES")) {
                     // Dynamically find which modes require arguments
-                    for (String s:ex) {
+                    for (String s:args[2].split(" ")) {
                         if (s.contains("CHANMODES=")) {
                             chanModes = s.split("=")[1];
                             String[] chanmodeSets = chanModes.split(",");
@@ -97,7 +126,7 @@ public class IRC {
                     }
                 }
 
-                if (ex[1].equals("END")) { // The remote has finished sending us it's capabilities now we ignore that and tell it we can do everything
+                if (args[1].equals("END")) { // The remote has finished sending us it's capabilities now we ignore that and tell it we can do everything
                     out.println("CAPAB CAPABILITIES :PROTOCOL=1202");
                     out.println("CAPAB END");
                     plugin.getLogger().info("Authenticating with server...");
@@ -109,9 +138,9 @@ public class IRC {
                 }
             }
 
-            if (ex[0].equals("SERVER")) {
-                if (!ex[2].equals(config.getString("server.recvpass"))) {
-                    plugin.getLogger().warning("The server "+ex[1]+" presented the wrong password.");
+            if (command.equals("SERVER")) {
+                if (!args[2].equals(config.getString("server.recvpass"))) {
+                    plugin.getLogger().warning("The server "+args[1]+" presented the wrong password.");
                     plugin.getLogger().warning("Remember that the recvpass and sendpass are opposite to the ones in your links.conf");
                     out.println("ERROR :Password received was incorrect");
                     sock.close();
@@ -120,7 +149,7 @@ public class IRC {
             }
 
         } else { // We have already authenticated
-            if (ex[1].equals("ENDBURST")) {
+            if (command.equals("ENDBURST")) {
                 String chan = config.getString("server.channel");
                 String topic = config.getString("server.topic");
                 String botmodes = config.getString("bot.modes");
@@ -150,107 +179,107 @@ public class IRC {
                 out.println("ENDBURST");
             }
 
-            if (ex[1].equals("ERROR")) {
+            if (command.equals("ERROR")) {
                 sock.close();
                 authenticated = false;
                 throw new IOException(); // This will make us reconnect
             }
 
-            if (ex[1].equals("FJOIN")) {
-                if (!chans.containsKey(ex[2])) {
-                    Long ts = Long.parseLong(ex[3]);
-                    if (!ts.equals(Util.getChanTS(ex[2]))) chans.get(ex[2]).ts = ts;
+            if (command.equals("FJOIN")) {
+                if (!chans.containsKey(args[1])) {
+                    Long ts = Long.parseLong(args[2]);
+                    if (!ts.equals(Util.getChanTS(args[1]))) chans.get(args[1]).ts = ts;
                 }
-                String modes = ex[4];
+                String modes = args[3];
                 int countArgModes = 0;
                 for (Character c:argModes.toCharArray()) {
                     countArgModes += countChar (modes, c);
                 }
-                chans.get(ex[2]).users.add(ex[5+countArgModes].split(",")[1]);
-                for (ProxiedPlayer p : Util.getPlayersByChannel(ex[2])) {
+                chans.get(args[1]).users.add(args[4+countArgModes].split(",")[1]);
+                for (ProxiedPlayer p : Util.getPlayersByChannel(args[1])) {
                     p.sendMessage(new TextComponent(ChatColor.translateAlternateColorCodes('&', config.getString("formats.join")
-                            .replace("{SENDER}", users.get(ex[6].split(",")[1])))));
+                            .replace("{SENDER}", users.get(args[5].split(",")[1])))));
                 }
             }
 
-            if (ex[1].equals("FMODE")) {
+            if (command.equals("FMODE")) {
                 String s = "";
                 String d = "+";
-                int v = 5;
-                for (int i=0; i<ex[4].length(); i++) {
-                    String m = Character.toString(ex[4].charAt(i));
+                int v = 4;
+                for (int i=0; i<args[3].length(); i++) {
+                    String m = Character.toString(args[3].charAt(i));
                     String[] cm = chanModes.split(",");
-                    if (m.equals("b") && chans.containsKey(ex[2])) chans.get(ex[2]).bans.add(ex[v]);
+                    if (m.equals("b") && chans.containsKey(args[1])) chans.get(ex[1]).bans.add(args[v]);
                     if (m.equals("+") || m.equals("-")) {
                         d = m;
                     }else if (cm[0].contains(m) || cm[1].contains(m) || (cm[2].contains(m) && d.equals("+"))) {
                         s = s + ex[v] + " ";
                         v++;
-                    }else if (ex.length > v && users.containsKey(ex[v])) {
+                    }else if (args.length > v && users.containsKey(args[v])) {
                         s = s + users.get(ex[v]) + " ";
                         v++;
                     }
                 }
-                for (ProxiedPlayer p : Util.getPlayersByChannel(ex[2])) {
+                for (ProxiedPlayer p : Util.getPlayersByChannel(args[1])) {
                     p.sendMessage(new TextComponent(ChatColor.translateAlternateColorCodes('&', config.getString("formats.mode")
-                            .replace("{SENDER}", users.get(ex[0].substring(1)))
-                            .replace("{MODE}", ex[4] + " " + s))));
+                            .replace("{SENDER}", users.get(sender))
+                            .replace("{MODE}", args[3] + " " + s))));
                 }
             }
 
-            if (ex[1].equals("KICK")) {
-                String reason = Util.sliceStringArray(ex, 4).substring(1);
-                String target = users.get(ex[3]);
-                String sender = users.get(ex[0].substring(1));
-                for (ProxiedPlayer p : Util.getPlayersByChannel(ex[2])) {
+            if (command.equals("KICK")) {
+                String reason = args[3];
+                String target = users.get(args[2]);
+                String senderNick = users.get(sender);
+                for (ProxiedPlayer p : Util.getPlayersByChannel(args[1])) {
                     p.sendMessage(new TextComponent(ChatColor.translateAlternateColorCodes('&', config.getString("formats.kick")
-                            .replace("{SENDER}", sender)
+                            .replace("{SENDER}", senderNick)
                             .replace("{TARGET}", target)
                             .replace("{REASON}", reason))));
                 }
-                String full = users.get(ex[3]);
+                String full = users.get(args[2]);
                 int prefixlen = config.getString("server.userprefix").length();
                 int suffixlen = config.getString("server.usersuffix").length();
                 if (config.getBoolean("server.kick") && prefixlen < full.length() && suffixlen < full.length()) {
                     ProxiedPlayer player = plugin.getProxy().getPlayer(full.substring(prefixlen, full.length() - suffixlen));
                     if (player != null) {
                         player.disconnect(new TextComponent(ChatColor.translateAlternateColorCodes('&', config.getString("formats.disconnectkick")
-                                .replace("{SENDER}", sender)
+                                .replace("{SENDER}", senderNick)
                                 .replace("{TARGET}", target)
                                 .replace("{REASON}", reason))));
                     }
                 }
-                users.remove(ex[3]);
+                users.remove(args[2]);
             }
 
-            if (ex[1].equals("PART")) {
+            if (command.equals("PART")) {
                 String reason;
-                if (ex.length > 3) {
-                    reason = Util.sliceStringArray(ex, 3).substring(1);
+                if (args.length > 2) {
+                    reason = args[2];
                 } else {
                     reason = "";
                 }
                 for (ProxiedPlayer p : Util.getPlayersByChannel(ex[2])) {
                     p.sendMessage(new TextComponent(ChatColor.translateAlternateColorCodes('&', config.getString("formats.part")
-                            .replace("{SENDER}", users.get(ex[0].substring(1)))
+                            .replace("{SENDER}", users.get(sender))
                             .replace("{REASON}", reason))));
                 }
             }
 
-            if (ex[1].equals("PING")) {
-                out.println("PONG " + SID + " "+ex[2]);
+            if (command.equals("PING")) {
+                out.println("PONG " + SID + " "+args[1]);
             }
 
-            if (ex[1].equals("PRIVMSG")) {
-                String from = users.get(ex[0].substring(1));
-                String player = users.get(ex[2]);
+            if (command.equals("PRIVMSG")) {
+                String from = users.get(sender);
+                String player = users.get(args[1]);
                 int prefixlen = config.getString("server.userprefix").length();
                 int suffixlen = config.getString("server.usersuffix").length();
                 Collection<ProxiedPlayer> players = new ArrayList<ProxiedPlayer>();
                 boolean isPM;
                 if (player != null && prefixlen < player.length() && suffixlen < player.length()) {
                     ProxiedPlayer to = plugin.getProxy().getPlayer(player.substring(prefixlen, player.length() - suffixlen));
-                    isPM = (users.containsKey(ex[2]) && to != null);
+                    isPM = (users.containsKey(args[1]) && to != null);
                     if (isPM) {
                         players.add(to);
                         replies.put(to, from);
@@ -258,18 +287,12 @@ public class IRC {
                 } else {
                     isPM = false;
                 }
-                if (!isPM) players = Util.getPlayersByChannel(ex[2]);
+                if (!isPM) players = Util.getPlayersByChannel(args[1]);
                 for (ProxiedPlayer p : players) {
-                    int len;
-                    if (ex[3].equals(":" + (char) 1 + "ACTION")) {
-                        len = 4;
-                    } else {
-                        len = 3;
-                    }
-                    String s = Util.sliceStringArray(ex, len);
+                    String s = args[2];
                     String ch = Character.toString((char) 1);
                     String out;
-                    if (len == 4) {
+                    if (s.charAt(0) == (char) 1) {
                         if (isPM) {
                             out = config.getString("formats.privateme");
                         } else {
@@ -282,7 +305,6 @@ public class IRC {
                         } else {
                             out = config.getString("formats.msg");
                         }
-                        s = s.substring(1);
                     }
                     p.sendMessage(new TextComponent(ChatColor.translateAlternateColorCodes('&', out)
                             .replace("{SENDER}", from)
@@ -290,10 +312,10 @@ public class IRC {
                 }
             }
 
-            if (ex[1].equals("QUIT")) {
+            if (command.equals("QUIT")) {
                 String reason;
-                if (ex.length > 3) {
-                    reason = Util.sliceStringArray(ex, 2).substring(1);
+                if (args.length > 1) {
+                    reason = args[1];
                 } else {
                     reason = "";
                 }
@@ -304,18 +326,18 @@ public class IRC {
                     }else if (!ch.getKey().equals(chan)) {
                         continue;
                     }
-                    if (!ch.getValue().users.contains(ex[0].substring(1))) continue;
+                    if (!ch.getValue().users.contains(sender)) continue;
                     for (ProxiedPlayer p : Util.getPlayersByChannel(chan)) {
                         p.sendMessage(new TextComponent(ChatColor.translateAlternateColorCodes('&', config.getString("formats.quit")
-                                .replace("{SENDER}", users.get(ex[0].substring(1)))
+                                .replace("{SENDER}", users.get(sender))
                                 .replace("{REASON}", reason))));
                     }
                 }
-                users.remove(ex[0].substring(1));
+                users.remove(sender);
             }
 
-            if (ex[1].equals("UID")) {
-                users.put(ex[2], ex[4]);
+            if (command.equals("UID")) {
+                users.put(args[1], args[3]);
             }
         }
     }
