@@ -42,20 +42,11 @@ server:
   # IRC server be lost. The time is in milliseconds. Set to -1 for no reconnect attempt.
   reconnect: 3000
 
-  # If you want to use 1 single channel for every BungeeCord server, set this value to the
-  # name of the channel (e.g. "#minecraft"). However, if you wish to have separate channels
-  # for each BungeeCord server (recommended!), LEAVE THIS BLANK.
-  channel: ""
+  # Name of the channel.
+  channel: "#minecraft"
 
-  # If you wish to use different channels for different servers, you can apply a prefix to
-  # the channel, such as "#mc-" and then the name. If you don't want a prefix, leave it as
-  # "#". This value is ignored if you put something in "channel" above.
-  chanprefix: "#"
-
-  # If the topic should be set to something in every channel that is being relayed to, enter
-  # a topic below. Leave blank for no change. You can use {SERVERNAME} for the name of the
-  # current server in BungeeCord, but only if "channel" above is blank, of course.
-  topic: "Minecraft Server Chat for {SERVERNAME}"
+  # If the topic should be set to something, enter a topic below. Leave blank for no change.
+  topic: "Minecraft Server Chat"
 
   # This value determines whether the player should be moved/kicked from the server if they
   # are kicked through IRC.

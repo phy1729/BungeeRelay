@@ -89,29 +89,8 @@ public class Util {
         if (!t.isEmpty()) IRC.out.println(":" + IRC.SID + " TOPIC " + c + " :" + t);
     }
 
-    public static List<String> getChannels() {
-        List<String> out = new ArrayList<String>();
-        String channel = IRC.config.getString("server.channel");
-        if (channel.isEmpty()) {
-            for (ServerInfo si : proxy.getServers().values()) {
-                out.add(IRC.config.getString("server.chanprefix") + si.getName());
-            }
-        } else {
-            out.add(channel);
-        }
-        return out;
-    }
-
     public static Collection<ProxiedPlayer> getPlayersByChannel(String c) {
-        if (IRC.config.getString("server.channel").isEmpty()) {
-            String pref = IRC.config.getString("server.chanprefix");
-            if (c.startsWith(pref)) c = c.substring(pref.length());
-            ServerInfo si = proxy.getServerInfo(c);
-            if (si == null) return Collections.emptyList();
-            return si.getPlayers();
-        } else {
-            return proxy.getPlayers();
-        }
+        return proxy.getPlayers();
     }
 
     public static String getUidByNick(String nick) {

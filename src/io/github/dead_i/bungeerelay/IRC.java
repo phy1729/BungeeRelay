@@ -167,23 +167,11 @@ public class IRC {
                 String chan = config.getString("server.channel");
                 String topic = config.getString("server.topic");
                 String botmodes = config.getString("bot.modes");
-                if (chan.isEmpty()) {
-                    for (ServerInfo si : plugin.getProxy().getServers().values()) {
-                        chan = config.getString("server.chanprefix") + si.getName();
-                        Util.sendMainJoin(chan, botmodes, topic.replace("{SERVERNAME}", si.getName()));
-                        for (ProxiedPlayer p : si.getPlayers()) {
-                            Util.sendUserConnect(p);
-                            Util.sendChannelJoin(p, chan);
-                            Util.incrementUid();
-                        }
-                    }
-                }else{
-                    Util.sendMainJoin(chan, botmodes, topic.replace("{SERVERNAME}", ""));
-                    for (ProxiedPlayer p : plugin.getProxy().getPlayers()) {
-                        Util.sendUserConnect(p);
-                        Util.sendChannelJoin(p, chan);
-                        Util.incrementUid();
-                    }
+                Util.sendMainJoin(chan, botmodes, topic);
+                for (ProxiedPlayer p : plugin.getProxy().getPlayers()) {
+                    Util.sendUserConnect(p);
+                    Util.sendChannelJoin(p, chan);
+                    Util.incrementUid();
                 }
                 out.println("ENDBURST");
 
