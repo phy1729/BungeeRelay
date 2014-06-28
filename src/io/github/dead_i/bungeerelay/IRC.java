@@ -105,9 +105,8 @@ public class IRC {
             if (command.equals("CAPAB")) {
                 if (args[1].equals("START")) {
                     out.println("CAPAB START 1202");
-                }
 
-                if (args[1].equals("CAPABILITIES")) {
+                } else if (args[1].equals("CAPABILITIES")) {
                     // Dynamically find which modes require arguments
                     for (String s:args[2].split(" ")) {
                         if (s.contains("CHANMODES=")) {
@@ -124,9 +123,8 @@ public class IRC {
                             prefixModes = s.split("=")[1].split("\\(")[1].split("\\)")[0];
                         }
                     }
-                }
 
-                if (args[1].equals("END")) { // The remote has finished sending us it's capabilities now we ignore that and tell it we can do everything
+                } else if (args[1].equals("END")) {
                     out.println("CAPAB CAPABILITIES :PROTOCOL=1202");
                     out.println("CAPAB END");
                     plugin.getLogger().info("Authenticating with server...");
@@ -136,9 +134,8 @@ public class IRC {
                     out.println("UID " + botUID + " " + startTime + " " + config.getString("bot.nick") + " BungeeRelay " + config.getString("bot.host") + " " + config.getString("bot.ident") + " BungeeRelay " + startTime + " +o :" + config.getString("bot.realname"));
                     out.println(":" + botUID + " OPERTYPE " + config.getString("bot.opertype"));
                 }
-            }
 
-            if (command.equals("SERVER")) {
+            } else if (command.equals("SERVER")) {
                 if (!args[2].equals(config.getString("server.recvpass"))) {
                     plugin.getLogger().warning("The server "+args[1]+" presented the wrong password.");
                     plugin.getLogger().warning("Remember that the recvpass and sendpass are opposite to the ones in your links.conf");
@@ -183,9 +180,8 @@ public class IRC {
                 sock.close();
                 authenticated = false;
                 throw new IOException(); // This will make us reconnect
-            }
 
-            if (command.equals("FJOIN")) {
+            } else if (command.equals("FJOIN")) {
                 if (!chans.containsKey(args[1])) {
                     Long ts = Long.parseLong(args[2]);
                     if (!ts.equals(Util.getChanTS(args[1]))) chans.get(args[1]).ts = ts;
@@ -200,9 +196,8 @@ public class IRC {
                     p.sendMessage(new TextComponent(ChatColor.translateAlternateColorCodes('&', config.getString("formats.join")
                             .replace("{SENDER}", users.get(args[5].split(",")[1])))));
                 }
-            }
 
-            if (command.equals("FMODE")) {
+            } else if (command.equals("FMODE")) {
                 String s = "";
                 String d = "+";
                 int v = 4;
@@ -225,9 +220,8 @@ public class IRC {
                             .replace("{SENDER}", users.get(sender))
                             .replace("{MODE}", args[3] + " " + s))));
                 }
-            }
 
-            if (command.equals("KICK")) {
+            } else if (command.equals("KICK")) {
                 String reason = args[3];
                 String target = users.get(args[2]);
                 String senderNick = users.get(sender);
@@ -250,9 +244,8 @@ public class IRC {
                     }
                 }
                 users.remove(args[2]);
-            }
 
-            if (command.equals("PART")) {
+            } else if (command.equals("PART")) {
                 String reason;
                 if (args.length > 2) {
                     reason = args[2];
@@ -264,13 +257,11 @@ public class IRC {
                             .replace("{SENDER}", users.get(sender))
                             .replace("{REASON}", reason))));
                 }
-            }
 
-            if (command.equals("PING")) {
+            } else if (command.equals("PING")) {
                 out.println("PONG " + SID + " "+args[1]);
-            }
 
-            if (command.equals("PRIVMSG")) {
+            } else if (command.equals("PRIVMSG")) {
                 String from = users.get(sender);
                 String player = users.get(args[1]);
                 int prefixlen = config.getString("server.userprefix").length();
@@ -310,9 +301,8 @@ public class IRC {
                             .replace("{SENDER}", from)
                             .replace("{MESSAGE}", s)));
                 }
-            }
 
-            if (command.equals("QUIT")) {
+            } else if (command.equals("QUIT")) {
                 String reason;
                 if (args.length > 1) {
                     reason = args[1];
@@ -334,9 +324,8 @@ public class IRC {
                     }
                 }
                 users.remove(sender);
-            }
 
-            if (command.equals("UID")) {
+            } else if (command.equals("UID")) {
                 users.put(args[1], args[3]);
             }
         }
