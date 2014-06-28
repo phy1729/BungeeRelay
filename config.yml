@@ -68,20 +68,6 @@ server:
   # as currently this ban system is fairly buggy and should not be relied on. W.I.P!
   ban: false
 
-  # If you wish for the bot to automatically join a staff channel, specify the channel name.
-  # For no automatic staff channel, leave this blank.
-  staff: "#staff"
-
-  # If you wish the staff channel to have a topic set on join, specify it the topic here.
-  # This value will be ignored if the value of "staff" above is blank.
-  stafftopic: "Minecraft Server Staff"
-
-  # The modes that will automatically be set on the staff channel specified above. +O is
-  # recommended, since with this mode only IRC Ops will be able to join. You could also
-  # use another mode such as +k (channel key) or +i (invite only, if you have Services).
-  # This value will be  ignored if the value of "staff" above is blank.
-  staffmodes: "+O"
-
   # You can set a prefix and suffix to the nicknames of Minecraft IRC users. This can be
   # helpful for users to distinguish between Minecraft players and normal IRC users.
   # For example, if usersuffix was "/minecraft", I appear on IRC as "Dead_i/minecraft"

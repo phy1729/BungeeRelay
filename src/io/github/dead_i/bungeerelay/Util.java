@@ -103,9 +103,7 @@ public class Util {
     }
 
     public static Collection<ProxiedPlayer> getPlayersByChannel(String c) {
-        if (IRC.config.getString("server.staff").equalsIgnoreCase(c)) {
-            return Collections.emptyList();
-        } else if (IRC.config.getString("server.channel").isEmpty()) {
+        if (IRC.config.getString("server.channel").isEmpty()) {
             String pref = IRC.config.getString("server.chanprefix");
             if (c.startsWith(pref)) c = c.substring(pref.length());
             ServerInfo si = proxy.getServerInfo(c);

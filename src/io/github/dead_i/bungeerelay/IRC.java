@@ -185,11 +185,6 @@ public class IRC {
                         Util.incrementUid();
                     }
                 }
-                chan = config.getString("server.staff");
-                if (!chan.isEmpty()) {
-                    Util.sendMainJoin(chan, botmodes, config.getString("server.stafftopic"));
-                    Util.giveChannelModes(chan, config.getString("server.staffmodes"));
-                }
                 out.println("ENDBURST");
 
             } else {
