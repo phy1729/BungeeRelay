@@ -32,7 +32,6 @@ public class Main extends ConfigurablePlugin {
         getProxy().getPluginManager().registerCommand(this, new ModeCommand(this));
         getProxy().getPluginManager().registerCommand(this, new PMCommand(this));
         getProxy().getPluginManager().registerCommand(this, new PMReplyCommand(this));
-        getProxy().getPluginManager().registerCommand(this, new KickCommand(this));
         getProxy().getPluginManager().registerCommand(this, new IRCNickCommand(this));
 
         // Register aliases

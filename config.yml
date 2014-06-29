@@ -116,7 +116,3 @@ formats:
   # The message players will be disconnected with if they are banned through IRC.
   # Parameters:
   disconnectban: "&7You have been banned through IRC."
-
-  # Default kick message if the user does not define one when using /kick in-game.
-  Parameters: sender
-  defaultkick: "Kicked by a moderator from within Minecraft"
