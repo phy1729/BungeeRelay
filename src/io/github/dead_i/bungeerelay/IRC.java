@@ -189,11 +189,9 @@ public class IRC {
                     for (Character c:argModes.toCharArray()) {
                         countArgModes += countChar (modes, c);
                     }
-                    for (ProxiedPlayer p : Util.getPlayersByChannel(args[1])) {
-                        for (String user : args[4+countArgModes].split(" ")) {
-                            p.sendMessage(new TextComponent(ChatColor.translateAlternateColorCodes('&', config.getString("formats.join")
+                    for (String user : args[4+countArgModes].split(" ")) {
+                        Util.sendAll(new TextComponent(ChatColor.translateAlternateColorCodes('&', config.getString("formats.join")
                                 .replace("{SENDER}", users.get(user.split(",")[1]).nick))));
-                        }
                     }
                 }
 
@@ -212,14 +210,14 @@ public class IRC {
 
             } else if (command.equals("KICK")) {
                 // <channel>{,<channel>} <user>{,<user>} [<comment>]
-                String reason = args[3];
-                String target = users.get(args[2]).nick;
-                String senderNick = users.get(sender).nick;
-                for (ProxiedPlayer p : Util.getPlayersByChannel(args[1])) {
-                    p.sendMessage(new TextComponent(ChatColor.translateAlternateColorCodes('&', config.getString("formats.kick")
-                            .replace("{SENDER}", sender)
-                            .replace("{TARGET}", target)
-                            .replace("{REASON}", reason))));
+                if (args[1].equals(channel)) {
+                    String reason = args[3];
+                    String target = users.get(args[2]).nick;
+                    String senderNick = users.get(sender).nick;
+                    Util.sendAll(new TextComponent(ChatColor.translateAlternateColorCodes('&', config.getString("formats.kick")
+                                .replace("{SENDER}", sender)
+                                .replace("{TARGET}", target)
+                                .replace("{REASON}", reason))));
                 }
                 String full = users.get(args[2]).nick;
                 int prefixlen = config.getString("server.userprefix").length();
@@ -265,7 +263,7 @@ public class IRC {
                 if (args[1].charAt(0) == '#') { // PRIVMSG is for a channel
                     isPM = false;
                     if (args[1].equals(channel)) {
-                        players = Util.getPlayersByChannel(args[1]);
+                        players = Util.getPlayersByChannel(channel);
                     }
                 } else {
                     isPM = true;
