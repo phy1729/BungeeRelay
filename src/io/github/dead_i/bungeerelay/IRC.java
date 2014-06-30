@@ -196,25 +196,17 @@ public class IRC {
                 }
 
             } else if (command.equals("FMODE")) {
-                String s = "";
-                String d = "+";
-                int v = 4;
-                for (int i=0; i<args[3].length(); i++) {
-                    String m = Character.toString(args[3].charAt(i));
-                    String[] cm = chanModes.split(",");
-                    if (m.equals("+") || m.equals("-")) {
-                        d = m;
-                    }else if (cm[0].contains(m) || cm[1].contains(m) || (cm[2].contains(m) && d.equals("+"))) {
-                        s = s + ex[v] + " ";
-                        v++;
-                    }else if (args.length > v && users.containsKey(args[v])) {
-                        s = s + users.get(ex[v]) + " ";
-                        v++;
+                // <target> <timestamp> <modes and parameters>
+                if (args[1].equals(channel)) {
+                    Util.updateTS(args[2]);
+                    String modes = "";
+                    for (int i=3; i<args.length; i++) {
+                        modes = modes + args[i] + " ";
                     }
+                    Util.sendAll(config.getString("formats.mode")
+                            .replace("{SENDER}", users.get(sender))
+                            .replace("{MODE}", modes));
                 }
-                Util.sendAll(config.getString("formats.mode")
-                        .replace("{SENDER}", users.get(sender))
-                        .replace("{MODE}", args[3] + " " + s));
 
             } else if (command.equals("KICK")) {
                 String reason = args[3];
