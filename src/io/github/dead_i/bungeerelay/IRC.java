@@ -39,10 +39,10 @@ public class IRC {
     public static HashMap<String, String> users = new HashMap<String, String>();
     Plugin plugin;
 
-    public IRC(Socket s, FileConfiguration c, Plugin p) throws IOException {
-        sock = s;
-        config = c;
-        plugin = p;
+    public IRC(Socket sock, FileConfiguration config, Plugin plugin) throws IOException {
+        this.sock = sock;
+        this.config = config;
+        this.plugin = plugin;
 
         SID = config.getString("server.id");
         currentUid = SID + "AAAAAA";
