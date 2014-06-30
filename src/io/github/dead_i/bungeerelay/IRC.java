@@ -27,7 +27,7 @@ public class IRC {
     public static String currentUid;
     public static String prefixModes;
     public static String chanModes;
-    public static long startTime = System.currentTimeMillis() / 1000;
+    public static long startTime;
     public static boolean authenticated;
     public static HashMap<ProxiedPlayer, Long> times = new HashMap<ProxiedPlayer, Long>();
     public static boolean capabState;
@@ -49,6 +49,7 @@ public class IRC {
         currentUid = SID + "AAAAAA";
         authenticated = false;
         capabState = false;
+        startTime = System.currentTimeMillis() / 1000;
         channelTS = startTime;
         channel = config.getString("server.channel");
 
