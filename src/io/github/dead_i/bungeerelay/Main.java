@@ -11,14 +11,6 @@ import java.util.concurrent.TimeUnit;
 
 public class Main extends ConfigurablePlugin {
     public void onEnable() {
-        // Immediately provide an offline mode warning, due to how incredibly dangerous it is in the case of this plugin.
-        if (!getProxy().getConfig().isOnlineMode()) {
-            getLogger().warning("IMPORTANT! BungeeCord is running offline mode, meaning hackers and cracked accounts can log in. This means that ANYONE could gain power on your IRC server, such as IRC oper, by impersonating you. It is highly recommended that you turn online-mode to TRUE in your BungeeCord config.yml!");
-            getLogger().warning("----------------------------------------------------------");
-            getLogger().warning("Remember - only your Bukkit/Spigot servers require online-mode=false");
-            getLogger().warning("In BungeeCord, however, online-mode should be set to true.");
-        }
-
         // Save the default configuration
         saveDefaultConfig();
 

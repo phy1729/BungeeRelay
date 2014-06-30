@@ -42,42 +42,6 @@ public class Util {
     public static void sendChannelJoin(ProxiedPlayer p, String c) {
         String uid = IRC.uids.get(p);
         IRC.out.println("FJOIN " + c + " " + System.currentTimeMillis() / 1000 + " +nt :," + uid);
-        giveChannelModes(p, c);
-    }
-
-    public static void giveChannelModes(ProxiedPlayer p, String c) {
-        String modes = "+";
-        if (p.hasPermission("irc.owner")) modes += "";
-        if (p.hasPermission("irc.protect")) modes += "a";
-        if (p.hasPermission("irc.op")) modes += "o";
-        if (p.hasPermission("irc.halfop")) modes += "h";
-        if (p.hasPermission("irc.voice")) modes += "v";
-        giveChannelModes(c, modes, IRC.uids.get(p));
-    }
-
-    public static void giveChannelModes(String c, String m, String s) {
-        if (!m.isEmpty()) {
-            String target = "";
-            for (int i=0; i<m.length(); i++) {
-                target += s + " ";
-            }
-            giveChannelModes(c, "+" + m + " " + target.trim());
-        }
-    }
-
-    public static boolean giveChannelModes(String channel, String m) {
-        String modes = m.split(" ")[0];
-        for (int i=0; i<modes.length(); i++) {
-            String mode = Character.toString(modes.charAt(i));
-            if (!IRC.prefixModes.contains(mode) && !IRC.chanModes.contains(mode) && !mode.equals("+") && !mode.equals("-")) {
-                proxy.getLogger().warning("Tried to set the +" + mode + " mode, but the IRC server stated earlier that it wasn't compatible with this mode.");
-                proxy.getLogger().warning("If you want to use " + mode + ", enable appropriate module in your IRC server's configuration files.");
-                proxy.getLogger().warning("Skipping...");
-                return false;
-            }
-        }
-        IRC.out.println(":" + IRC.SID + " FMODE " + channel + " " + getChanTS(channel) + " " + m);
-        return true;
     }
 
     public static Collection<ProxiedPlayer> getPlayersByChannel(String c) {
