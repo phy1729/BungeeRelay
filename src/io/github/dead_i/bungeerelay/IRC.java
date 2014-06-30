@@ -27,6 +27,7 @@ public class IRC {
     public static String currentUid;
     public static String prefixModes;
     public static String chanModes;
+    public static String argModes;
     public static long startTime;
     public static boolean authenticated;
     public static HashMap<ProxiedPlayer, Long> times = new HashMap<ProxiedPlayer, Long>();
@@ -37,8 +38,6 @@ public class IRC {
     public static HashMap<ProxiedPlayer, String> replies = new HashMap<ProxiedPlayer, String>();
     public static HashMap<String, String> users = new HashMap<String, String>();
     Plugin plugin;
-
-    private static String argModes = "";
 
     public IRC(Socket s, FileConfiguration c, Plugin p) throws IOException {
         sock = s;
