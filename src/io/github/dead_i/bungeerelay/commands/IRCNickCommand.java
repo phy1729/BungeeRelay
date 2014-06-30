@@ -2,6 +2,7 @@ package io.github.dead_i.bungeerelay.commands;
 
 import io.github.dead_i.bungeerelay.IRC;
 import io.github.dead_i.bungeerelay.Util;
+import io.github.dead_i.bungeerelay.User;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.CommandSender;
 import net.md_5.bungee.api.plugin.Command;
@@ -28,6 +29,9 @@ public class IRCNickCommand extends Command {
             Util.sendError(sender, "The nick " + args[0] + " is already in use.");
             return;
         }
-	IRC.out.println(":" + IRC.uids.get(sender) + " NICK " + args[0] + " " + System.currentTimeMillis() / 1000);
+        User user = IRC.users.get(IRC.uids.get(sender));
+        user.nick = args[0];
+        user.nickTime = System.currentTimeMillis() / 1000;
+        IRC.out.println(":" + IRC.uids.get(sender) + " NICK " + user.nick + " " + user.nickTime);
     }
 }

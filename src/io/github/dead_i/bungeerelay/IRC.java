@@ -30,13 +30,12 @@ public class IRC {
     public static String argModes;
     public static long startTime;
     public static boolean authenticated;
-    public static HashMap<ProxiedPlayer, Long> times = new HashMap<ProxiedPlayer, Long>();
     public static boolean capabState;
     public static String channel;
     public static long channelTS;
     public static HashMap<ProxiedPlayer, String> uids = new HashMap<ProxiedPlayer, String>();
     public static HashMap<ProxiedPlayer, String> replies = new HashMap<ProxiedPlayer, String>();
-    public static HashMap<String, String> users = new HashMap<String, String>();
+    public static HashMap<String, User> users = new HashMap<String, User>();
     Plugin plugin;
 
     public IRC(Socket sock, FileConfiguration config, Plugin plugin) throws IOException {
@@ -164,10 +163,9 @@ public class IRC {
                 plugin.getLogger().info("Bursting");
                 out.println("BURST " + startTime);
                 out.println("VERSION :0.1");
-                for (ProxiedPlayer p : plugin.getProxy().getPlayers()) {
-                    Util.sendUserConnect(p);
-                    Util.sendChannelJoin(p);
-                    Util.incrementUid();
+                for (ProxiedPlayer player : plugin.getProxy().getPlayers()) {
+                    Util.sendUserConnect(player);
+                    Util.sendChannelJoin(player);
                 }
                 out.println("ENDBURST");
 
@@ -191,7 +189,7 @@ public class IRC {
                     }
                     for (String user : args[4+countArgModes].split(" ")) {
                         Util.sendAll(config.getString("formats.join")
-                                .replace("{SENDER}", users.get(user.split(",")[1])));
+                                .replace("{SENDER}", users.get(user.split(",")[1]).nick));
                     }
                 }
 
@@ -204,19 +202,19 @@ public class IRC {
                         modes = modes + args[i] + " ";
                     }
                     Util.sendAll(config.getString("formats.mode")
-                            .replace("{SENDER}", users.get(sender))
+                            .replace("{SENDER}", users.get(sender).nick)
                             .replace("{MODE}", modes));
                 }
 
             } else if (command.equals("KICK")) {
                 String reason = args[3];
-                String target = users.get(args[2]);
-                String senderNick = users.get(sender);
+                String target = users.get(args[2]).nick;
+                String senderNick = users.get(sender).nick;
                 Util.sendAll(config.getString("formats.kick")
                         .replace("{SENDER}", senderNick)
                         .replace("{TARGET}", target)
                         .replace("{REASON}", reason));
-                String full = users.get(args[2]);
+                String full = users.get(args[2]).nick;
                 int prefixlen = config.getString("server.userprefix").length();
                 int suffixlen = config.getString("server.usersuffix").length();
                 if (config.getBoolean("server.kick") && prefixlen < full.length() && suffixlen < full.length()) {
@@ -238,14 +236,14 @@ public class IRC {
                     reason = "";
                 }
                 Util.sendAll(config.getString("formats.part")
-                        .replace("{SENDER}", users.get(sender))
+                        .replace("{SENDER}", users.get(sender).nick)
                         .replace("{REASON}", reason));
 
             } else if (command.equals("PING")) {
                 out.println("PONG " + SID + " "+args[1]);
 
             } else if (command.equals("PRIVMSG")) {
-                String from = users.get(sender);
+                String from = users.get(sender).nick;
                 String format="", message = args[2];
                 Collection<ProxiedPlayer> players = new ArrayList<ProxiedPlayer>();
                 boolean isPM;
@@ -299,13 +297,13 @@ public class IRC {
                 } else {
                     reason = "";
                 }
-                Util.sendAll(config.getString("formats.quit")
-                        .replace("{SENDER}", users.get(sender))
+                Util.sendAll(config.getString("formats.ircquit")
+                        .replace("{SENDER}", users.get(sender).nick)
                         .replace("{REASON}", reason));
                 users.remove(sender);
 
             } else if (command.equals("UID")) {
-                users.put(args[1], args[3]);
+                users.put(args[1], new User(sender, args[2], args[3], args[8]));
             }
         }
     }

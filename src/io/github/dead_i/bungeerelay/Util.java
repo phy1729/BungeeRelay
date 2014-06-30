@@ -34,17 +34,14 @@ public class Util {
         } while (IRC.uids.containsValue(IRC.currentUid));
     }
 
-    public static void sendUserConnect(ProxiedPlayer p) {
-        String name = IRC.config.getString("server.userprefix") + p.getName() + IRC.config.getString("server.usersuffix");
-        IRC.times.put(p, System.currentTimeMillis() / 1000);
-        IRC.uids.put(p, IRC.currentUid);
-        IRC.users.put(IRC.currentUid, name);
-        IRC.out.println("UID " + IRC.currentUid + " " + System.currentTimeMillis() / 1000 + " " + name + " " + p.getAddress().getHostName() + " " + p.getAddress().getHostName() + " " + p.getName() + " " + p.getAddress().getHostString() + " " + IRC.times.get(p) + " +r :Minecraft Player");
+    public static void sendUserConnect(ProxiedPlayer player) {
+        String playerUID = IRC.uids.get(player);
+        User user = IRC.users.get(playerUID);
+        IRC.out.println(":" + IRC.SID + " UID " + playerUID + " " + user.nickTime + " " + user.nick + " " + player.getAddress().getHostName() + " " + player.getAddress().getHostName() + " " + IRC.config.getString("formats.ident").replace("{IDENT}", player.getName()) + " " + player.getAddress().toString() + " " + user.connectTime + " +r :Minecraft Player");
     }
 
-    public static void sendChannelJoin(ProxiedPlayer p) {
-        String uid = IRC.uids.get(p);
-        IRC.out.println("FJOIN " + IRC.channel + " " + System.currentTimeMillis() / 1000 + " +nt :," + uid);
+    public static void sendChannelJoin(ProxiedPlayer player) {
+        IRC.out.println(":" + IRC.SID + " FJOIN " + IRC.channel + " " + IRC.channelTS + " + :," + IRC.uids.get(player));
     }
 
     public static void sendAll(String message) {
@@ -68,8 +65,8 @@ public class Util {
     }
 
     public static String getUidByNick(String nick) {
-        for (Map.Entry<String, String> entry : IRC.users.entrySet()) {
-            if (nick.equalsIgnoreCase(entry.getValue())) return entry.getKey();
+        for (Map.Entry<String, User> entry : IRC.users.entrySet()) {
+            if (nick.equalsIgnoreCase(entry.getValue().nick)) return entry.getKey();
         }
         return null;
     }

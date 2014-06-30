@@ -49,11 +49,10 @@ server:
   # are kicked through IRC.
   kick: true
 
-  # You can set a prefix and suffix to the nicknames of Minecraft IRC users. This can be
-  # helpful for users to distinguish between Minecraft players and normal IRC users.
-  # For example, if usersuffix was "/minecraft", I appear on IRC as "Dead_i/minecraft"
+  # You can set a prefix and suffix to the nicknames of Minecraft IRC users to add in
+  # the case of a collision.
   userprefix: ""
-  usersuffix: ""
+  usersuffix: "|mc"
 
   # Set to "true" to make BungeeRelay say each message it receives raw in console.
   # Used for debugging purposes only. For general use, leave "false".
@@ -63,6 +62,10 @@ server:
 # Accepts colour codes, and each parameter is capital and surrounded in curly brackets.
 # Leaving a particular message empty is acceptable.
 formats:
+  # The ident of a user connecting to IRC.
+  # Parameters: {IDENT}
+  ident: "minecraft"
+
   # How public messages sent from IRC will appear in Minecraft.
   # Parameters: sender, message
   msg: "<&7[IRC]&r {SENDER}> {MESSAGE}"
@@ -94,9 +97,13 @@ formats:
   # Parameters: sender, reason
   part: "&7{SENDER} left the channel ({REASON})"
 
-  # How quits will appear in Minecraft
+  # How Minecraft quits will appear in IRC
+  # Parameters: sender
+  mcquit: "{SENDER} logged out of Minecraft"
+
+  # How IRC quits will appear in Minecraft
   # Parameters: sender, reason
-  quit: "&7{SENDER} left IRC ({REASON})"
+  ircquit: "&7{SENDER} left IRC ({REASON})"
 
   # How kicks will appear in Minecraft
   # Parameters: sender, target, reason
