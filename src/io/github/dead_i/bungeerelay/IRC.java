@@ -4,6 +4,7 @@ import net.craftminecraft.bungee.bungeeyaml.bukkitapi.file.FileConfiguration;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.config.ServerInfo;
+import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.plugin.Plugin;
 
@@ -188,11 +189,9 @@ public class IRC {
                     for (Character c:argModes.toCharArray()) {
                         countArgModes += countChar (modes, c);
                     }
-                    for (ProxiedPlayer p : Util.getPlayersByChannel(channel)) {
-                        for (String user : args[4+countArgModes].split(" ")) {
-                            p.sendMessage(new TextComponent(ChatColor.translateAlternateColorCodes('&', config.getString("formats.join")
-                                .replace("{SENDER}", users.get(user.split(",")[1])))));
-                        }
+                    for (String user : args[4+countArgModes].split(" ")) {
+                        Util.sendAll(config.getString("formats.join")
+                                .replace("{SENDER}", users.get(user.split(",")[1])));
                     }
                 }
 
@@ -213,22 +212,18 @@ public class IRC {
                         v++;
                     }
                 }
-                for (ProxiedPlayer p : Util.getPlayersByChannel(args[1])) {
-                    p.sendMessage(new TextComponent(ChatColor.translateAlternateColorCodes('&', config.getString("formats.mode")
-                            .replace("{SENDER}", users.get(sender))
-                            .replace("{MODE}", args[3] + " " + s))));
-                }
+                Util.sendAll(config.getString("formats.mode")
+                        .replace("{SENDER}", users.get(sender))
+                        .replace("{MODE}", args[3] + " " + s));
 
             } else if (command.equals("KICK")) {
                 String reason = args[3];
                 String target = users.get(args[2]);
                 String senderNick = users.get(sender);
-                for (ProxiedPlayer p : Util.getPlayersByChannel(args[1])) {
-                    p.sendMessage(new TextComponent(ChatColor.translateAlternateColorCodes('&', config.getString("formats.kick")
-                            .replace("{SENDER}", senderNick)
-                            .replace("{TARGET}", target)
-                            .replace("{REASON}", reason))));
-                }
+                Util.sendAll(config.getString("formats.kick")
+                        .replace("{SENDER}", senderNick)
+                        .replace("{TARGET}", target)
+                        .replace("{REASON}", reason));
                 String full = users.get(args[2]);
                 int prefixlen = config.getString("server.userprefix").length();
                 int suffixlen = config.getString("server.usersuffix").length();
@@ -250,11 +245,9 @@ public class IRC {
                 } else {
                     reason = "";
                 }
-                for (ProxiedPlayer p : Util.getPlayersByChannel(ex[2])) {
-                    p.sendMessage(new TextComponent(ChatColor.translateAlternateColorCodes('&', config.getString("formats.part")
-                            .replace("{SENDER}", users.get(sender))
-                            .replace("{REASON}", reason))));
-                }
+                Util.sendAll(config.getString("formats.part")
+                        .replace("{SENDER}", users.get(sender))
+                        .replace("{REASON}", reason));
 
             } else if (command.equals("PING")) {
                 out.println("PONG " + SID + " "+args[1]);
@@ -276,7 +269,7 @@ public class IRC {
                 } else {
                     isPM = false;
                 }
-                if (!isPM) players = Util.getPlayersByChannel(args[1]);
+                if (!isPM) players = ProxyServer.getInstance().getPlayers();
                 for (ProxiedPlayer p : players) {
                     String s = args[2];
                     String ch = Character.toString((char) 1);
@@ -307,11 +300,9 @@ public class IRC {
                 } else {
                     reason = "";
                 }
-                for (ProxiedPlayer p : Util.getPlayersByChannel(channel)) {
-                    p.sendMessage(new TextComponent(ChatColor.translateAlternateColorCodes('&', config.getString("formats.quit")
-                            .replace("{SENDER}", users.get(sender))
-                            .replace("{REASON}", reason))));
-                }
+                Util.sendAll(config.getString("formats.quit")
+                        .replace("{SENDER}", users.get(sender))
+                        .replace("{REASON}", reason));
                 users.remove(sender);
 
             } else if (command.equals("UID")) {

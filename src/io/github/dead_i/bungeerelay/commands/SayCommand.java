@@ -23,7 +23,7 @@ public class SayCommand extends Command {
         }
         StringBuilder msg = new StringBuilder();
         for (String a : args) msg.append(a);
-        plugin.getProxy().broadcast(new TextComponent(ChatColor.translateAlternateColorCodes('&', IRC.config.getString("formats.saycommand").replace("{MESSAGE}", msg.toString()))));
+        Util.sendAll(IRC.config.getString("formats.saycommand").replace("{MESSAGE}", msg.toString()));
         if (!IRC.sock.isConnected()) {
             sender.sendMessage(new TextComponent(ChatColor.RED + "The proxy is not connected to IRC."));
             return;

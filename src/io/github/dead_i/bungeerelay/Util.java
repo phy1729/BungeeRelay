@@ -3,6 +3,8 @@ package io.github.dead_i.bungeerelay;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
+import net.md_5.bungee.api.ChatColor;
+import net.md_5.bungee.api.chat.TextComponent;
 
 import java.util.*;
 
@@ -44,6 +46,10 @@ public class Util {
         IRC.out.println("FJOIN " + IRC.channel + " " + System.currentTimeMillis() / 1000 + " +nt :," + uid);
     }
 
+    public static void sendAll(String message) {
+        proxy.broadcast(new TextComponent(ChatColor.translateAlternateColorCodes('&', message)));
+    }
+
     public static void updateTS(String ts) {
         long timestamp = stringToTS(ts);
         if (timestamp < IRC.channelTS) {
@@ -54,10 +60,6 @@ public class Util {
     public static long stringToTS(String ts) {
         Long LongTimestamp = Long.parseLong(ts);
         return LongTimestamp.longValue();
-    }
-
-    public static Collection<ProxiedPlayer> getPlayersByChannel(String c) {
-        return proxy.getPlayers();
     }
 
     public static String getUidByNick(String nick) {
