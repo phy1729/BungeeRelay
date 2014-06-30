@@ -20,7 +20,6 @@ public class PostLoginListener implements Listener {
         ProxiedPlayer p = event.getPlayer();
         Util.sendUserConnect(p);
         Util.incrementUid();
-        String chan = IRC.config.getString("server.channel");
-        if (!chan.isEmpty()) Util.sendChannelJoin(p, chan);
+        Util.sendChannelJoin(p);
     }
 }

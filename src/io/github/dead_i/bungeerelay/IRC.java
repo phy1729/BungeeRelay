@@ -30,10 +30,11 @@ public class IRC {
     public static boolean authenticated;
     public static HashMap<ProxiedPlayer, Long> times = new HashMap<ProxiedPlayer, Long>();
     public static boolean capabState;
+    public static String channel;
+    public static long channelTS;
     public static HashMap<ProxiedPlayer, String> uids = new HashMap<ProxiedPlayer, String>();
     public static HashMap<ProxiedPlayer, String> replies = new HashMap<ProxiedPlayer, String>();
     public static HashMap<String, String> users = new HashMap<String, String>();
-    public static HashMap<String, Channel> chans = new HashMap<String, Channel>();
     Plugin plugin;
 
     private static String argModes = "";
@@ -47,6 +48,8 @@ public class IRC {
         currentUid = SID + "AAAAAA";
         authenticated = false;
         capabState = false;
+        channelTS = startTime;
+        channel = config.getString("server.channel");
 
         in = new BufferedReader(new InputStreamReader(sock.getInputStream()));
         out = new PrintWriter(sock.getOutputStream(), true);
@@ -160,10 +163,9 @@ public class IRC {
                 plugin.getLogger().info("Bursting");
                 out.println("BURST " + startTime);
                 out.println("VERSION :0.1");
-                String chan = config.getString("server.channel");
                 for (ProxiedPlayer p : plugin.getProxy().getPlayers()) {
                     Util.sendUserConnect(p);
-                    Util.sendChannelJoin(p, chan);
+                    Util.sendChannelJoin(p);
                     Util.incrementUid();
                 }
                 out.println("ENDBURST");
@@ -179,19 +181,19 @@ public class IRC {
                 plugin.getLogger().info("Bursting done");
 
             } else if (command.equals("FJOIN")) {
-                if (!chans.containsKey(args[1])) {
-                    Long ts = Long.parseLong(args[2]);
-                    if (!ts.equals(Util.getChanTS(args[1]))) chans.get(args[1]).ts = ts;
-                }
-                String modes = args[3];
-                int countArgModes = 0;
-                for (Character c:argModes.toCharArray()) {
-                    countArgModes += countChar (modes, c);
-                }
-                chans.get(args[1]).users.add(args[4+countArgModes].split(",")[1]);
-                for (ProxiedPlayer p : Util.getPlayersByChannel(args[1])) {
-                    p.sendMessage(new TextComponent(ChatColor.translateAlternateColorCodes('&', config.getString("formats.join")
-                            .replace("{SENDER}", users.get(args[5].split(",")[1])))));
+                if (args[1].equals(channel)) {
+                    Util.updateTS(args[2]);
+                    String modes = args[3];
+                    int countArgModes = 0;
+                    for (Character c:argModes.toCharArray()) {
+                        countArgModes += countChar (modes, c);
+                    }
+                    for (ProxiedPlayer p : Util.getPlayersByChannel(channel)) {
+                        for (String user : args[4+countArgModes].split(" ")) {
+                            p.sendMessage(new TextComponent(ChatColor.translateAlternateColorCodes('&', config.getString("formats.join")
+                                .replace("{SENDER}", users.get(user.split(",")[1])))));
+                        }
+                    }
                 }
 
             } else if (command.equals("FMODE")) {
@@ -201,7 +203,6 @@ public class IRC {
                 for (int i=0; i<args[3].length(); i++) {
                     String m = Character.toString(args[3].charAt(i));
                     String[] cm = chanModes.split(",");
-                    if (m.equals("b") && chans.containsKey(args[1])) chans.get(ex[1]).bans.add(args[v]);
                     if (m.equals("+") || m.equals("-")) {
                         d = m;
                     }else if (cm[0].contains(m) || cm[1].contains(m) || (cm[2].contains(m) && d.equals("+"))) {
@@ -306,19 +307,10 @@ public class IRC {
                 } else {
                     reason = "";
                 }
-                for (Map.Entry<String, Channel> ch : chans.entrySet()) {
-                    String chan = IRC.config.getString("server.channel");
-                    if (chan.isEmpty()) {
-                        chan = ch.getKey();
-                    }else if (!ch.getKey().equals(chan)) {
-                        continue;
-                    }
-                    if (!ch.getValue().users.contains(sender)) continue;
-                    for (ProxiedPlayer p : Util.getPlayersByChannel(chan)) {
-                        p.sendMessage(new TextComponent(ChatColor.translateAlternateColorCodes('&', config.getString("formats.quit")
-                                .replace("{SENDER}", users.get(sender))
-                                .replace("{REASON}", reason))));
-                    }
+                for (ProxiedPlayer p : Util.getPlayersByChannel(channel)) {
+                    p.sendMessage(new TextComponent(ChatColor.translateAlternateColorCodes('&', config.getString("formats.quit")
+                            .replace("{SENDER}", users.get(sender))
+                            .replace("{REASON}", reason))));
                 }
                 users.remove(sender);
 

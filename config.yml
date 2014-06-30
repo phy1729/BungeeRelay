@@ -49,13 +49,6 @@ server:
   # are kicked through IRC.
   kick: true
 
-  # This value determines whether the player should be moved/kicked from the server if they
-  # connect through a banned mask (channel mode +b). Compares both their nick and their
-  # connection address.
-  # NOTE: I recommend you set this to false for now while a better system is being worked on,
-  # as currently this ban system is fairly buggy and should not be relied on. W.I.P!
-  ban: false
-
   # You can set a prefix and suffix to the nicknames of Minecraft IRC users. This can be
   # helpful for users to distinguish between Minecraft players and normal IRC users.
   # For example, if usersuffix was "/minecraft", I appear on IRC as "Dead_i/minecraft"
@@ -112,7 +105,3 @@ formats:
   # The message players will be disconnected with if they are kicked through IRC.
   # Parameters: sender, target, reason
   disconnectkick: "&7You were kicked by {SENDER} through IRC.&r\n\n{REASON}"
-
-  # The message players will be disconnected with if they are banned through IRC.
-  # Parameters:
-  disconnectban: "&7You have been banned through IRC."

@@ -39,9 +39,21 @@ public class Util {
         IRC.out.println("UID " + IRC.currentUid + " " + System.currentTimeMillis() / 1000 + " " + name + " " + p.getAddress().getHostName() + " " + p.getAddress().getHostName() + " " + p.getName() + " " + p.getAddress().getHostString() + " " + IRC.times.get(p) + " +r :Minecraft Player");
     }
 
-    public static void sendChannelJoin(ProxiedPlayer p, String c) {
+    public static void sendChannelJoin(ProxiedPlayer p) {
         String uid = IRC.uids.get(p);
-        IRC.out.println("FJOIN " + c + " " + System.currentTimeMillis() / 1000 + " +nt :," + uid);
+        IRC.out.println("FJOIN " + IRC.channel + " " + System.currentTimeMillis() / 1000 + " +nt :," + uid);
+    }
+
+    public static void updateTS(String ts) {
+        long timestamp = stringToTS(ts);
+        if (timestamp < IRC.channelTS) {
+            IRC.channelTS = timestamp;
+        }
+    }
+
+    public static long stringToTS(String ts) {
+        Long LongTimestamp = Long.parseLong(ts);
+        return LongTimestamp.longValue();
     }
 
     public static Collection<ProxiedPlayer> getPlayersByChannel(String c) {
@@ -53,10 +65,5 @@ public class Util {
             if (nick.equalsIgnoreCase(entry.getValue())) return entry.getKey();
         }
         return null;
-    }
-
-    public static Long getChanTS(String c) {
-        if (!IRC.chans.containsKey(c)) IRC.chans.put(c, new Channel(System.currentTimeMillis() / 1000));
-        return IRC.chans.get(c).ts;
     }
 }
