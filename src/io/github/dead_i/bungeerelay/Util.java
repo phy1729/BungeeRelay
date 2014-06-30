@@ -73,4 +73,11 @@ public class Util {
         }
         return null;
     }
+
+    public static ProxiedPlayer getPlayerByUid(String uid) {
+        for (Map.Entry<ProxiedPlayer, String> entry : IRC.uids.entrySet()) {
+            if (uid.equalsIgnoreCase(entry.getValue())) return entry.getKey();
+        }
+        return null;
+    }
 }

@@ -246,43 +246,50 @@ public class IRC {
 
             } else if (command.equals("PRIVMSG")) {
                 String from = users.get(sender);
-                String player = users.get(args[1]);
-                int prefixlen = config.getString("server.userprefix").length();
-                int suffixlen = config.getString("server.usersuffix").length();
+                String format="", message = args[2];
                 Collection<ProxiedPlayer> players = new ArrayList<ProxiedPlayer>();
                 boolean isPM;
-                if (player != null && prefixlen < player.length() && suffixlen < player.length()) {
-                    ProxiedPlayer to = plugin.getProxy().getPlayer(player.substring(prefixlen, player.length() - suffixlen));
-                    isPM = (users.containsKey(args[1]) && to != null);
-                    if (isPM) {
+                if (args[1].charAt(0) == '#') { // PRIVMSG is for a channel
+                    isPM = false;
+                    if (args[1].equals(channel)) {
+                        players = ProxyServer.getInstance().getPlayers();
+                    }
+                } else {
+                    isPM = true;
+                    ProxiedPlayer to = Util.getPlayerByUid(args[1]);
+                    if (to != null) {
                         players.add(to);
                         replies.put(to, from);
                     }
-                } else {
-                    isPM = false;
                 }
-                if (!isPM) players = ProxyServer.getInstance().getPlayers();
-                for (ProxiedPlayer p : players) {
-                    String s = args[2];
-                    String ch = Character.toString((char) 1);
-                    String out;
-                    if (s.charAt(0) == (char) 1) {
+                if (message.charAt(0) == '\001') { // This is a CTCP message
+                    message = message.replaceAll("\001", ""); // Remove the 0x01 at beginning and end
+                    String subcommand = message.split(" ")[0];
+                    if (message.contains(" ")) message = message.split(" ",2)[1]; // Remove subcommand from message
+                    if (subcommand.equals("ACTION")) {
                         if (isPM) {
-                            out = config.getString("formats.privateme");
+                            format = config.getString("formats.privateme");
                         } else {
-                            out = config.getString("formats.me");
+                            format = config.getString("formats.me");
                         }
-                        s = s.replaceAll(ch, "");
-                    } else {
-                        if (isPM) {
-                            out = config.getString("formats.privatemsg");
-                        } else {
-                            out = config.getString("formats.msg");
+                    } else if (subcommand.equals("VERSION")) {
+                        for (ProxiedPlayer player : players) {
+                            out.println(":" + uids.get(player) + " NOTICE " + sender + " :\001VERSION Minecraft v" + player.getPendingConnection().getVersion() + " proxied by BungeeRelay 0.1\001");
                         }
                     }
-                    p.sendMessage(new TextComponent(ChatColor.translateAlternateColorCodes('&', out)
-                            .replace("{SENDER}", from)
-                            .replace("{MESSAGE}", s)));
+                } else {
+                    if (isPM) {
+                        format = config.getString("formats.privatemsg");
+                    } else {
+                        format = config.getString("formats.msg");
+                    }
+                }
+                if (format != "") {
+                    for (ProxiedPlayer p : players) {
+                        p.sendMessage(new TextComponent(ChatColor.translateAlternateColorCodes('&', format)
+                                .replace("{SENDER}", from)
+                                .replace("{MESSAGE}", message)));
+                    }
                 }
 
             } else if (command.equals("QUIT")) {
