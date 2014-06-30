@@ -36,7 +36,7 @@ public class IRC {
     public static HashMap<ProxiedPlayer, String> uids = new HashMap<ProxiedPlayer, String>();
     public static HashMap<ProxiedPlayer, String> replies = new HashMap<ProxiedPlayer, String>();
     public static HashMap<String, User> users = new HashMap<String, User>();
-    static Plugin plugin;
+    Plugin plugin;
 
 
     public IRC(Socket sock, FileConfiguration config, Plugin plugin) throws IOException {
@@ -55,7 +55,7 @@ public class IRC {
         in = new BufferedReader(new InputStreamReader(sock.getInputStream()));
         out = new PrintWriter(sock.getOutputStream(), true);
 
-        // Send our capabilities which we pretend we can do everything
+        // Send our capabilities where we pretend we can do everything
         out.println("CAPAB START 1202");
         out.println("CAPAB CAPABILITIES :PROTOCOL=1202");
         out.println("CAPAB END");
@@ -123,7 +123,7 @@ public class IRC {
 
             } else if (!capabState && authenticated) {
                 plugin.getLogger().warning("CAPAB *MUST* start with CAPAB START after authentication");
-                out.println("ERROR :Received CAPAB command without CAPAB START" + command);
+                out.println("ERROR :Received CAPAB command without CAPAB START");
 
             } else if (args[1].equals("CAPABILITIES")) {
                 // Dynamically find which modes require arguments
@@ -271,7 +271,7 @@ public class IRC {
                     isPM = true;
                     String player = users.get(args[1]).nick;
                     ProxiedPlayer to = Util.getPlayerByUid(args[1]);
-                    isPM = to != null;
+                    isPM = (to != null);
                     if (isPM) {
                         players.add(to);
                         replies.put(to, from);
