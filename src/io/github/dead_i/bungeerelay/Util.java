@@ -61,7 +61,7 @@ public class Util {
     }
 
     public static Collection<ProxiedPlayer> getPlayersByChannel(String c) {
-            return proxy.getPlayers();
+        return proxy.getPlayers();
     }
 
     public static String getUidByNick(String nick) {

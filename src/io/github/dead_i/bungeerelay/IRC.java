@@ -153,6 +153,7 @@ public class IRC {
 
         } else if (!authenticated) {
             if (command.equals("SERVER")) {
+                // <servername> <password> <hopcount> <id> <description>
                 if (!args[2].equals(config.getString("server.recvpass"))) {
                     plugin.getLogger().warning("The server "+args[1]+" presented the wrong password.");
                     plugin.getLogger().warning("Remember that the recvpass and sendpass are opposite to the ones in your links.conf");
@@ -204,20 +205,20 @@ public class IRC {
                         modes = modes + args[i] + " ";
                     }
                     Util.sendAll(new TextComponent(ChatColor.translateAlternateColorCodes('&', config.getString("formats.mode")
-                                .replace("{SENDER}", users.get(sender).nick)
-                                .replace("{MODE}", modes))));
+                            .replace("{SENDER}", users.get(sender).nick)
+                            .replace("{MODE}", modes))));
                 }
 
             } else if (command.equals("KICK")) {
-                // <channel>{,<channel>} <user>{,<user>} [<comment>]
+                // <channel>{,<channel>} <user>{,<user>} [<reason>]
                 if (args[1].equals(channel)) {
                     String reason = args[3];
                     String target = users.get(args[2]).nick;
                     String senderNick = users.get(sender).nick;
                     Util.sendAll(new TextComponent(ChatColor.translateAlternateColorCodes('&', config.getString("formats.kick")
-                                .replace("{SENDER}", senderNick)
-                                .replace("{TARGET}", target)
-                                .replace("{REASON}", reason))));
+                            .replace("{SENDER}", senderNick)
+                            .replace("{TARGET}", target)
+                            .replace("{REASON}", reason))));
                     if (config.getBoolean("server.kick")) {
                         ProxiedPlayer player = Util.getPlayerByUid(args[2]);
                         if (player != null) {
@@ -232,7 +233,9 @@ public class IRC {
                 }
 
             } else if (command.equals("KILL")) {
+                // <user> <reason>
             } else if (command.equals("NOTICE")) {
+                // <msgtarget> <text to be sent>
             } else if (command.equals("NICK")) {
                 // <new_nick>
                 Util.sendAll(new TextComponent(ChatColor.translateAlternateColorCodes('&', config.getString("formats.nick")
@@ -256,6 +259,7 @@ public class IRC {
             } else if (command.equals("PRIVMSG")) {
                 // <msgtarget> <text to be sent>
                 String from = users.get(sender).nick;
+                String format="", message = args[2];
                 Collection<ProxiedPlayer> players = new ArrayList<ProxiedPlayer>();
                 boolean isPM;
                 if (args[1].charAt(0) == '#') { // PRIVMSG is for a channel
@@ -265,37 +269,36 @@ public class IRC {
                     }
                 } else {
                     isPM = true;
-                    String player = users.get(args[1]).nick;
                     ProxiedPlayer to = Util.getPlayerByUid(args[1]);
-                    isPM = (to != null);
-                    if (isPM) {
+                    if (to != null) {
                         players.add(to);
                         replies.put(to, from);
                     }
                 }
-                for (ProxiedPlayer p : players) {
-                    String format="", message = args[2];
-                    if (message.charAt(0) == (char) 1) { // This is a CTCP message
-                        message = message.replaceAll("\001", ""); // Remove the 0x01 at beginning and end
-                        String subcommand = message.split(" ")[0];
-                        if (message.contains(" ")) message = message.split(" ",2)[1]; // Remove subcommand from message
-                        if (subcommand.equals("ACTION")) {
-                            if (isPM) {
-                                format = config.getString("formats.privateme");
-                            } else {
-                                format = config.getString("formats.me");
-                            }
-                        } else if (subcommand.equals("VERSION")) {
-                            out.println(":" + uids.get(p) + " NOTICE " + sender + " :" + (char) 1 + "VERSION Minecraft v" + p.getPendingConnection().getVersion() + " proxied by BungeeRelay v" + version + (char) 1);
-                        }
-                    } else {
+                if (message.charAt(0) == "\001") { // This is a CTCP message
+                    message = message.replaceAll("\001", ""); // Remove the 0x01 at beginning and end
+                    String subcommand = message.split(" ")[0];
+                    if (message.contains(" ")) message = message.split(" ",2)[1]; // Remove subcommand from message
+                    if (subcommand.equals("ACTION")) {
                         if (isPM) {
-                            format = config.getString("formats.privatemsg");
+                            format = config.getString("formats.privateme");
                         } else {
-                            format = config.getString("formats.msg");
+                            format = config.getString("formats.me");
+                        }
+                    } else if (subcommand.equals("VERSION")) {
+                        for (ProxiedPlayer player : players) {
+                            out.println(":" + uids.get(player) + " NOTICE " + sender + " :\001VERSION Minecraft v" + player.getPendingConnection().getVersion() + " proxied by BungeeRelay v" + version + "\001");
                         }
                     }
-                    if (format != "") {
+                } else {
+                    if (isPM) {
+                        format = config.getString("formats.privatemsg");
+                    } else {
+                        format = config.getString("formats.msg");
+                    }
+                }
+                if (format != "") {
+                    for (ProxiedPlayer p : players) {
                         p.sendMessage(new TextComponent(ChatColor.translateAlternateColorCodes('&', format)
                                 .replace("{SENDER}", from)
                                 .replace("{MESSAGE}", message)));
@@ -303,6 +306,7 @@ public class IRC {
                 }
 
             } else if (command.equals("QUIT")) {
+                // <reason>
                 String reason;
                 if (args.length > 2) {
                     reason = args[1];
@@ -310,24 +314,13 @@ public class IRC {
                     reason = "";
                 }
                 Util.sendAll(new TextComponent(ChatColor.translateAlternateColorCodes('&', config.getString("formats.ircquit")
-                            .replace("{SENDER}", users.get(sender).nick)
-                            .replace("{REASON}", reason))));
+                        .replace("{SENDER}", users.get(sender).nick)
+                        .replace("{REASON}", reason))));
                 users.remove(sender);
 
             } else if (command.equals("UID")) {
                 // <uid> <timestamp> <nick> <hostname> <displayed-hostname> <ident> <ip> <signon time> +<modes {mode params}> <gecos>
                 users.put(args[1], new User(sender, args[2], args[3], args[8]));
-            } else if (command.equals("ADDLINE")) {
-            } else if (command.equals("AWAY")) {
-            } else if (command.equals("BURST")) {
-            } else if (command.equals("FTOPIC")) {
-            } else if (command.equals("METADATA")) {
-            } else if (command.equals("OPERTYPE")) {
-            } else if (command.equals("SERVER")) {
-            } else if (command.equals("SNONOTICE")) {
-            } else if (command.equals("VERSION")) {
-            } else {
-                plugin.getLogger().warning("Unrecognized command: " + data);
             }
         }
     }
