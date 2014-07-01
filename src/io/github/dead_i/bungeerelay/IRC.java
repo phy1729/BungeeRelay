@@ -215,23 +215,21 @@ public class IRC {
                     String target = users.get(args[2]).nick;
                     String senderNick = users.get(sender).nick;
                     Util.sendAll(new TextComponent(ChatColor.translateAlternateColorCodes('&', config.getString("formats.kick")
-                                .replace("{SENDER}", sender)
+                                .replace("{SENDER}", senderNick)
                                 .replace("{TARGET}", target)
                                 .replace("{REASON}", reason))));
-                }
-                String full = users.get(args[2]).nick;
-                int prefixlen = config.getString("server.userprefix").length();
-                int suffixlen = config.getString("server.usersuffix").length();
-                if (config.getBoolean("server.kick") && prefixlen < full.length() && suffixlen < full.length()) {
-                    ProxiedPlayer player = plugin.getProxy().getPlayer(full.substring(prefixlen, full.length() - suffixlen));
-                    if (player != null) {
-                        player.disconnect(new TextComponent(ChatColor.translateAlternateColorCodes('&', config.getString("formats.disconnectkick")
-                                .replace("{SENDER}", sender)
-                                .replace("{TARGET}", target)
-                                .replace("{REASON}", reason))));
+                    if (config.getBoolean("server.kick")) {
+                        ProxiedPlayer player = Util.getPlayerByUid(args[2]);
+                        if (player != null) {
+                            player.disconnect(new TextComponent(ChatColor.translateAlternateColorCodes('&', config.getString("formats.disconnectkick")
+                                    .replace("{SENDER}", senderNick)
+                                    .replace("{TARGET}", target)
+                                    .replace("{REASON}", reason))));
+                            users.remove(args[2]);
+                            uids.remove(player);
+                        }
                     }
                 }
-                users.remove(args[2]);
 
             } else if (command.equals("KILL")) {
             } else if (command.equals("NOTICE")) {

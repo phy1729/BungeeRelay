@@ -43,7 +43,7 @@ public class Util {
     }
 
     public static void sendAll(TextComponent message) {
-        for (ProxiedPlayer player : IRC.plugin.getProxy().getPlayers()) {
+        for (ProxiedPlayer player : proxy.getPlayers()) {
             player.sendMessage(message);
         }
     }
@@ -61,7 +61,7 @@ public class Util {
     }
 
     public static Collection<ProxiedPlayer> getPlayersByChannel(String c) {
-            return IRC.plugin.getProxy().getPlayers();
+            return proxy.getPlayers();
     }
 
     public static String getUidByNick(String nick) {
