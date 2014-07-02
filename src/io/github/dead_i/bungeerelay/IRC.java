@@ -161,13 +161,13 @@ public class IRC {
                 authenticated = true;
                 plugin.getLogger().info("Authentication successful");
                 plugin.getLogger().info("Bursting");
-                out.println("BURST " + startTime);
-                out.println("VERSION :0.1");
+                out.println(":" + SID + " BURST " + startTime);
+                out.println(":" + SID + " VERSION :0.1");
                 for (ProxiedPlayer player : plugin.getProxy().getPlayers()) {
                     Util.sendUserConnect(player);
                     Util.sendChannelJoin(player);
                 }
-                out.println("ENDBURST");
+                out.println(":" + SID + " ENDBURST");
 
             } else {
                 plugin.getLogger().warning("Unrecognized command during authentication: " + data);
@@ -240,7 +240,7 @@ public class IRC {
                         .replace("{REASON}", reason));
 
             } else if (command.equals("PING")) {
-                out.println("PONG " + SID + " "+args[1]);
+                out.println(":" + SID + " PONG " + SID + " "+args[1]);
 
             } else if (command.equals("PRIVMSG")) {
                 String from = users.get(sender).nick;
