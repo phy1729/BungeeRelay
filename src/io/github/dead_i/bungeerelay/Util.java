@@ -131,7 +131,7 @@ public class Util {
                 }
             } else if (subcommand.equals("VERSION")) {
                 for (ProxiedPlayer player : players) {
-                    IRC.out.println(":" + IRC.uids.get(player) + " NOTICE " + senderUID + " :\001VERSION Minecraft v" + player.getPendingConnection().getVersion() + " proxied by BungeeRelay v0.1\001");
+                    IRC.out.println(":" + IRC.uids.get(player) + " NOTICE " + senderUID + " :\001VERSION Minecraft v" + player.getPendingConnection().getVersion() + " proxied by BungeeRelay v" + IRC.version + "\001");
                 }
             }
         } else {

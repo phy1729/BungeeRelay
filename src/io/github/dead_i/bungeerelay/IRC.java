@@ -22,6 +22,7 @@ public class IRC {
     public static BufferedReader in;
     public static PrintWriter out;
     public static FileConfiguration config;
+    public static String version;
     public static String SID;
     public static String currentUid;
     public static String prefixModes;
@@ -43,6 +44,7 @@ public class IRC {
         this.config = config;
         this.plugin = plugin;
 
+        version = plugin.getDescription().getVersion();
         SID = Util.generateSID();
         currentUid = SID + "AAAAAA";
         authenticated = false;
@@ -153,7 +155,7 @@ public class IRC {
                 plugin.getLogger().info("Authentication successful");
                 plugin.getLogger().info("Bursting");
                 out.println(":" + SID + " BURST " + startTime);
-                out.println(":" + SID + " VERSION :0.1");
+                out.println(":" + SID + " VERSION :BungeeRelay-" + version);
                 for (ProxiedPlayer player : plugin.getProxy().getPlayers()) {
                     Util.sendUserConnect(player);
                     Util.sendChannelJoin(player);
