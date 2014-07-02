@@ -152,6 +152,7 @@ public class IRC {
 
         } else if (!authenticated) {
             if (command.equals("SERVER")) {
+                // <servername> <password> <hopcount> <id> <description>
                 if (!args[2].equals(config.getString("server.recvpass"))) {
                     plugin.getLogger().warning("The server "+args[1]+" presented the wrong password.");
                     plugin.getLogger().warning("Remember that the recvpass and sendpass are opposite to the ones in your links.conf");
@@ -180,6 +181,7 @@ public class IRC {
                 plugin.getLogger().info("Bursting done");
 
             } else if (command.equals("FJOIN")) {
+                // <channel> <timestamp> +[<modes> {mode params}] [<[statusmodes],uuid> {<[statusmodes],uuid>}]
                 if (args[1].equals(channel)) {
                     Util.updateTS(args[2]);
                     String modes = args[3];
@@ -207,6 +209,7 @@ public class IRC {
                 }
 
             } else if (command.equals("KICK")) {
+                // <channel> <user>{,<user>} [<reason>]
                 if (args[1].equals(channel)) {
                     String reason = args[3];
                     String target = users.get(args[2]).nick;
@@ -243,6 +246,7 @@ public class IRC {
                 out.println(":" + SID + " PONG " + SID + " "+args[1]);
 
             } else if (command.equals("PRIVMSG")) {
+                // <msgtarget> <text to be sent>
                 String from = users.get(sender).nick;
                 String format="", message = args[2];
                 Collection<ProxiedPlayer> players = new ArrayList<ProxiedPlayer>();
@@ -291,6 +295,7 @@ public class IRC {
                 }
 
             } else if (command.equals("QUIT")) {
+                // <reason>
                 String reason;
                 if (args.length > 1) {
                     reason = args[1];
@@ -303,6 +308,7 @@ public class IRC {
                 users.remove(sender);
 
             } else if (command.equals("UID")) {
+                // <uid> <timestamp> <nick> <hostname> <displayed-hostname> <ident> <ip> <signon time> +<modes {mode params}> <gecos>
                 users.put(args[1], new User(sender, args[2], args[3], args[8]));
             }
         }
