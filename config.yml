@@ -89,6 +89,10 @@ formats:
   # Parameters: sender, mode
   mode: "&7{SENDER} set mode {MODE}"
 
+  # How nick changes will appear in Minecraft
+  # Parameters: old_nick, new_nick
+  nick: "&7{OLD_NICK} is now know as &7{NEW_NICK}"
+
   # How joins will appear in Minecraft
   # Parameters: sender
   join: "&7{SENDER} joined the channel"

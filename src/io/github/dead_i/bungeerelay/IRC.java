@@ -231,6 +231,13 @@ public class IRC {
                     }
                 }
 
+            } else if (command.equals("NICK")) {
+                // <new_nick>
+                Util.sendAll(config.getString("formats.nick")
+                        .replace("{OLD_NICK}", users.get(sender).nick)
+                        .replace("{NEW_NICK}", args[1]));
+                users.get(sender).nick = args[1];
+
             } else if (command.equals("PART")) {
                 String reason;
                 if (args.length > 2) {
