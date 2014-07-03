@@ -43,7 +43,7 @@ public class IRC {
         this.config = config;
         this.plugin = plugin;
 
-        SID = config.getString("server.id");
+        SID = Util.generateSID();
         currentUid = SID + "AAAAAA";
         authenticated = false;
         capabState = false;

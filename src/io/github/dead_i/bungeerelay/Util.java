@@ -12,6 +12,18 @@ import java.util.*;
 public class Util {
     private static ProxyServer proxy = ProxyServer.getInstance();
 
+    public static String generateSID() {
+        // Yes it's slower to do % every time but Java doesn't have unsigned and this is run only once
+        int SID = 0;
+        for (char c : IRC.config.getString("server.servername").toCharArray()) {
+            SID = (5 * SID + (int) c) % 1000;
+        }
+        for (char c : IRC.config.getString("server.realname").toCharArray()) {
+            SID = (5 * SID + (int) c) % 1000;
+        }
+        return String.format("%03d", SID);
+    }
+
     public static void incrementUid(int pos) {
         StringBuilder sb = new StringBuilder(IRC.currentUid);
         if (IRC.currentUid.charAt(pos) == 'Z') {
