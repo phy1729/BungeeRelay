@@ -8,8 +8,6 @@
 #   the only type of IRCd you should use with this plugin, NOT UnrealIRCd etc.
 # - Make sure you enable m_spanningtree.so in modules.conf.
 
-# If you need any help, post on the discussion thread or poke me (Dead-i) on IRC.
-
 # This section mainly uses info from your link block, in links.conf.
 server:
   # The address the plugin needs to connect to.

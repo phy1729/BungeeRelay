@@ -1,9 +1,6 @@
 BungeeRelay
 ===========
-
-BungeeRelay is a proxy plugin for BungeeCord that aims to take IRC to a whole new level, by providing seamless integration with your IRC network. The majority of pre-existing solutions consist of a single bot connecting to a network and relaying any chat information. This plugin takes this a step further by utilising InspIRCd's powerful linking protocol, meaning that each player appears as a separate user from IRC. This opens up many possibilities, as you can interact with players as normal IRC users, rather than doing it through bot commands. It also means that your IRC channel user list will be populated with your players, rather than a single relay bot.
-
-For further information, please read the project's page in [the Spigot resource section](http://www.spigotmc.org/resources/bungeerelay.325/)
+BungeeRelay is a proxy plugin for BungeeCord that aims to take IRC to a whole new level, by providing seamless integration with your IRC network. The majority of pre-existing solutions consist of a single bot connecting to a network and relaying any chat information. This plugin takes this a step further by connecting to your InspIRCd network as a server so that each player appears as a separate user from IRC. This opens up many possibilities, as you can interact with players as normal IRC users, rather than doing it through bot commands. It also means that your IRC channel user list will be populated with your players, rather than a single relay bot.
 
 Setting up
 ----------
