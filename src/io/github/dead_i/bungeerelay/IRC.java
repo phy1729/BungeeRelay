@@ -61,17 +61,6 @@ public class IRC {
         while (sock.isConnected()) handleData(in.readLine());
     }
 
-    private int countChar(String s, Character c)
-    {
-        int count = 0;
-        for (Character charInString:s.toCharArray()) {
-            if (charInString.equals(c)) {
-                ++count;
-            }
-        }
-        return count;
-    }
-
     public void handleData(String data) throws IOException {
         if (data == null) throw new IOException();
         if (data.isEmpty()) return;
@@ -187,8 +176,12 @@ public class IRC {
                     Util.updateTS(args[2]);
                     String modes = args[3];
                     int countArgModes = 0;
-                    for (Character c:argModes.toCharArray()) {
-                        countArgModes += countChar (modes, c);
+                    for (Character c : argModes.toCharArray()) {
+                        for (Character mode : modes.toCharArray()) {
+                            if (mode.equals(c)) {
+                                ++countArgModes;
+                            }
+                        }
                     }
                     for (String user : args[4+countArgModes].split(" ")) {
                         Util.sendAll(config.getString("formats.join")
