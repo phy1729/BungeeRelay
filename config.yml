@@ -8,8 +8,6 @@
 #   the only type of IRCd you should use with this plugin, NOT UnrealIRCd etc.
 # - Make sure you enable m_spanningtree.so in modules.conf.
 
-# If you need any help, post on the discussion thread or poke me (Dead-i) on IRC.
-
 # This section mainly uses info from your link block, in links.conf.
 server:
   # The address the plugin needs to connect to.
@@ -42,12 +40,20 @@ server:
   # IRC server be lost. The time is in milliseconds. Set to -1 for no reconnect attempt.
   reconnect: 3000
 
-  # Name of the channel (e.g. "#minecraft").
-  channel: ""
+  # Name of the channel
+  channel: "#minecraft"
 
-  # This value determines whether the player should be moved/kicked from the server if they
-  # are kicked through IRC.
-  kick: true
+  # After being killed from the server the user will
+  # "false": be disconnected from the minecraft server
+  # "true": not be disconnected from the minecraft server and
+  # immediately reconnect to the IRC server and channel
+  reconnectkick: true
+
+  # After being kicked from the channel the user will
+  # "false": be disconnected from the minecraft server
+  # "true": not be disconnected from the minecraft server and
+  # immediately reconnect to the IRC channel
+  reconnectkick: true
 
   # You can set a prefix and suffix to the nicknames of Minecraft IRC users to add in
   # the case of a collision.
@@ -64,7 +70,7 @@ server:
 formats:
   # The ident of a user connecting to IRC.
   # Parameters: {IDENT}
-  ident: "{IDENT}"
+  ident: "minecraft"
 
   # How public messages sent from IRC will appear in Minecraft.
   # Parameters: sender, message
@@ -81,9 +87,13 @@ formats:
   # How private messages appear if it was sent with /me in Minecraft.
   privateme: "&7[PM] &d* [IRC] {SENDER} {MESSAGE}"
 
+  # The output of the global /say command in Minecraft
+  # Parameters: message
+  saycommand: "&d[SERVER] {MESSAGE}"
+
   # How mode changes will appear in Minecraft
   # Parameters: sender, mode
-  mode: "&7{SENDER} sets mode {MODE}"
+  mode: "&7{SENDER} set mode {MODE}"
 
   # How nick changes will appear in Minecraft
   # Parameters: old_nick, new_nick
@@ -109,20 +119,14 @@ formats:
   # Parameters: sender, target, reason
   kick: "&7{SENDER} kicked {TARGET} from the channel ({REASON})"
 
-  # The output of the global /say command in Minecraft
-  # Parameters: message
-  saycommand: "&d[SERVER] {MESSAGE}"
+  # How kills will appear in Minecraft
+  # Parameters: sender, target, reason
+  kill: "&7{SENDER} killed {TARGET} from the channel ({REASON})"
 
   # The message players will be disconnected with if they are kicked through IRC.
   # Parameters: sender, target, reason
   disconnectkick: "&7You were kicked by {SENDER} through IRC.&r\n\n{REASON}"
 
-  # The message players will be disconnected with if they are banned through IRC.
-  # Parameters:
-  disconnectban: "&7You have been banned through IRC."
-
-  # Default kick message if the user does not define one when using /kick in-game.
-  Parameters: sender
-  defaultkick: "Kicked by a moderator from within Minecraft"
-
-# End of configuration.
+  # The message players will be disconnected with if they are killed through IRC.
+  # Parameters: sender, target, reason
+  disconnectkill: "&7You were killed by {SENDER} through IRC.&r\n\n{REASON}"

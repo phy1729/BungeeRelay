@@ -1,11 +1,14 @@
 package io.github.dead_i.bungeerelay;
 
 import net.md_5.bungee.api.ProxyServer;
-import net.md_5.bungee.api.config.ServerInfo;
+import net.md_5.bungee.api.CommandSender;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
+import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.TextComponent;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Map;
 
 public class Util {
     private static ProxyServer proxy = ProxyServer.getInstance();
@@ -42,10 +45,84 @@ public class Util {
         IRC.out.println(":" + IRC.SID + " FJOIN " + IRC.channel + " " + IRC.channelTS + " + :," + IRC.uids.get(player));
     }
 
-    public static void sendAll(TextComponent message) {
-        for (ProxiedPlayer player : proxy.getPlayers()) {
-            player.sendMessage(message);
+    public static void handleKickKill(String mode, String senderUID, String targetUID, String reason) {
+        String target = IRC.users.get(targetUID).nick;
+        String sender = IRC.users.get(senderUID).nick;
+        sendAll(IRC.config.getString("formats." + mode)
+                .replace("{SENDER}", sender)
+                .replace("{TARGET}", target)
+                .replace("{REASON}", reason));
+        ProxiedPlayer player = getPlayerByUid(targetUID);
+        if (player != null) {
+            if (IRC.config.getBoolean("server.reconnect" + mode)) {
+                if (mode.equals("kill")) sendUserConnect(player);
+                sendChannelJoin(player);
+            } else {
+                player.disconnect(new TextComponent(ChatColor.translateAlternateColorCodes('&', IRC.config.getString("formats.disconnect" + mode)
+                        .replace("{SENDER}", sender)
+                        .replace("{TARGET}", target)
+                        .replace("{REASON}", reason))));
+                IRC.users.remove(targetUID);
+                IRC.uids.remove(player);
+            }
         }
+    }
+
+    public static void handleMessage(String mode, String senderUID, String target, String message) {
+        String sender = IRC.users.get(senderUID).nick;
+        String format="";
+        Collection<ProxiedPlayer> players = new ArrayList<ProxiedPlayer>();
+        boolean isPM;
+        if (target.charAt(0) == '#') { // PRIVMSG is for a channel
+            isPM = false;
+            if (target.equals(IRC.channel)) {
+                players = proxy.getPlayers();
+            }
+        } else {
+            isPM = true;
+            ProxiedPlayer to = getPlayerByUid(target);
+            if (to != null) {
+                players.add(to);
+                IRC.replies.put(to, senderUID);
+            }
+        }
+        if (message.charAt(0) == '\001') { // This is a CTCP message
+            message = message.replaceAll("\001", ""); // Remove the 0x01 at beginning and end
+            String subcommand = message.split(" ")[0];
+            if (message.contains(" ")) message = message.split(" ",2)[1]; // Remove subcommand from message
+            if (subcommand.equals("ACTION")) {
+                if (isPM) {
+                    format = IRC.config.getString("formats.privateme");
+                } else {
+                    format = IRC.config.getString("formats.me");
+                }
+            } else if (subcommand.equals("VERSION")) {
+                for (ProxiedPlayer player : players) {
+                    IRC.out.println(":" + IRC.uids.get(player) + " NOTICE " + senderUID + " :\001VERSION Minecraft v" + player.getPendingConnection().getVersion() + " proxied by BungeeRelay v" + IRC.version + "\001");
+                }
+            }
+        } else {
+            if (isPM) {
+                format = IRC.config.getString("formats.privatemsg");
+            } else {
+                format = IRC.config.getString("formats.msg");
+            }
+        }
+        if (format != "") {
+            for (ProxiedPlayer p : players) {
+                p.sendMessage(new TextComponent(ChatColor.translateAlternateColorCodes('&', format)
+                        .replace("{SENDER}", sender)
+                        .replace("{MESSAGE}", message)));
+            }
+        }
+    }
+
+    public static void sendAll(String message) {
+        proxy.broadcast(new TextComponent(ChatColor.translateAlternateColorCodes('&', message)));
+    }
+
+    public static void sendError(CommandSender player, String message) {
+        player.sendMessage(new TextComponent(ChatColor.RED + message));
     }
 
     public static void updateTS(String ts) {
@@ -58,10 +135,6 @@ public class Util {
     public static long stringToTS(String ts) {
         Long LongTimestamp = Long.parseLong(ts);
         return LongTimestamp.longValue();
-    }
-
-    public static Collection<ProxiedPlayer> getPlayersByChannel(String c) {
-        return proxy.getPlayers();
     }
 
     public static String getUidByNick(String nick) {

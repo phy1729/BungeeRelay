@@ -7,33 +7,31 @@ import net.md_5.bungee.api.CommandSender;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.plugin.Command;
-import net.md_5.bungee.api.plugin.Plugin;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 
 public class PMCommand extends Command {
-    Plugin plugin;
-    public PMCommand(Plugin plugin) {
-        super("pm", "irc.pm");
-        this.plugin = plugin;
+    public PMCommand() {
+        super("pm");
     }
 
     @Override
     public void execute(CommandSender sender, String[] args) {
         if (args.length < 2) {
-            sender.sendMessage(new TextComponent(ChatColor.RED + "Usage: /pm <user> <message ...>"));
+            Util.sendError(sender, "Usage: /pm <user> <message ...>");
             return;
         }
         if (!IRC.sock.isConnected()) {
-            sender.sendMessage(new TextComponent(ChatColor.RED + "The proxy is not connected to IRC."));
+            Util.sendError(sender, "The proxy is not connected to IRC.");
             return;
         }
         String uid = Util.getUidByNick(args[0]);
         if (uid == null) {
-            sender.sendMessage(new TextComponent(ChatColor.RED + args[0] + " is not on IRC right now."));
+            Util.sendError(sender, args[0] + " is not on IRC right now.");
             return;
         }
+
         ArrayList<String> list = new ArrayList<String>(Arrays.asList(args));
         list.remove(0);
         StringBuilder msg = new StringBuilder();

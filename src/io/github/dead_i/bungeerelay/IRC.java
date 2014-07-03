@@ -3,9 +3,9 @@ package io.github.dead_i.bungeerelay;
 import net.craftminecraft.bungee.bungeeyaml.bukkitapi.file.FileConfiguration;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.TextComponent;
-import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.plugin.Plugin;
+import net.md_5.bungee.api.plugin.PluginDescription;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -13,16 +13,14 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
-import java.util.Map;
 
 public class IRC {
     public static Socket sock;
     public static BufferedReader in;
     public static PrintWriter out;
     public static FileConfiguration config;
-    public static String version = "0.9";
+    public static String version;
     public static String SID;
     public static String currentUid;
     public static String prefixModes;
@@ -38,12 +36,13 @@ public class IRC {
     public static HashMap<String, User> users = new HashMap<String, User>();
     Plugin plugin;
 
-
     public IRC(Socket sock, FileConfiguration config, Plugin plugin) throws IOException {
         this.sock = sock;
         this.config = config;
         this.plugin = plugin;
 
+        // version = plugin.description.version;
+        version = "";
         SID = config.getString("server.id");
         currentUid = SID + "AAAAAA";
         authenticated = false;
@@ -191,8 +190,8 @@ public class IRC {
                         countArgModes += countChar (modes, c);
                     }
                     for (String user : args[4+countArgModes].split(" ")) {
-                        Util.sendAll(new TextComponent(ChatColor.translateAlternateColorCodes('&', config.getString("formats.join")
-                                .replace("{SENDER}", users.get(user.split(",")[1]).nick))));
+                        Util.sendAll(config.getString("formats.join")
+                                .replace("{SENDER}", users.get(user.split(",")[1]).nick));
                     }
                 }
 
@@ -204,43 +203,32 @@ public class IRC {
                     for (int i=3; i<args.length; i++) {
                         modes = modes + args[i] + " ";
                     }
-                    Util.sendAll(new TextComponent(ChatColor.translateAlternateColorCodes('&', config.getString("formats.mode")
+                    Util.sendAll(config.getString("formats.mode")
                             .replace("{SENDER}", users.get(sender).nick)
-                            .replace("{MODE}", modes))));
+                            .replace("{MODE}", modes));
                 }
 
             } else if (command.equals("KICK")) {
-                // <channel>{,<channel>} <user>{,<user>} [<reason>]
+                // <channel> <user>{,<user>} [<reason>]
                 if (args[1].equals(channel)) {
-                    String reason = args[3];
-                    String target = users.get(args[2]).nick;
-                    String senderNick = users.get(sender).nick;
-                    Util.sendAll(new TextComponent(ChatColor.translateAlternateColorCodes('&', config.getString("formats.kick")
-                            .replace("{SENDER}", senderNick)
-                            .replace("{TARGET}", target)
-                            .replace("{REASON}", reason))));
-                    if (config.getBoolean("server.kick")) {
-                        ProxiedPlayer player = Util.getPlayerByUid(args[2]);
-                        if (player != null) {
-                            player.disconnect(new TextComponent(ChatColor.translateAlternateColorCodes('&', config.getString("formats.disconnectkick")
-                                    .replace("{SENDER}", senderNick)
-                                    .replace("{TARGET}", target)
-                                    .replace("{REASON}", reason))));
-                            users.remove(args[2]);
-                            uids.remove(player);
-                        }
+                    for (String target : args[2].split(",")) {
+                        Util.handleKickKill("kick", sender, target, args[3]);
                     }
                 }
 
             } else if (command.equals("KILL")) {
                 // <user> <reason>
+                Util.handleKickKill("kill", sender, args[1], args[2]);
+
             } else if (command.equals("NOTICE")) {
                 // <msgtarget> <text to be sent>
+                Util.handleMessage("notice", sender, args[1], args[2]);
+
             } else if (command.equals("NICK")) {
                 // <new_nick>
-                Util.sendAll(new TextComponent(ChatColor.translateAlternateColorCodes('&', config.getString("formats.nick")
+                Util.sendAll(config.getString("formats.nick")
                         .replace("{OLD_NICK}", users.get(sender).nick)
-                        .replace("{NEW_NICK}", args[1]))));
+                        .replace("{NEW_NICK}", args[1]));
                 users.get(sender).nick = args[1];
 
             } else if (command.equals("PART")) {
@@ -250,61 +238,16 @@ public class IRC {
                 } else {
                     reason = "";
                 }
-                Util.sendAll(new TextComponent(ChatColor.translateAlternateColorCodes('&', config.getString("formats.part")
+                Util.sendAll(config.getString("formats.part")
                         .replace("{SENDER}", users.get(sender).nick)
-                        .replace("{REASON}", reason))));
+                        .replace("{REASON}", reason));
 
             } else if (command.equals("PING")) {
                 out.println(":" + SID + " PONG " + SID + " "+args[1]);
 
             } else if (command.equals("PRIVMSG")) {
                 // <msgtarget> <text to be sent>
-                String from = users.get(sender).nick;
-                String format="", message = args[2];
-                Collection<ProxiedPlayer> players = new ArrayList<ProxiedPlayer>();
-                boolean isPM;
-                if (args[1].charAt(0) == '#') { // PRIVMSG is for a channel
-                    isPM = false;
-                    if (args[1].equals(channel)) {
-                        players = Util.getPlayersByChannel(channel);
-                    }
-                } else {
-                    isPM = true;
-                    ProxiedPlayer to = Util.getPlayerByUid(args[1]);
-                    if (to != null) {
-                        players.add(to);
-                        replies.put(to, from);
-                    }
-                }
-                if (message.charAt(0) == "\001") { // This is a CTCP message
-                    message = message.replaceAll("\001", ""); // Remove the 0x01 at beginning and end
-                    String subcommand = message.split(" ")[0];
-                    if (message.contains(" ")) message = message.split(" ",2)[1]; // Remove subcommand from message
-                    if (subcommand.equals("ACTION")) {
-                        if (isPM) {
-                            format = config.getString("formats.privateme");
-                        } else {
-                            format = config.getString("formats.me");
-                        }
-                    } else if (subcommand.equals("VERSION")) {
-                        for (ProxiedPlayer player : players) {
-                            out.println(":" + uids.get(player) + " NOTICE " + sender + " :\001VERSION Minecraft v" + player.getPendingConnection().getVersion() + " proxied by BungeeRelay v" + version + "\001");
-                        }
-                    }
-                } else {
-                    if (isPM) {
-                        format = config.getString("formats.privatemsg");
-                    } else {
-                        format = config.getString("formats.msg");
-                    }
-                }
-                if (format != "") {
-                    for (ProxiedPlayer p : players) {
-                        p.sendMessage(new TextComponent(ChatColor.translateAlternateColorCodes('&', format)
-                                .replace("{SENDER}", from)
-                                .replace("{MESSAGE}", message)));
-                    }
-                }
+                Util.handleMessage("privmsg", sender, args[1], args[2]);
 
             } else if (command.equals("QUIT")) {
                 // <reason>
@@ -314,9 +257,9 @@ public class IRC {
                 } else {
                     reason = "";
                 }
-                Util.sendAll(new TextComponent(ChatColor.translateAlternateColorCodes('&', config.getString("formats.ircquit")
+                Util.sendAll(config.getString("formats.ircquit")
                         .replace("{SENDER}", users.get(sender).nick)
-                        .replace("{REASON}", reason))));
+                        .replace("{REASON}", reason));
                 users.remove(sender);
 
             } else if (command.equals("UID")) {
