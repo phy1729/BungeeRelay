@@ -1,8 +1,7 @@
-package io.github.dead_i.bungeerelay.commands;
+package org.collegiumv.BungeeRelay.commands;
 
-import io.github.dead_i.bungeerelay.IRC;
-import io.github.dead_i.bungeerelay.Util;
-import net.md_5.bungee.api.ChatColor;
+import org.collegiumv.BungeeRelay.IRC;
+import org.collegiumv.BungeeRelay.Util;
 import net.md_5.bungee.api.CommandSender;
 import net.md_5.bungee.api.plugin.Command;
 

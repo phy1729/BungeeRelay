@@ -1,7 +1,7 @@
-package io.github.dead_i.bungeerelay;
+package org.collegiumv.BungeeRelay;
 
-import io.github.dead_i.bungeerelay.commands.*;
-import io.github.dead_i.bungeerelay.listeners.*;
+import org.collegiumv.BungeeRelay.commands.*;
+import org.collegiumv.BungeeRelay.listeners.*;
 import net.craftminecraft.bungee.bungeeyaml.pluginapi.ConfigurablePlugin;
 
 import java.io.IOException;

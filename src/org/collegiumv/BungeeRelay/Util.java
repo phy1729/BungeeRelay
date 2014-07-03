@@ -1,4 +1,4 @@
-package io.github.dead_i.bungeerelay;
+package org.collegiumv.BungeeRelay;
 
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.CommandSender;

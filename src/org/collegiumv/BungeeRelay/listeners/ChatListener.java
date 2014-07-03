@@ -1,6 +1,6 @@
-package io.github.dead_i.bungeerelay.listeners;
+package org.collegiumv.BungeeRelay.listeners;
 
-import io.github.dead_i.bungeerelay.IRC;
+import org.collegiumv.BungeeRelay.IRC;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.connection.ProxiedPlayer;

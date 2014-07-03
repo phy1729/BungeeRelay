@@ -1,8 +1,8 @@
-package io.github.dead_i.bungeerelay.listeners;
+package org.collegiumv.BungeeRelay.listeners;
 
-import io.github.dead_i.bungeerelay.IRC;
-import io.github.dead_i.bungeerelay.Util;
-import io.github.dead_i.bungeerelay.User;
+import org.collegiumv.BungeeRelay.IRC;
+import org.collegiumv.BungeeRelay.Util;
+import org.collegiumv.BungeeRelay.User;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.event.PostLoginEvent;
 import net.md_5.bungee.api.plugin.Listener;

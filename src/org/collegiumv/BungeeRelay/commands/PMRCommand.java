@@ -1,4 +1,4 @@
-package io.github.dead_i.bungeerelay.commands;
+package org.collegiumv.BungeeRelay.commands;
 
 import net.md_5.bungee.api.CommandSender;
 import net.md_5.bungee.api.plugin.Command;

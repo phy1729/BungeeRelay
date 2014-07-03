@@ -1,4 +1,4 @@
-package io.github.dead_i.bungeerelay;
+package org.collegiumv.BungeeRelay;
 
 import net.craftminecraft.bungee.bungeeyaml.bukkitapi.file.FileConfiguration;
 import net.md_5.bungee.api.ChatColor;

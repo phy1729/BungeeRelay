@@ -1,4 +1,4 @@
-package io.github.dead_i.bungeerelay;
+package org.collegiumv.BungeeRelay;
 
 public class User {
     public String nick;
