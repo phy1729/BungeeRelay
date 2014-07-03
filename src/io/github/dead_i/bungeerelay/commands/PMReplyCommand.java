@@ -2,9 +2,7 @@ package io.github.dead_i.bungeerelay.commands;
 
 import io.github.dead_i.bungeerelay.IRC;
 import io.github.dead_i.bungeerelay.Util;
-import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.CommandSender;
-import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.plugin.Command;
 
 public class PMReplyCommand extends Command {
@@ -26,19 +24,12 @@ public class PMReplyCommand extends Command {
             Util.sendError(sender, "You must be engaged within a conversation to use this.");
             return;
         }
-        String to = IRC.replies.get(sender);
-        String uid = Util.getUidByNick(to);
-        if (uid == null) {
-            Util.sendError(sender, to + " is no longer on IRC.");
-            return;
+
+        String[] newargs = new String[args.length + 1];
+        newargs[0] = IRC.replies.get(sender);
+        for (int i = 0; i < args.length; i++) {
+            newargs[i+1] = args[i];
         }
-
-        StringBuilder msg = new StringBuilder();
-        for (String a : args) msg.append(a).append(" ");
-
-        IRC.out.println(":" + IRC.uids.get(sender) + " PRIVMSG " + uid + " :" + msg);
-        sender.sendMessage(new TextComponent(ChatColor.translateAlternateColorCodes('&', IRC.config.getString("formats.privatemsg")
-                .replace("{SENDER}", sender.getName())
-                .replace("{MESSAGE}", msg.toString().trim()))));
+        new PMCommand().execute(sender, newargs);
     }
 }
