@@ -211,25 +211,14 @@ public class IRC {
             } else if (command.equals("KICK")) {
                 // <channel> <user>{,<user>} [<reason>]
                 if (args[1].equals(channel)) {
-                    String reason = args[3];
-                    String target = users.get(args[2]).nick;
-                    String senderNick = users.get(sender).nick;
-                    Util.sendAll(config.getString("formats.kick")
-                            .replace("{SENDER}", senderNick)
-                            .replace("{TARGET}", target)
-                            .replace("{REASON}", reason));
-                    if (config.getBoolean("server.kick")) {
-                        ProxiedPlayer player = Util.getPlayerByUid(args[2]);
-                        if (player != null) {
-                            player.disconnect(new TextComponent(ChatColor.translateAlternateColorCodes('&', config.getString("formats.disconnectkick")
-                                    .replace("{SENDER}", senderNick)
-                                    .replace("{TARGET}", target)
-                                    .replace("{REASON}", reason))));
-                            users.remove(args[2]);
-                            uids.remove(player);
-                        }
+                    for (String target : args[2].split(",")) {
+                        Util.handleKickKill("kick", sender, target, args[3]);
                     }
                 }
+
+            } else if (command.equals("KILL")) {
+                // <user> <reason>
+                Util.handleKickKill("kill", sender, args[1], args[2]);
 
             } else if (command.equals("NICK")) {
                 // <new_nick>

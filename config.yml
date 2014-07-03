@@ -45,9 +45,17 @@ server:
   # Name of the channel.
   channel: "#minecraft"
 
-  # This value determines whether the player should be moved/kicked from the server if they
-  # are kicked through IRC.
-  kick: true
+  # After being killed from the server the user will
+  # "false": be disconnected from the minecraft server
+  # "true": not be disconnected from the minecraft server and
+  # immediately reconnect to the IRC server and channel
+  reconnectkill: true
+
+  # After being kicked from the channel the user will
+  # "false": be disconnected from the minecraft server
+  # "true": not be disconnected from the minecraft server and
+  # immediately reconnect to the IRC channel
+  reconnectkick: true
 
   # You can set a prefix and suffix to the nicknames of Minecraft IRC users to add in
   # the case of a collision.
@@ -109,9 +117,17 @@ formats:
   # Parameters: sender, reason
   ircquit: "&7{SENDER} left IRC ({REASON})"
 
+  # How kills will appear in Minecraft
+  # Parameters: sender, target, reason
+  kill: "&7{SENDER} killed {TARGET} from the channel ({REASON})"
+
   # How kicks will appear in Minecraft
   # Parameters: sender, target, reason
   kick: "&7{SENDER} kicked {TARGET} from the channel ({REASON})"
+
+  # The message players will be disconnected with if they are killed through IRC.
+  # Parameters: sender, target, reason
+  disconnectkill: "&7You were killed by {SENDER} through IRC.&r\n\n{REASON}"
 
   # The message players will be disconnected with if they are kicked through IRC.
   # Parameters: sender, target, reason

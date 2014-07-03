@@ -44,6 +44,29 @@ public class Util {
         IRC.out.println(":" + IRC.SID + " FJOIN " + IRC.channel + " " + IRC.channelTS + " + :," + IRC.uids.get(player));
     }
 
+    public static void handleKickKill(String mode, String senderUID, String targetUID, String reason) {
+        String target = IRC.users.get(targetUID).nick;
+        String sender = IRC.users.get(senderUID).nick;
+        sendAll(IRC.config.getString("formats." + mode)
+                .replace("{SENDER}", sender)
+                .replace("{TARGET}", target)
+                .replace("{REASON}", reason));
+        ProxiedPlayer player = getPlayerByUid(targetUID);
+        if (player != null) {
+            if (IRC.config.getBoolean("server.reconnect" + mode)) {
+                if (mode.equals("kill")) sendUserConnect(player);
+                sendChannelJoin(player);
+            } else {
+                player.disconnect(new TextComponent(ChatColor.translateAlternateColorCodes('&', IRC.config.getString("formats.disconnect" + mode)
+                        .replace("{SENDER}", sender)
+                        .replace("{TARGET}", target)
+                        .replace("{REASON}", reason))));
+                IRC.users.remove(targetUID);
+                IRC.uids.remove(player);
+            }
+        }
+    }
+
     public static void sendAll(String message) {
         proxy.broadcast(new TextComponent(ChatColor.translateAlternateColorCodes('&', message)));
     }
