@@ -6,13 +6,10 @@ import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.CommandSender;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.plugin.Command;
-import net.md_5.bungee.api.plugin.Plugin;
 
 public class PMReplyCommand extends Command {
-    Plugin plugin;
-    public PMReplyCommand(Plugin plugin) {
-        super("pmreply", "irc.pm");
-        this.plugin = plugin;
+    public PMReplyCommand() {
+        super("pmreply");
     }
 
     @Override

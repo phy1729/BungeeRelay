@@ -6,13 +6,10 @@ import io.github.dead_i.bungeerelay.User;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.CommandSender;
 import net.md_5.bungee.api.plugin.Command;
-import net.md_5.bungee.api.plugin.Plugin;
 
 public class IRCNickCommand extends Command {
-    Plugin plugin;
-    public IRCNickCommand(Plugin plugin) {
-        super("ircnick", "irc.nick");
-        this.plugin = plugin;
+    public IRCNickCommand() {
+        super("ircnick");
     }
 
     @Override

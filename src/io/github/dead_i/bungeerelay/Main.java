@@ -16,17 +16,17 @@ public class Main extends ConfigurablePlugin {
 
         // Register listeners
         getProxy().getPluginManager().registerListener(this, new ChatListener(this));
-        getProxy().getPluginManager().registerListener(this, new PlayerDisconnectListener(this));
-        getProxy().getPluginManager().registerListener(this, new PostLoginListener(this));
+        getProxy().getPluginManager().registerListener(this, new PlayerDisconnectListener());
+        getProxy().getPluginManager().registerListener(this, new PostLoginListener());
 
         // Register commands
-        getProxy().getPluginManager().registerCommand(this, new SayCommand(this));
-        getProxy().getPluginManager().registerCommand(this, new PMCommand(this));
-        getProxy().getPluginManager().registerCommand(this, new PMReplyCommand(this));
-        getProxy().getPluginManager().registerCommand(this, new IRCNickCommand(this));
+        getProxy().getPluginManager().registerCommand(this, new SayCommand());
+        getProxy().getPluginManager().registerCommand(this, new PMCommand());
+        getProxy().getPluginManager().registerCommand(this, new PMReplyCommand());
+        getProxy().getPluginManager().registerCommand(this, new IRCNickCommand());
 
         // Register aliases
-        getProxy().getPluginManager().registerCommand(this, new PMRCommand(this));
+        getProxy().getPluginManager().registerCommand(this, new PMRCommand());
 
         // Initiate the connection, which will, in turn, pass the socket to the IRC class
         getProxy().getScheduler().runAsync(this, new Runnable() {

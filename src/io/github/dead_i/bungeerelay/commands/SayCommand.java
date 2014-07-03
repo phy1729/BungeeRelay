@@ -5,13 +5,10 @@ import io.github.dead_i.bungeerelay.Util;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.CommandSender;
 import net.md_5.bungee.api.plugin.Command;
-import net.md_5.bungee.api.plugin.Plugin;
 
 public class SayCommand extends Command {
-    Plugin plugin;
-    public SayCommand(Plugin plugin) {
+    public SayCommand() {
         super("say", "irc.say");
-        this.plugin = plugin;
     }
 
     @Override
