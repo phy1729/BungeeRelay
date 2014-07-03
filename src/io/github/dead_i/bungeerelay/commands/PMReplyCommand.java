@@ -18,21 +18,21 @@ public class PMReplyCommand extends Command {
     @Override
     public void execute(CommandSender sender, String[] args) {
         if (args.length == 0) {
-            sender.sendMessage(new TextComponent(ChatColor.RED + "Usage: /pmreply <message ...>"));
+            Util.sendError(sender, "Usage: /pmreply <message ...>");
             return;
         }
         if (!IRC.sock.isConnected()) {
-            sender.sendMessage(new TextComponent(ChatColor.RED + "The proxy is not connected to IRC."));
+            Util.sendError(sender, "The proxy is not connected to IRC.");
             return;
         }
         if (!IRC.replies.containsKey(sender)) {
-            sender.sendMessage(new TextComponent(ChatColor.RED + "You must be engaged within a conversation to use this."));
+            Util.sendError(sender, "You must be engaged within a conversation to use this.");
             return;
         }
         String to = IRC.replies.get(sender);
         String uid = Util.getUidByNick(to);
         if (uid == null) {
-            sender.sendMessage(new TextComponent(ChatColor.RED + to + " is no longer on IRC."));
+            Util.sendError(sender, to + " is no longer on IRC.");
             return;
         }
 

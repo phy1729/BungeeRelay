@@ -2,6 +2,7 @@ package io.github.dead_i.bungeerelay;
 
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.config.ServerInfo;
+import net.md_5.bungee.api.CommandSender;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.TextComponent;
@@ -48,6 +49,10 @@ public class Util {
 
     public static void sendAll(String message) {
         proxy.broadcast(new TextComponent(ChatColor.translateAlternateColorCodes('&', message)));
+    }
+
+    public static void sendError(CommandSender player, String message) {
+        player.sendMessage(new TextComponent(ChatColor.RED + message));
     }
 
     public static void updateTS(String ts) {

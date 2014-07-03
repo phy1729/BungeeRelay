@@ -22,18 +22,19 @@ public class PMCommand extends Command {
     @Override
     public void execute(CommandSender sender, String[] args) {
         if (args.length < 2) {
-            sender.sendMessage(new TextComponent(ChatColor.RED + "Usage: /pm <user> <message ...>"));
+            Util.sendError(sender, "Usage: /pm <user> <message ...>");
             return;
         }
         if (!IRC.sock.isConnected()) {
-            sender.sendMessage(new TextComponent(ChatColor.RED + "The proxy is not connected to IRC."));
+            Util.sendError(sender, "The proxy is not connected to IRC.");
             return;
         }
         String uid = Util.getUidByNick(args[0]);
         if (uid == null) {
-            sender.sendMessage(new TextComponent(ChatColor.RED + args[0] + " is not on IRC right now."));
+            Util.sendError(sender, args[0] + " is not on IRC right now.");
             return;
         }
+
         ArrayList<String> list = new ArrayList<String>(Arrays.asList(args));
         list.remove(0);
         StringBuilder msg = new StringBuilder();
