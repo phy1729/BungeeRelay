@@ -18,11 +18,14 @@ public class SayCommand extends Command {
         }
         StringBuilder msg = new StringBuilder();
         for (String a : args) msg.append(a);
-        Util.sendAll(IRC.config.getString("formats.saycommand").replace("{MESSAGE}", msg.toString()));
-        if (!IRC.sock.isConnected()) {
+        Util.sendAll(IRC.getInstance().config.getString("formats.saycommand").replace("{MESSAGE}", msg.toString()));
+        if (!IRC.getInstance().sock.isConnected()) {
             Util.sendError(sender, "The proxy is not connected to IRC.");
             return;
         }
-        IRC.out.println(":" + IRC.SID + " PRIVMSG " + IRC.channel + " :" + msg.toString());
+
+        IRC.getInstance().printChannelMsg(msg.toString());
+
+
     }
 }

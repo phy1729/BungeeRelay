@@ -15,28 +15,40 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 public class IRC {
-    public static Socket sock;
-    public static BufferedReader in;
-    public static PrintWriter out;
-    public static FileConfiguration config;
-    public static String version;
-    public static String SID;
-    public static String currentUid;
-    public static String prefixModes;
-    public static String chanModes;
-    public static String argModes;
-    public static int nickMax;
-    public static long startTime;
-    public static boolean authenticated;
-    public static boolean capabState;
-    public static String channel;
-    public static long channelTS;
-    public static HashMap<ProxiedPlayer, String> uids = new HashMap<ProxiedPlayer, String>();
-    public static HashMap<ProxiedPlayer, String> replies = new HashMap<ProxiedPlayer, String>();
-    public static HashMap<String, User> users = new HashMap<String, User>();
+    public Socket sock;
+    public BufferedReader in;
+    public PrintWriter out;
+    public FileConfiguration config;
+    public String version;
+    public String SID;
+    public String currentUid;
+    public String prefixModes;
+    public String chanModes;
+    public String argModes;
+    public int nickMax;
+    public long startTime;
+    public boolean authenticated;
+    public boolean capabState;
+    public String channel;
+    public long channelTS;
+    public HashMap<ProxiedPlayer, String> uids = new HashMap<ProxiedPlayer, String>();
+    public HashMap<ProxiedPlayer, String> replies = new HashMap<ProxiedPlayer, String>();
+    public HashMap<String, User> users = new HashMap<String, User>();
     Plugin plugin;
 
-    public IRC(Socket sock, FileConfiguration config, Plugin plugin) throws IOException {
+
+    private static IRC instance;
+
+    public static IRC initialize(Socket sock, FileConfiguration config, Plugin plugin) throws IOException {
+        instance = new IRC(sock,config,plugin);
+        return instance;
+    }
+
+    public static IRC getInstance() {
+        return instance;
+    }
+
+    private IRC(Socket sock, FileConfiguration config, Plugin plugin) throws IOException {
         this.sock = sock;
         this.config = config;
         this.plugin = plugin;
@@ -172,7 +184,7 @@ public class IRC {
             } else if (command.equals("FJOIN")) {
                 // <channel> <timestamp> +[<modes> {mode params}] [<[statusmodes],uuid> {<[statusmodes],uuid>}]
                 if (args[1].equals(channel)) {
-                    Util.updateTS(args[2]);
+                    updateTS(args[2]);
                     String modes = args[3];
                     int countArgModes = 0;
                     for (Character c : argModes.toCharArray()) {
@@ -191,7 +203,7 @@ public class IRC {
             } else if (command.equals("FMODE")) {
                 // <target> <timestamp> <modes and parameters>
                 if (args[1].equals(channel)) {
-                    Util.updateTS(args[2]);
+                    updateTS(args[2]);
                     String modes = "";
                     for (int i=3; i<args.length; i++) {
                         modes = modes + args[i] + " ";
@@ -260,5 +272,32 @@ public class IRC {
                 users.put(args[1], new User(sender, args[2], args[3], args[8]));
             }
         }
+    }
+
+    private void updateTS(String ts) {
+        long timestamp = Util.stringToTS(ts);
+        if (timestamp < channelTS) {
+            channelTS = timestamp;
+        }
+    }
+
+    public void addPlayer(ProxiedPlayer player) {
+        String playerUID = currentUid;
+        Util.incrementUid();
+
+        String nick;
+
+        if (Util.getUidByNick(player.getName()) == null) { // No collison, use their nick
+            nick = player.getName();
+        } else {
+            nick = IRC.getInstance().config.getString("server.userprefix") + player.getName() + IRC.getInstance().config.getString("server.usersuffix");
+        }
+
+        uids.put(player, playerUID);
+        users.put(playerUID, new User(nick,SID));
+    }
+
+    public void printChannelMsg(String msg) {
+        IRC.getInstance().out.println(":" + SID + " PRIVMSG " + channel + " :" + msg.toString());
     }
 }

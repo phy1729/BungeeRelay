@@ -22,7 +22,7 @@ public class PMCommand extends Command {
             Util.sendError(sender, "Usage: /pm <user> <message ...>");
             return;
         }
-        if (!IRC.sock.isConnected()) {
+        if (!IRC.getInstance().sock.isConnected()) {
             Util.sendError(sender, "The proxy is not connected to IRC.");
             return;
         }
@@ -35,10 +35,12 @@ public class PMCommand extends Command {
         ArrayList<String> list = new ArrayList<String>(Arrays.asList(args));
         list.remove(0);
         StringBuilder msg = new StringBuilder();
-        for (String a : list) msg.append(a).append(" ");
-        IRC.out.println(":" + IRC.uids.get(sender) + " PRIVMSG " + uid + " :" + msg);
-        IRC.replies.put((ProxiedPlayer) sender, args[0]);
-        sender.sendMessage(new TextComponent(ChatColor.translateAlternateColorCodes('&', IRC.config.getString("formats.privatemsg")
+        for (String a : list) {
+            msg.append(a).append(" ");
+        }
+        IRC.getInstance().out.println(":" + IRC.getInstance().uids.get(sender) + " PRIVMSG " + uid + " :" + msg);
+        IRC.getInstance().replies.put((ProxiedPlayer) sender, args[0]);
+        sender.sendMessage(new TextComponent(ChatColor.translateAlternateColorCodes('&', IRC.getInstance().config.getString("formats.privatemsg")
                 .replace("{SENDER}", sender.getName())
                 .replace("{MESSAGE}", msg))));
     }

@@ -11,18 +11,11 @@ import net.md_5.bungee.event.EventHandler;
 public class PostLoginListener implements Listener {
     @EventHandler
     public void onPostLogin(PostLoginEvent event) {
-        if (!IRC.sock.isConnected()) return;
+        if (!IRC.getInstance().sock.isConnected()) return;
         ProxiedPlayer player = event.getPlayer();
-        String playerUID = IRC.currentUid;
-        Util.incrementUid();
-        IRC.uids.put(player, playerUID);
-        String nick;
-        if (Util.getUidByNick(player.getName()) == null) { // No collison, use their nick
-            nick = player.getName();
-        } else {
-            nick = IRC.config.getString("server.userprefix") + player.getName() + IRC.config.getString("server.usersuffix");
-        }
-        IRC.users.put(playerUID, new User(nick));
+
+        IRC.getInstance().addPlayer(player);
+
         Util.sendUserConnect(player);
         Util.sendChannelJoin(player);
     }

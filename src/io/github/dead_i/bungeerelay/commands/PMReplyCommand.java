@@ -16,17 +16,17 @@ public class PMReplyCommand extends Command {
             Util.sendError(sender, "Usage: /pmreply <message ...>");
             return;
         }
-        if (!IRC.sock.isConnected()) {
+        if (!IRC.getInstance().sock.isConnected()) {
             Util.sendError(sender, "The proxy is not connected to IRC.");
             return;
         }
-        if (!IRC.replies.containsKey(sender)) {
+        if (!IRC.getInstance().replies.containsKey(sender)) {
             Util.sendError(sender, "You must be engaged within a conversation to use this.");
             return;
         }
 
         String[] newargs = new String[args.length + 1];
-        newargs[0] = IRC.replies.get(sender);
+        newargs[0] = IRC.getInstance().replies.get(sender);
         for (int i = 0; i < args.length; i++) {
             newargs[i+1] = args[i];
         }

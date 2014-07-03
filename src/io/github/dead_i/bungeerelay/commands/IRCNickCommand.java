@@ -17,8 +17,8 @@ public class IRCNickCommand extends Command {
             Util.sendError(sender, "Usage: /ircnick <nick>");
             return;
         }
-        if (!IRC.sock.isConnected()) {
-            Util.sendError(sender, "The proxy is not connected to IRC.");
+        if (!IRC.getInstance().sock.isConnected()) {
+            Util.sendError(sender, "The proxy is not connected to IRC.getInstance().");
             return;
         }
         if (!Util.isValidNick(args[0])) {
@@ -30,9 +30,9 @@ public class IRCNickCommand extends Command {
             return;
         }
 
-        User user = IRC.users.get(IRC.uids.get(sender));
+        User user = IRC.getInstance().users.get(IRC.getInstance().uids.get(sender));
         user.nick = args[0];
         user.nickTime = System.currentTimeMillis() / 1000;
-        IRC.out.println(":" + IRC.uids.get(sender) + " NICK " + user.nick + " " + user.nickTime);
+        IRC.getInstance().out.println(":" + IRC.getInstance().uids.get(sender) + " NICK " + user.nick + " " + user.nickTime);
     }
 }

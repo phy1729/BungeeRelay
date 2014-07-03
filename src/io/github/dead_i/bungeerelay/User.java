@@ -7,12 +7,12 @@ public class User {
     public boolean local;
     public String server;
 
-    public User(String nick) {
+    public User(String nick, String SID) {
         local = true;
         this.nick = nick;
         connectTime = System.currentTimeMillis() / 1000;
         nickTime = connectTime;
-        server = IRC.SID;
+        server = SID;
     }
 
     public User(String server, String nickTime, String nick, String connectTime) {

@@ -17,16 +17,16 @@ public class ChatListener implements Listener {
 
     @EventHandler
     public void onChat(ChatEvent event) {
-        if (!IRC.sock.isConnected()) return;
+        if (!IRC.getInstance().sock.isConnected()) return;
         ProxiedPlayer player = (ProxiedPlayer) event.getSender();
         String msg = event.getMessage();
         if (!msg.startsWith("/") || (msg.startsWith("/me "))) {
             if (msg.startsWith("/me ")) msg = "\001ACTION " + msg.substring(4) + "\001";
-            IRC.out.println(":" + IRC.uids.get(player) + " PRIVMSG " + IRC.channel + " :" + msg);
+            IRC.getInstance().out.println(":" + IRC.getInstance().uids.get(player) + " PRIVMSG " + IRC.getInstance().channel + " :" + msg);
 
             for (ProxiedPlayer o : plugin.getProxy().getPlayers()) {
-                if (!player.getServer().getInfo().getName().equals(o.getServer().getInfo().getName())) o.sendMessage(new TextComponent(ChatColor.translateAlternateColorCodes('&', IRC.config.getString("formats.msg"))
-                        .replace("{SENDER}", IRC.users.get(IRC.uids.get(player)).nick)
+                if (!player.getServer().getInfo().getName().equals(o.getServer().getInfo().getName())) o.sendMessage(new TextComponent(ChatColor.translateAlternateColorCodes('&', IRC.getInstance().config.getString("formats.msg"))
+                        .replace("{SENDER}", IRC.getInstance().users.get(IRC.getInstance().uids.get(player)).nick)
                         .replace("{MESSAGE}", msg)));
             }
         }

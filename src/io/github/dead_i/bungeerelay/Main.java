@@ -39,7 +39,7 @@ public class Main extends ConfigurablePlugin {
     public void connect() {
         getLogger().info("Attempting connection...");
         try {
-            new IRC(new Socket(getConfig().getString("server.host"), getConfig().getInt("server.port")), getConfig(), this);
+            IRC.initialize(new Socket(getConfig().getString("server.host"), getConfig().getInt("server.port")), getConfig(), this);
         } catch (UnknownHostException e) {
             handleDisconnect();
         } catch (IOException e) {

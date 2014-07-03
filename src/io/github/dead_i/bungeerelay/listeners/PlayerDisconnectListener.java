@@ -10,10 +10,10 @@ public class PlayerDisconnectListener implements Listener {
     @EventHandler
     public void onPlayerDisconnect(PlayerDisconnectEvent event) {
         ProxiedPlayer player = event.getPlayer();
-        String playerUID = IRC.uids.get(player);
-        if (IRC.sock.isConnected()) IRC.out.println(":" + playerUID + " QUIT :" + IRC.config.getString("formats.mcquit")
-            .replace("{SENDER}", IRC.users.get(playerUID).nick));
-        IRC.users.remove(playerUID);
-        IRC.uids.remove(player);
+        String playerUID = IRC.getInstance().uids.get(player);
+        if (IRC.getInstance().sock.isConnected()) IRC.getInstance().out.println(":" + playerUID + " QUIT :" + IRC.getInstance().config.getString("formats.mcquit")
+            .replace("{SENDER}", IRC.getInstance().users.get(playerUID).nick));
+        IRC.getInstance().users.remove(playerUID);
+        IRC.getInstance().uids.remove(player);
     }
 }
