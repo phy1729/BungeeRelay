@@ -4,7 +4,7 @@ import io.github.dead_i.bungeerelay.commands.*;
 import io.github.dead_i.bungeerelay.listeners.*;
 import net.craftminecraft.bungee.bungeeyaml.pluginapi.ConfigurablePlugin;
 
-import java.io.*;
+import java.io.IOException;
 import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.concurrent.TimeUnit;
