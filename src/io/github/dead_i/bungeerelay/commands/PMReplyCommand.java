@@ -30,6 +30,6 @@ public class PMReplyCommand extends Command {
         for (int i = 0; i < args.length; i++) {
             newargs[i+1] = args[i];
         }
-        new PMReplyCommand().execute(sender, newargs);
+        new PMCommand().execute(sender, newargs);
     }
 }

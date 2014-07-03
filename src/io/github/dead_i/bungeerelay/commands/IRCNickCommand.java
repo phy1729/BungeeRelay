@@ -21,6 +21,10 @@ public class IRCNickCommand extends Command {
             Util.sendError(sender, "The proxy is not connected to IRC.");
             return;
         }
+        if (!Util.isValidNick(args[0])) {
+            Util.sendError(sender, "The nick " + args[0] + " is invalid.");
+            return;
+        }
         if (Util.getUidByNick(args[0]) != null) {
             Util.sendError(sender, "The nick " + args[0] + " is already in use.");
             return;

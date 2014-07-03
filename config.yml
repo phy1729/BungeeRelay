@@ -21,10 +21,6 @@ server:
   # The "name" in your link block.
   servername: "bungee.example.org"
 
-  # The unique ID on your IRC network that this connection will identify itself as.
-  # The "id" in your link block.
-  id: "155"
-
   # The friendly name for this server. It can be whatever you please.
   realname: "BungeeCord running BungeeRelay"
 

@@ -13,6 +13,18 @@ import java.util.Map;
 public class Util {
     private static ProxyServer proxy = ProxyServer.getInstance();
 
+    public static String generateSID() {
+        // Yes it's slower to do % every time but Java doesn't have unsigned and this is run only once
+        int SID = 0;
+        for (char c : IRC.config.getString("server.servername").toCharArray()) {
+            SID = (5 * SID + (int) c) % 1000;
+        }
+        for (char c : IRC.config.getString("server.realname").toCharArray()) {
+            SID = (5 * SID + (int) c) % 1000;
+        }
+        return String.format("%03d", SID);
+    }
+
     public static void incrementUid(int pos) {
         StringBuilder sb = new StringBuilder(IRC.currentUid);
         if (IRC.currentUid.charAt(pos) == 'Z') {
@@ -33,6 +45,28 @@ public class Util {
         do {
             incrementUid(8);
         } while (IRC.uids.containsValue(IRC.currentUid));
+    }
+
+    public static boolean isValidNick(String nick) {
+        if (nick.isEmpty() || nick.length() > IRC.nickMax)
+            return false;
+
+        char firstChar = nick.charAt(0);
+        if ((firstChar >= '0' && firstChar <= '9') || firstChar == '-')
+            return false;
+
+        for (char c : nick.toCharArray()) {
+            if (c >= 'A' && c <= '}') {
+                // "A"-"}" can occur anywhere in a nickname
+                continue;
+            }
+            if ((c >= '0' && c <= '9') || c == '-') {
+                // "0"-"9", "-" can occur anywhere BUT the first char of a nickname
+                continue;
+            }
+            return false;
+        }
+        return true;
     }
 
     public static void sendUserConnect(ProxiedPlayer player) {
@@ -83,7 +117,7 @@ public class Util {
             ProxiedPlayer to = getPlayerByUid(target);
             if (to != null) {
                 players.add(to);
-                IRC.replies.put(to, senderUID);
+                IRC.replies.put(to, sender);
             }
         }
         if (message.charAt(0) == '\001') { // This is a CTCP message

@@ -5,7 +5,6 @@ import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.plugin.Plugin;
-import net.md_5.bungee.api.plugin.PluginDescription;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -26,6 +25,7 @@ public class IRC {
     public static String prefixModes;
     public static String chanModes;
     public static String argModes;
+    public static int nickMax;
     public static long startTime;
     public static boolean authenticated;
     public static boolean capabState;
@@ -41,9 +41,8 @@ public class IRC {
         this.config = config;
         this.plugin = plugin;
 
-        // version = plugin.description.version;
-        version = "";
-        SID = config.getString("server.id");
+        version = plugin.getDescription().getVersion();
+        SID = Util.generateSID();
         currentUid = SID + "AAAAAA";
         authenticated = false;
         capabState = false;
@@ -59,17 +58,6 @@ public class IRC {
         out.println("CAPAB CAPABILITIES :PROTOCOL=1202");
         out.println("CAPAB END");
         while (sock.isConnected()) handleData(in.readLine());
-    }
-
-    private int countChar(String s, Character c)
-    {
-        int count = 0;
-        for (Character charInString:s.toCharArray()) {
-            if (charInString.equals(c)) {
-                ++count;
-            }
-        }
-        return count;
     }
 
     public void handleData(String data) throws IOException {
@@ -135,8 +123,9 @@ public class IRC {
                         for (int i = 0; i < 3; ++i) {
                             argModes += chanmodeSets[i];
                         }
-                    }
-                    if (s.contains("PREFIX=")) {
+                    } else if (s.contains("NICKMAX=")) {
+                        nickMax = Integer.parseInt(s.split("=")[1]);
+                    } else if (s.contains("PREFIX=")) {
                         // Grab the modes inside the parens after the "="
                         prefixModes = s.split("=")[1].split("\\(")[1].split("\\)")[0];
                     }
@@ -164,11 +153,11 @@ public class IRC {
                 plugin.getLogger().info("Bursting");
                 out.println(":" + SID + " BURST " + startTime);
                 out.println(":" + SID + " VERSION :BungeeRelay-" + version);
-                out.println(":" + SID + " ENDBURST");
                 for (ProxiedPlayer player : plugin.getProxy().getPlayers()) {
                     Util.sendUserConnect(player);
                     Util.sendChannelJoin(player);
                 }
+                out.println(":" + SID + " ENDBURST");
 
             } else {
                 plugin.getLogger().warning("Unrecognized command during authentication: " + data);
@@ -186,8 +175,12 @@ public class IRC {
                     Util.updateTS(args[2]);
                     String modes = args[3];
                     int countArgModes = 0;
-                    for (Character c:argModes.toCharArray()) {
-                        countArgModes += countChar (modes, c);
+                    for (Character c : argModes.toCharArray()) {
+                        for (Character mode : modes.toCharArray()) {
+                            if (mode.equals(c)) {
+                                ++countArgModes;
+                            }
+                        }
                     }
                     for (String user : args[4+countArgModes].split(" ")) {
                         Util.sendAll(config.getString("formats.join")
