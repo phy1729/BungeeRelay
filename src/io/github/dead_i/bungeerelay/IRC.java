@@ -27,6 +27,7 @@ public class IRC {
     public static String prefixModes;
     public static String chanModes;
     public static String argModes;
+    public static int nickMax;
     public static long startTime;
     public static boolean authenticated;
     public static boolean capabState;
@@ -134,8 +135,9 @@ public class IRC {
                         for (int i = 0; i < 3; ++i) {
                             argModes += chanmodeSets[i];
                         }
-                    }
-                    if (s.contains("PREFIX=")) {
+                    } else if (s.contains("NICKMAX=")) {
+                        nickMax = Integer.parseInt(s.split("=")[1]);
+                    } else if (s.contains("PREFIX=")) {
                         // Grab the modes inside the parens after the "="
                         prefixModes = s.split("=")[1].split("\\(")[1].split("\\)")[0];
                     }

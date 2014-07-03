@@ -34,6 +34,28 @@ public class Util {
         } while (IRC.uids.containsValue(IRC.currentUid));
     }
 
+    public static boolean isValidNick(String nick) {
+        if (nick.isEmpty() || nick.length() > IRC.nickMax)
+            return false;
+
+        char firstChar = nick.charAt(0);
+        if ((firstChar >= '0' && firstChar <= '9') || firstChar == '-')
+            return false;
+
+        for (char c : nick.toCharArray()) {
+            if (c >= 'A' && c <= '}') {
+                // "A"-"}" can occur anywhere in a nickname
+                continue;
+            }
+            if ((c >= '0' && c <= '9') || c == '-') {
+                // "0"-"9", "-" can occur anywhere BUT the first char of a nickname
+                continue;
+            }
+            return false;
+        }
+        return true;
+    }
+
     public static void sendUserConnect(ProxiedPlayer player) {
         String playerUID = IRC.uids.get(player);
         User user = IRC.users.get(playerUID);
