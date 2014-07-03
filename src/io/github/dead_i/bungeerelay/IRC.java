@@ -4,7 +4,6 @@ import net.craftminecraft.bungee.bungeeyaml.bukkitapi.file.FileConfiguration;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.config.ServerInfo;
-import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.plugin.Plugin;
 
@@ -220,6 +219,10 @@ public class IRC {
                 // <user> <reason>
                 Util.handleKickKill("kill", sender, args[1], args[2]);
 
+            } else if (command.equals("NOTICE")) {
+                // <msgtarget> <text to be sent>
+                Util.handleMessage("notice", sender, args[1], args[2]);
+
             } else if (command.equals("NICK")) {
                 // <new_nick>
                 Util.sendAll(config.getString("formats.nick")
@@ -243,52 +246,7 @@ public class IRC {
 
             } else if (command.equals("PRIVMSG")) {
                 // <msgtarget> <text to be sent>
-                String from = users.get(sender).nick;
-                String format="", message = args[2];
-                Collection<ProxiedPlayer> players = new ArrayList<ProxiedPlayer>();
-                boolean isPM;
-                if (args[1].charAt(0) == '#') { // PRIVMSG is for a channel
-                    isPM = false;
-                    if (args[1].equals(channel)) {
-                        players = ProxyServer.getInstance().getPlayers();
-                    }
-                } else {
-                    isPM = true;
-                    ProxiedPlayer to = Util.getPlayerByUid(args[1]);
-                    if (to != null) {
-                        players.add(to);
-                        replies.put(to, from);
-                    }
-                }
-                if (message.charAt(0) == '\001') { // This is a CTCP message
-                    message = message.replaceAll("\001", ""); // Remove the 0x01 at beginning and end
-                    String subcommand = message.split(" ")[0];
-                    if (message.contains(" ")) message = message.split(" ",2)[1]; // Remove subcommand from message
-                    if (subcommand.equals("ACTION")) {
-                        if (isPM) {
-                            format = config.getString("formats.privateme");
-                        } else {
-                            format = config.getString("formats.me");
-                        }
-                    } else if (subcommand.equals("VERSION")) {
-                        for (ProxiedPlayer player : players) {
-                            out.println(":" + uids.get(player) + " NOTICE " + sender + " :\001VERSION Minecraft v" + player.getPendingConnection().getVersion() + " proxied by BungeeRelay 0.1\001");
-                        }
-                    }
-                } else {
-                    if (isPM) {
-                        format = config.getString("formats.privatemsg");
-                    } else {
-                        format = config.getString("formats.msg");
-                    }
-                }
-                if (format != "") {
-                    for (ProxiedPlayer p : players) {
-                        p.sendMessage(new TextComponent(ChatColor.translateAlternateColorCodes('&', format)
-                                .replace("{SENDER}", from)
-                                .replace("{MESSAGE}", message)));
-                    }
-                }
+                Util.handleMessage("privmsg", sender, args[1], args[2]);
 
             } else if (command.equals("QUIT")) {
                 // <reason>
