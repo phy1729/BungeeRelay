@@ -1,25 +1,59 @@
 package org.collegiumv.BungeeRelay;
 
-public class User {
-    public String nick;
+import net.md_5.bungee.api.connection.ProxiedPlayer;
+
+public class User extends Sender {
     public long connectTime;
     public long nickTime;
-    public boolean local;
     public String server;
+    public boolean local;
+    public ProxiedPlayer player;
 
-    public User(String nick) {
+    private User(ProxiedPlayer player) {
+        this.player = player;
+        id = IRC.currentUid;
+        Util.incrementUid();
+        if (Util.getUidByNick(player.getName()) == null) { // No collison, use their nick
+            name = player.getName();
+        } else {
+            name = IRC.config.getString("server.userprefix") + player.getName() + IRC.config.getString("server.usersuffix");
+        }
         local = true;
-        this.nick = nick;
         connectTime = System.currentTimeMillis() / 1000;
         nickTime = connectTime;
         server = IRC.SID;
     }
 
-    public User(String server, String nickTime, String nick, String connectTime) {
+    public static User create(ProxiedPlayer player) {
+        User user = new User(player);
+        IRC.senders.put(user.id, user);
+        IRC.players.put(player, user);
+        IRC.users.put(user.id, user);
+        return user;
+    }
+
+    private User(String server, String id, String nickTime, String name, String connectTime) {
         local = false;
         this.server = server;
-        this.nick = nick;
+        this.id = id;
+        this.name = name;
         this.nickTime = Util.stringToTS(nickTime);
         this.connectTime = Util.stringToTS(connectTime);
+    }
+
+    public static User create(String server, String id, String nickTime, String name, String connectTime) {
+        User user = new User(server, id, nickTime, name, connectTime);
+        IRC.senders.put(user.id, user);
+        IRC.users.put(user.id, user);
+        return user;
+    }
+
+    public void delete() {
+        IRC.users.remove(id);
+        IRC.senders.remove(id);
+        if (local) {
+            IRC.players.remove(player);
+            IRC.replies.remove(player);
+        }
     }
 }

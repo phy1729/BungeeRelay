@@ -22,7 +22,7 @@ public class ChatListener implements Listener {
         String msg = event.getMessage();
         if (!msg.startsWith("/") || (msg.startsWith("/me "))) {
             if (msg.startsWith("/me ")) msg = "\001ACTION " + msg.substring(4) + "\001";
-            IRC.out.println(":" + IRC.uids.get(player) + " PRIVMSG " + IRC.channel + " :" + msg);
+            IRC.out.println(":" + IRC.players.get(player).id + " PRIVMSG " + IRC.channel + " :" + msg);
 
             for (ProxiedPlayer o : plugin.getProxy().getPlayers()) {
                 if (!player.getServer().getInfo().getName().equals(o.getServer().getInfo().getName())) o.sendMessage(new TextComponent(ChatColor.translateAlternateColorCodes('&', IRC.config.getString("formats.msg"))

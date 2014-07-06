@@ -30,9 +30,9 @@ public class IRCNickCommand extends Command {
             return;
         }
 
-        User user = IRC.users.get(IRC.uids.get(sender));
-        user.nick = args[0];
+        User user = IRC.players.get(sender);
+        user.name = args[0];
         user.nickTime = System.currentTimeMillis() / 1000;
-        IRC.out.println(":" + IRC.uids.get(sender) + " NICK " + user.nick + " " + user.nickTime);
+        IRC.out.println(":" + user.id + " NICK " + user.name + " " + user.nickTime);
     }
 }

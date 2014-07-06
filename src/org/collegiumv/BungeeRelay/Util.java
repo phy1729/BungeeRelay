@@ -44,7 +44,7 @@ public class Util {
     public static void incrementUid() {
         do {
             incrementUid(8);
-        } while (IRC.uids.containsValue(IRC.currentUid));
+        } while (IRC.players.containsValue(IRC.currentUid));
     }
 
     public static boolean isValidNick(String nick) {
@@ -70,18 +70,17 @@ public class Util {
     }
 
     public static void sendUserConnect(ProxiedPlayer player) {
-        String playerUID = IRC.uids.get(player);
-        User user = IRC.users.get(playerUID);
-        IRC.out.println(":" + IRC.SID + " UID " + playerUID + " " + user.nickTime + " " + user.nick + " " + player.getAddress().getHostName() + " " + player.getAddress().getHostName() + " " + IRC.config.getString("formats.ident").replace("{IDENT}", player.getName()) + " " + player.getAddress().toString() + " " + user.connectTime + " +r :Minecraft Player");
+        User user = IRC.players.get(player);
+        IRC.out.println(":" + IRC.SID + " UID " + user.id + " " + user.nickTime + " " + user.name + " " + player.getAddress().getHostName() + " " + player.getAddress().getHostName() + " " + IRC.config.getString("formats.ident").replace("{IDENT}", player.getName()) + " " + player.getAddress().toString() + " " + user.connectTime + " +r :Minecraft Player");
     }
 
     public static void sendChannelJoin(ProxiedPlayer player) {
-        IRC.out.println(":" + IRC.SID + " FJOIN " + IRC.channel + " " + IRC.channelTS + " + :," + IRC.uids.get(player));
+        IRC.out.println(":" + IRC.SID + " FJOIN " + IRC.channel + " " + IRC.channelTS + " + :," + IRC.players.get(player).id);
     }
 
     public static void handleKickKill(String mode, String senderUID, String targetUID, String reason) {
-        String target = IRC.users.get(targetUID).nick;
-        String sender = IRC.users.get(senderUID).nick;
+        String target = IRC.users.get(targetUID).name;
+        String sender = IRC.senders.get(senderUID).name;
         sendAll(IRC.config.getString("formats." + mode)
                 .replace("{SENDER}", sender)
                 .replace("{TARGET}", target)
@@ -96,14 +95,13 @@ public class Util {
                         .replace("{SENDER}", sender)
                         .replace("{TARGET}", target)
                         .replace("{REASON}", reason))));
-                IRC.users.remove(targetUID);
-                IRC.uids.remove(player);
+                IRC.players.get(player).delete();
             }
         }
     }
 
     public static void handleMessage(String mode, String senderUID, String target, String message) {
-        String sender = IRC.users.get(senderUID).nick;
+        String sender = IRC.senders.get(senderUID).name;
         String format="";
         Collection<ProxiedPlayer> players = new ArrayList<ProxiedPlayer>();
         boolean isPM;
@@ -132,7 +130,7 @@ public class Util {
                 }
             } else if (subcommand.equals("VERSION")) {
                 for (ProxiedPlayer player : players) {
-                    IRC.out.println(":" + IRC.uids.get(player) + " NOTICE " + senderUID + " :\001VERSION Minecraft v" + player.getPendingConnection().getVersion() + " proxied by BungeeRelay v" + IRC.version + "\001");
+                    IRC.out.println(":" + IRC.players.get(player).id + " NOTICE " + senderUID + " :\001VERSION Minecraft v" + player.getPendingConnection().getVersion() + " proxied by BungeeRelay v" + IRC.version + "\001");
                 }
             }
         } else {
@@ -173,14 +171,14 @@ public class Util {
 
     public static String getUidByNick(String nick) {
         for (Map.Entry<String, User> entry : IRC.users.entrySet()) {
-            if (nick.equalsIgnoreCase(entry.getValue().nick)) return entry.getKey();
+            if (nick.equalsIgnoreCase(entry.getValue().name)) return entry.getKey();
         }
         return null;
     }
 
     public static ProxiedPlayer getPlayerByUid(String uid) {
-        for (Map.Entry<ProxiedPlayer, String> entry : IRC.uids.entrySet()) {
-            if (uid.equalsIgnoreCase(entry.getValue())) return entry.getKey();
+        for (Map.Entry<ProxiedPlayer, User> entry : IRC.players.entrySet()) {
+            if (uid.equalsIgnoreCase(entry.getValue().id)) return entry.getKey();
         }
         return null;
     }

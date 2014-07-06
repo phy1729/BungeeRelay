@@ -31,9 +31,10 @@ public class IRC {
     public static boolean capabState;
     public static String channel;
     public static long channelTS;
-    public static HashMap<ProxiedPlayer, String> uids = new HashMap<ProxiedPlayer, String>();
-    public static HashMap<ProxiedPlayer, String> replies = new HashMap<ProxiedPlayer, String>();
+    public static HashMap<String, Sender> senders = new HashMap<String, Sender>();
+    public static HashMap<ProxiedPlayer, User> players = new HashMap<ProxiedPlayer, User>();
     public static HashMap<String, User> users = new HashMap<String, User>();
+    public static HashMap<ProxiedPlayer, String> replies = new HashMap<ProxiedPlayer, String>();
     Plugin plugin;
 
     public IRC(Socket sock, FileConfiguration config, Plugin plugin) throws IOException {
@@ -149,6 +150,7 @@ public class IRC {
                     sock.close();
                 }
                 authenticated = true;
+                Server.create(args[1], args[3], args[4], args[5]);
                 plugin.getLogger().info("Authentication successful");
                 plugin.getLogger().info("Bursting");
                 out.println(":" + SID + " BURST " + startTime);
@@ -184,7 +186,7 @@ public class IRC {
                     }
                     for (String user : args[4+countArgModes].split(" ")) {
                         Util.sendAll(config.getString("formats.join")
-                                .replace("{SENDER}", users.get(user.split(",")[1]).nick));
+                                .replace("{SENDER}", users.get(user.split(",")[1]).name));
                     }
                 }
 
@@ -197,7 +199,7 @@ public class IRC {
                         modes = modes + args[i] + " ";
                     }
                     Util.sendAll(config.getString("formats.mode")
-                            .replace("{SENDER}", users.get(sender).nick)
+                            .replace("{SENDER}", senders.get(sender).name)
                             .replace("{MODE}", modes));
                 }
 
@@ -220,9 +222,9 @@ public class IRC {
             } else if (command.equals("NICK")) {
                 // <new_nick>
                 Util.sendAll(config.getString("formats.nick")
-                        .replace("{OLD_NICK}", users.get(sender).nick)
+                        .replace("{OLD_NICK}", users.get(sender).name)
                         .replace("{NEW_NICK}", args[1]));
-                users.get(sender).nick = args[1];
+                users.get(sender).name = args[1];
 
             } else if (command.equals("PART")) {
                 String reason;
@@ -232,7 +234,7 @@ public class IRC {
                     reason = "";
                 }
                 Util.sendAll(config.getString("formats.part")
-                        .replace("{SENDER}", users.get(sender).nick)
+                        .replace("{SENDER}", users.get(sender).name)
                         .replace("{REASON}", reason));
 
             } else if (command.equals("PING")) {
@@ -251,13 +253,17 @@ public class IRC {
                     reason = "";
                 }
                 Util.sendAll(config.getString("formats.ircquit")
-                        .replace("{SENDER}", users.get(sender).nick)
+                        .replace("{SENDER}", users.get(sender).name)
                         .replace("{REASON}", reason));
                 users.remove(sender);
 
+            } else if (command.equals("SERVER")) {
+                // <servername> <password> <hopcount> <id> <description>
+                Server.create(args[1], args[3], args[4], args[5]);
+
             } else if (command.equals("UID")) {
                 // <uid> <timestamp> <nick> <hostname> <displayed-hostname> <ident> <ip> <signon time> +<modes {mode params}> <gecos>
-                users.put(args[1], new User(sender, args[2], args[3], args[8]));
+                User.create(sender, args[1], args[2], args[3], args[8]);
             }
         }
     }
