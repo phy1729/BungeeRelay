@@ -37,8 +37,8 @@ public class User extends Sender {
         this.server = server;
         this.id = id;
         this.name = name;
-        this.nickTime = Util.stringToTS(nickTime);
-        this.connectTime = Util.stringToTS(connectTime);
+        this.nickTime = Long.parseLong(nickTime);
+        this.connectTime = Long.parseLong(connectTime);
     }
 
     public static User create(String server, String id, String nickTime, String name, String connectTime) {
