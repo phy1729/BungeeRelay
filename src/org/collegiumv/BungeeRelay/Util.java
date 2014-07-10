@@ -71,7 +71,7 @@ public class Util {
 
     public static void sendUserConnect(ProxiedPlayer player) {
         User user = IRC.players.get(player);
-        IRC.out.println(":" + IRC.SID + " UID " + user.id + " " + user.nickTime + " " + user.name + " " + player.getAddress().getHostName() + " " + player.getAddress().getHostName() + " " + IRC.config.getString("formats.ident").replace("{IDENT}", player.getName()) + " " + player.getAddress().toString() + " " + user.connectTime + " +r :Minecraft Player");
+        IRC.out.println(":" + IRC.SID + " UID " + user.id + " " + user.nickTime + " " + user.name + " " + player.getAddress().getHostName() + " " + player.getAddress().getHostName() + " " + IRC.config.getString("formats.ident").replace("{IDENT}", player.getName()) + " " + player.getAddress().getAddress().getHostAddress() + " " + user.connectTime + " +r :Minecraft Player");
     }
 
     public static void sendChannelJoin(ProxiedPlayer player) {
