@@ -79,6 +79,7 @@ public class Util {
     }
 
     public static void handleKickKill(String mode, String senderUID, String targetUID, String reason) {
+        if (!(IRC.users.containsKey(targetUID) && IRC.senders.containsKey(senderUID))) return;
         String target = IRC.users.get(targetUID).name;
         String sender = IRC.senders.get(senderUID).name;
         sendAll(IRC.config.getString("formats." + mode)

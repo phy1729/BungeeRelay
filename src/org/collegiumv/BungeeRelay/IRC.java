@@ -75,6 +75,15 @@ public class IRC {
         if (ex[0].charAt(0) == ':') { // We have a sender
             sender = ex[0].substring(1);
             command = ex[1];
+            if (!senders.containsKey(sender)) {
+                if (command.equals("FMODE") || command.equals("MODE") || command.equals("KICK") || command.equals("KILL") || command.equals("TOPIC") || command.equals("ADDLINE") || command.equals("DELLINE")) {
+                    // Dropping these commands would cause a de-sync c.f. treesocket2.cpp:251
+                    sender = sender.substring(0,3);
+                    if (!senders.containsKey(sender)) sender = SID; // If the server was split, fall back to our SID
+                } else {
+                    return; // Drop the command
+                }
+            }
             offset = 1;
         } else {
             sender = "";
@@ -185,6 +194,7 @@ public class IRC {
                         }
                     }
                     for (String user : args[4+countArgModes].split(" ")) {
+                        if (!users.containsKey(user.split(",")[1])) continue; // If the user was KILLed while joining don't error
                         Util.sendAll(config.getString("formats.join")
                                 .replace("{SENDER}", users.get(user.split(",")[1]).name));
                     }
