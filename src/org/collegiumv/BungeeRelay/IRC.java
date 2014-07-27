@@ -194,7 +194,7 @@ public class IRC {
                         }
                     }
                     for (String user : args[4+countArgModes].split(" ")) {
-                        if (!users.containsKey(user.split(",")[1])) continue; // If the user was KILLed while joining don't error
+                        if (!user.contains(",") || !users.containsKey(user.split(",")[1])) continue; // If the user was KILLed while joining don't error
                         Util.sendAll(config.getString("formats.join")
                                 .replace("{SENDER}", users.get(user.split(",")[1]).name));
                     }
