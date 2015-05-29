@@ -11,6 +11,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.Socket;
 import java.net.UnknownHostException;
+import java.nio.file.Files;
 import java.util.concurrent.TimeUnit;
 
 public class Main extends Plugin {
@@ -18,6 +19,20 @@ public class Main extends Plugin {
     public void onEnable() {
         // Save the default configuration
         // replace saveDefaultConfig();
+
+        if (!getDataFolder().exists())
+            getDataFolder().mkdir();
+
+        File file = new File(getDataFolder(), "config.yml");
+
+        if (!file.exists()) {
+            try {
+                Files.copy(getResourceAsStream("config.yml"), file.toPath());
+            } catch(IOException e) {
+                this.getLogger().severe("Unable to write default config");
+            }
+        }
+
         try {
             this.config = ConfigurationProvider.getProvider(YamlConfiguration.class).load(new File(getDataFolder(), "config.yml"));
         } catch(IOException e) {
