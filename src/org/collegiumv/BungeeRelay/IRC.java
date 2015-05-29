@@ -1,6 +1,5 @@
 package org.collegiumv.BungeeRelay;
 
-import net.craftminecraft.bungee.bungeeyaml.bukkitapi.file.FileConfiguration;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.connection.ProxiedPlayer;

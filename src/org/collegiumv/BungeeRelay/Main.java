@@ -1,15 +1,15 @@
 package org.collegiumv.BungeeRelay;
 
+import net.md_5.bungee.api.plugin.Plugin;
 import org.collegiumv.BungeeRelay.commands.*;
 import org.collegiumv.BungeeRelay.listeners.*;
-import net.craftminecraft.bungee.bungeeyaml.pluginapi.ConfigurablePlugin;
 
 import java.io.IOException;
 import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.concurrent.TimeUnit;
 
-public class Main extends ConfigurablePlugin {
+public class Main extends Plugin {
     public void onEnable() {
         // Save the default configuration
         saveDefaultConfig();
