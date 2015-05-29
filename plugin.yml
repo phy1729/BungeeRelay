@@ -2,4 +2,4 @@ name: BungeeRelay
 version: 1.0
 author: phy1729, Dead-i, siosilvar
 main: org.collegiumv.BungeeRelay.Main
-depends: [BungeeYAML]
+depends: []

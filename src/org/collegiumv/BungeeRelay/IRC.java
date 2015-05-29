@@ -4,6 +4,7 @@ import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.plugin.Plugin;
+import net.md_5.bungee.config.Configuration;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -17,7 +18,7 @@ public class IRC {
     public static Socket sock;
     public static BufferedReader in;
     public static PrintWriter out;
-    public static FileConfiguration config;
+    public static Configuration config;
     public static String version;
     public static String SID;
     public static String currentUid;
@@ -36,7 +37,7 @@ public class IRC {
     public static HashMap<ProxiedPlayer, String> replies = new HashMap<ProxiedPlayer, String>();
     Plugin plugin;
 
-    public IRC(Socket sock, FileConfiguration config, Plugin plugin) throws IOException {
+    public IRC(Socket sock, Configuration config, Plugin plugin) throws IOException {
         this.sock = sock;
         this.config = config;
         this.plugin = plugin;
