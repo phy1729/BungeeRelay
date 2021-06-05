@@ -65,8 +65,6 @@ public class Main extends Plugin {
         getLogger().info("Attempting connection...");
         try {
             new IRC(new Socket(this.config.getString("server.host"), this.config.getInt("server.port")), this.config, this);
-        } catch (UnknownHostException e) {
-            handleDisconnect();
         } catch (IOException e) {
             handleDisconnect();
         }
