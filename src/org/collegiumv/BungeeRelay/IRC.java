@@ -11,6 +11,7 @@ import java.io.PrintWriter;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Map;
 
 public class IRC {
     public static Socket sock;
@@ -43,7 +44,7 @@ public class IRC {
         this.plugin = plugin;
 
         version = plugin.getDescription().getVersion();
-        SID = Util.generateSID();
+        SID = generateSID();
         Sender = Server.create(config.getString("server.servername"), "0", SID, config.getString("server.realname"));
         currentUid = SID + "AAAAAA";
         authenticated = false;
@@ -204,8 +205,8 @@ public class IRC {
                 out.println(":" + SID + " BURST " + startTime);
                 out.println(":" + SID + " VERSION :BungeeRelay-" + version);
                 for (ProxiedPlayer player : plugin.getProxy().getPlayers()) {
-                    Util.sendUserConnect(player);
-                    Util.sendChannelJoin(player);
+                    sendUserConnect(player);
+                    sendChannelJoin(player);
                 }
                 out.println(":" + SID + " ENDBURST");
 
@@ -222,7 +223,7 @@ public class IRC {
             } else if (command.equals("FJOIN")) {
                 // <channel> <timestamp> +[<modes> {mode params}] [<[statusmodes],uuid> {<[statusmodes],uuid>}]
                 if (args[1].equals(channel)) {
-                    Util.updateTS(args[2]);
+                    updateTS(args[2]);
                     String modes = args[3];
                     int countArgModes = 0;
                     for (Character c : argModes.toCharArray()) {
@@ -242,7 +243,7 @@ public class IRC {
             } else if (command.equals("FMODE")) {
                 // <target> <timestamp> <modes and parameters>
                 if (args[1].equals(channel)) {
-                    Util.updateTS(args[2]);
+                    updateTS(args[2]);
                     String modes = "";
                     for (int i=3; i<args.length; i++) {
                         modes = modes + args[i] + " ";
@@ -256,13 +257,13 @@ public class IRC {
                 // <channel> <user>{,<user>} [<reason>]
                 if (args[1].equals(channel)) {
                     for (String target : args[2].split(",")) {
-                        Util.handleKickKill("kick", sender, target, args[3]);
+                        handleKickKill("kick", sender, target, args[3]);
                     }
                 }
 
             } else if (command.equals("KILL")) {
                 // <user> <reason>
-                Util.handleKickKill("kill", sender, args[1], args[2]);
+                handleKickKill("kill", sender, args[1], args[2]);
 
             } else if (command.equals("NOTICE")) {
                 // <msgtarget> <text to be sent>
@@ -315,5 +316,111 @@ public class IRC {
                 User.create(sender, args[1], args[2], args[3], args[8]);
             }
         }
+    }
+
+    public static String generateSID() {
+        // Yes it's slower to do % every time but Java doesn't have unsigned and this is run only once
+        int SID = 0;
+        for (char c : IRC.config.getString("server.servername").toCharArray()) {
+            SID = (5 * SID + (int) c) % 1000;
+        }
+        for (char c : IRC.config.getString("server.realname").toCharArray()) {
+            SID = (5 * SID + (int) c) % 1000;
+        }
+        return String.format("%03d", SID);
+    }
+
+    public static void incrementUid(int pos) {
+        StringBuilder sb = new StringBuilder(IRC.currentUid);
+        if (IRC.currentUid.charAt(pos) == 'Z') {
+            sb.setCharAt(pos, '0');
+            IRC.currentUid = sb.toString();
+        } else if (IRC.currentUid.charAt(pos) == '9') {
+            sb.setCharAt(pos, 'A');
+            IRC.currentUid = sb.toString();
+            if (pos == 3) return;
+            incrementUid(pos - 1);
+        } else {
+            sb.setCharAt(pos, (char) (IRC.currentUid.charAt(pos) + 1));
+            IRC.currentUid = sb.toString();
+        }
+    }
+
+    public static void incrementUid() {
+        do {
+            incrementUid(8);
+        } while (IRC.players.containsValue(IRC.currentUid));
+    }
+
+    public static boolean isValidNick(String nick) {
+        if (nick.isEmpty() || nick.length() > IRC.nickMax)
+            return false;
+
+        char firstChar = nick.charAt(0);
+        if ((firstChar >= '0' && firstChar <= '9') || firstChar == '-')
+            return false;
+
+        for (char c : nick.toCharArray()) {
+            if (c >= 'A' && c <= '}') {
+                // "A"-"}" can occur anywhere in a nickname
+                continue;
+            }
+            if ((c >= '0' && c <= '9') || c == '-') {
+                // "0"-"9", "-" can occur anywhere BUT the first char of a nickname
+                continue;
+            }
+            return false;
+        }
+        return true;
+    }
+
+    public static void sendUserConnect(ProxiedPlayer player) {
+        User user = IRC.players.get(player);
+        IRC.write(IRC.Sender, "UID", new String[]{user.id, Long.toString(user.nickTime), user.name, player.getAddress().getHostName(), player.getAddress().getHostName(), IRC.config.getString("formats.ident").replace("{IDENT}", player.getName()), player.getAddress().getAddress().getHostAddress(), Long.toString(user.connectTime), "+r", "Minecraft Player"});
+    }
+
+    public static void sendChannelJoin(ProxiedPlayer player) {
+        IRC.write(IRC.Sender, "FJOIN", new String[]{IRC.channel, Long.toString(IRC.channelTS), "+", "," + IRC.players.get(player).id});
+    }
+
+    public static void handleKickKill(String mode, String senderUID, String targetUID, String reason) {
+        if (!(IRC.users.containsKey(targetUID) && IRC.senders.containsKey(senderUID))) return;
+        String target = IRC.users.get(targetUID).name;
+        String sender = IRC.senders.get(senderUID).name;
+        Util.sendAll(IRC.config.getString("formats." + mode)
+                .replace("{SENDER}", sender)
+                .replace("{TARGET}", target)
+                .replace("{REASON}", reason));
+        ProxiedPlayer player = getPlayerByUid(targetUID);
+        if (player != null) {
+            if (IRC.config.getBoolean("server.reconnect" + mode)) {
+                if (mode.equals("kill")) sendUserConnect(player);
+                sendChannelJoin(player);
+            } else {
+                Util.disconnect(player, mode, sender, reason, target);
+                IRC.players.get(player).delete();
+            }
+        }
+    }
+
+    public static void updateTS(String ts) {
+        long timestamp = Long.parseLong(ts);
+        if (timestamp < IRC.channelTS) {
+            IRC.channelTS = timestamp;
+        }
+    }
+
+    public static String getUidByNick(String nick) {
+        for (Map.Entry<String, User> entry : IRC.users.entrySet()) {
+            if (nick.equalsIgnoreCase(entry.getValue().name)) return entry.getKey();
+        }
+        return null;
+    }
+
+    public static ProxiedPlayer getPlayerByUid(String uid) {
+        for (Map.Entry<ProxiedPlayer, User> entry : IRC.players.entrySet()) {
+            if (uid.equalsIgnoreCase(entry.getValue().id)) return entry.getKey();
+        }
+        return null;
     }
 }

@@ -26,7 +26,7 @@ public class PMCommand extends Command {
             Util.sendError(sender, "The proxy is not connected to IRC.");
             return;
         }
-        String uid = Util.getUidByNick(args[0]);
+        String uid = IRC.getUidByNick(args[0]);
         if (uid == null) {
             Util.sendError(sender, args[0] + " is not on IRC right now.");
             return;

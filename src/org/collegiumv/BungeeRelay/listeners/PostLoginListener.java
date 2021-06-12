@@ -1,7 +1,6 @@
 package org.collegiumv.BungeeRelay.listeners;
 
 import org.collegiumv.BungeeRelay.IRC;
-import org.collegiumv.BungeeRelay.Util;
 import org.collegiumv.BungeeRelay.User;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.event.PostLoginEvent;
@@ -14,7 +13,7 @@ public class PostLoginListener implements Listener {
         if (!IRC.sock.isConnected()) return;
         ProxiedPlayer player = event.getPlayer();
         User.create(player);
-        Util.sendUserConnect(player);
-        Util.sendChannelJoin(player);
+        IRC.sendUserConnect(player);
+        IRC.sendChannelJoin(player);
     }
 }

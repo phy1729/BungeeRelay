@@ -12,8 +12,8 @@ public class User extends Sender {
     private User(ProxiedPlayer player) {
         this.player = player;
         id = IRC.currentUid;
-        Util.incrementUid();
-        if (Util.getUidByNick(player.getName()) == null) { // No collison, use their nick
+        IRC.incrementUid();
+        if (IRC.getUidByNick(player.getName()) == null) { // No collison, use their nick
             name = player.getName();
         } else {
             name = IRC.config.getString("server.userprefix") + player.getName() + IRC.config.getString("server.usersuffix");
