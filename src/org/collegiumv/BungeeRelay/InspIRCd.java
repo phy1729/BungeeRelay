@@ -35,51 +35,16 @@ public class InspIRCd extends IRC {
         write("CAPAB", new String[]{"END"});
     }
 
-    public void handleData(String data) throws IOException {
-        if (data == null) throw new IOException();
-        if (data.isEmpty()) return;
-
-        if (config.getBoolean("server.debug")) plugin.getLogger().info("Received: "+data);
-
-        // Normalize input so sender if and is in sender, command is in command,
-        // and the arguments are in args and are 1 indexed
-        String[] ex = data.trim().split(" ");
-        String command, sender;
-        int offset;
-        if (ex[0].charAt(0) == ':') { // We have a sender
-            sender = ex[0].substring(1);
-            command = ex[1];
-            if (!senders.containsKey(sender)) {
-                if (command.equals("FMODE") || command.equals("MODE") || command.equals("KICK") || command.equals("KILL") || command.equals("TOPIC") || command.equals("ADDLINE") || command.equals("DELLINE")) {
-                    // Dropping these commands would cause a de-sync c.f. treesocket2.cpp:251
-                    sender = sender.substring(0,3);
-                    if (!senders.containsKey(sender)) sender = SID; // If the server was split, fall back to our SID
-                } else {
-                    return; // Drop the command
-                }
+    public void handleCommand(String sender, String command, String[] args) throws IOException {
+        if (sender != null && !senders.containsKey(sender)) {
+            if (command.equals("FMODE") || command.equals("MODE") || command.equals("KICK") || command.equals("KILL") || command.equals("TOPIC") || command.equals("ADDLINE") || command.equals("DELLINE")) {
+                // Dropping these commands would cause a de-sync c.f. treesocket2.cpp:251
+                sender = sender.substring(0,3);
+                if (!senders.containsKey(sender)) sender = SID; // If the server was split, fall back to our SID
+            } else {
+                return; // Drop the command
             }
-            offset = 1;
-        } else {
-            sender = "";
-            command = ex[0];
-            offset = 0;
         }
-
-        // If any arg aside from sender starts with a colon the rest of the args are considered one arg
-        ArrayList<String> tempArgs = new ArrayList<String>();
-        for (int i = offset; i < ex.length; i++) {
-            if (ex[i].charAt(0) == ':') {
-                String last = ex[i].substring(1); // remove the colon from the first token
-                for (i++ ; i < ex.length; i++) {
-                    last += " " + ex[i];
-                }
-                tempArgs.add(last);
-                break;
-            }
-            tempArgs.add(ex[i]);
-        }
-        String[] args = new String[tempArgs.size()];
-        args = tempArgs.toArray(args);
 
         if (command.equals("ERROR")) {
             sock.close();
@@ -145,7 +110,7 @@ public class InspIRCd extends IRC {
                 write(this.sender, "ENDBURST", new String[]{});
 
             } else {
-                plugin.getLogger().warning("Unrecognized command during authentication: " + data);
+                plugin.getLogger().warning("Unrecognized command during authentication: " + command);
                 write("ERROR", new String[]{"Unrecognized command during authentication " + command});
                 sock.close();
             }

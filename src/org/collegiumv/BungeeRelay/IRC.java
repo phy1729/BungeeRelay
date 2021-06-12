@@ -41,17 +41,59 @@ abstract public class IRC {
         channel = config.getString("server.channel");
     }
 
+    public boolean isConnected() {
+        return sock.isConnected();
+    }
+
     abstract void doConnect();
 
     public void connect() throws IOException {
         in = new BufferedReader(new InputStreamReader(sock.getInputStream()));
         out = new PrintWriter(sock.getOutputStream(), true);
         doConnect();
-        while (sock.isConnected()) handleData(in.readLine());
+        while (sock.isConnected()) handleLine(in.readLine());
     }
 
-    public boolean isConnected() {
-        return sock.isConnected();
+    abstract public void handleCommand(String sender, String command, String[] params) throws IOException;
+
+    private void handleLine(String data) throws IOException {
+        if (data == null) throw new IOException();
+        if (data.isEmpty()) return;
+
+        if (config.getBoolean("server.debug")) plugin.getLogger().info("Received: " + data);
+
+        // Normalize input so sender if and is in sender, command is in command,
+        // and the arguments are in args and are 1 indexed
+        String[] ex = data.trim().split(" ");
+        String command, sender;
+        int offset;
+        if (ex[0].charAt(0) == ':') { // We have a sender
+            sender = ex[0].substring(1);
+            command = ex[1];
+            offset = 1;
+        } else {
+            sender = null;
+            command = ex[0];
+            offset = 0;
+        }
+
+        // If any arg aside from sender starts with a colon the rest of the args are considered one arg
+        ArrayList<String> tempArgs = new ArrayList<String>();
+        for (int i = offset; i < ex.length; i++) {
+            if (ex[i].charAt(0) == ':') {
+                String last = ex[i].substring(1); // remove the colon from the first token
+                for (i++ ; i < ex.length; i++) {
+                    last += " " + ex[i];
+                }
+                tempArgs.add(last);
+                break;
+            }
+            tempArgs.add(ex[i]);
+        }
+        String[] args = new String[tempArgs.size()];
+        args = tempArgs.toArray(args);
+
+        handleCommand(sender, command, args);
     }
 
     void write(Sender sender, String command, String[] params) {
@@ -91,8 +133,6 @@ abstract public class IRC {
     void write(String command, String[] data) {
         write((Sender)null, command, data);
     }
-
-    abstract public void handleData(String data) throws IOException;
 
     abstract String generateSID();
 
