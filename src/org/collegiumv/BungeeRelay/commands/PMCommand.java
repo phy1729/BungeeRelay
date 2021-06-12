@@ -39,7 +39,7 @@ public class PMCommand extends Command {
         list.remove(0);
         String msg = String.join(" ", list);
         ProxiedPlayer player = (ProxiedPlayer) sender;
-        irc.write(player, "PRIVMSG", new String[]{uid, msg});
+        irc.sendPrivmsg(player, uid, msg);
         irc.replies.put(player, args[0]);
         sender.sendMessage(new TextComponent(ChatColor.translateAlternateColorCodes('&', irc.config.getString("formats.privatemsg")
                 .replace("{SENDER}", sender.getName())

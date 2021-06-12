@@ -310,6 +310,11 @@ public class InspIRCd extends IRC {
         return true;
     }
 
+    void doChangeNick(User user, String newNick) {
+        user.nickTime = System.currentTimeMillis() / 1000;
+        write(user, "NICK", new String[]{newNick, Long.toString(user.nickTime)});
+    }
+
     public void sendUserConnect(ProxiedPlayer player) {
         User user = players.get(player);
         write(sender, "UID", new String[]{user.id, Long.toString(user.nickTime), user.name, player.getAddress().getHostName(), player.getAddress().getHostName(), config.getString("formats.ident").replace("{IDENT}", player.getName()), player.getAddress().getAddress().getHostAddress(), Long.toString(user.connectTime), "+r", "Minecraft Player"});

@@ -25,7 +25,7 @@ public class ChatListener implements Listener {
         String msg = event.getMessage();
         if (!msg.startsWith("/") || (msg.startsWith("/me "))) {
             if (msg.startsWith("/me ")) msg = "\001ACTION " + msg.substring(4) + "\001";
-            irc.write(player, "PRIVMSG", new String[]{irc.channel, msg});
+            irc.sendPrivmsg(player, irc.channel, msg);
 
             for (ProxiedPlayer o : plugin.getProxy().getPlayers()) {
                 if (!player.getServer().getInfo().getName().equals(o.getServer().getInfo().getName())) o.sendMessage(new TextComponent(ChatColor.translateAlternateColorCodes('&', irc.config.getString("formats.msg"))

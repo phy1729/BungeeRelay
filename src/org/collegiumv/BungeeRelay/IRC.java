@@ -54,7 +54,7 @@ abstract public class IRC {
         return sock.isConnected();
     }
 
-    public void write(Sender sender, String command, String[] params) {
+    void write(Sender sender, String command, String[] params) {
         if (!this.sock.isConnected()) {
             return;
         }
@@ -84,11 +84,11 @@ abstract public class IRC {
         out.println(String.join(" ", parts));
     }
 
-    public void write(ProxiedPlayer player, String command, String[] data) {
+    void write(ProxiedPlayer player, String command, String[] data) {
         write(players.get(player), command, data);
     }
 
-    public void write(String command, String[] data) {
+    void write(String command, String[] data) {
         write((Sender)null, command, data);
     }
 
@@ -99,6 +99,27 @@ abstract public class IRC {
     abstract public String getNextUid();
 
     abstract public boolean isValidNick(String nick);
+
+    abstract void doChangeNick(User user, String newNick);
+
+    public void changeNick(ProxiedPlayer player, String newNick) {
+        if (!this.isConnected()) {
+            Util.sendError(player, "The proxy is not connected to IRC.");
+            return;
+        }
+        if (!this.isValidNick(newNick)) {
+            Util.sendError(player, "The nick " + newNick + " is invalid.");
+            return;
+        }
+        if (this.getUidByNick(newNick) != null) {
+            Util.sendError(player, "The nick " + newNick + " is already in use.");
+            return;
+        }
+
+        User user = players.get(player);
+        this.doChangeNick(user, newNick);
+        user.name = newNick;
+    }
 
     abstract public void sendUserConnect(ProxiedPlayer player);
 

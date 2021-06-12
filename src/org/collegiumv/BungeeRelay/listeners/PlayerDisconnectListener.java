@@ -17,7 +17,7 @@ public class PlayerDisconnectListener implements Listener {
     @EventHandler
     public void onPlayerDisconnect(PlayerDisconnectEvent event) {
         User user = irc.players.get(event.getPlayer());
-        irc.write(user, "QUIT", new String[]{irc.config.getString("formats.mcquit").replace("{SENDER}", user.name)});
+        irc.sendQuit(user);
         user.delete();
     }
 }
