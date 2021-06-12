@@ -20,7 +20,7 @@ public class ChatListener implements Listener {
 
     @EventHandler
     public void onChat(ChatEvent event) {
-        if (!irc.sock.isConnected()) return;
+        if (!irc.isConnected()) return;
         ProxiedPlayer player = (ProxiedPlayer) event.getSender();
         String msg = event.getMessage();
         if (!msg.startsWith("/") || (msg.startsWith("/me "))) {

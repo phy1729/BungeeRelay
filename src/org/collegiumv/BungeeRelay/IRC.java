@@ -14,8 +14,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class IRC {
-    public Socket sock;
-    public BufferedReader in;
     public Configuration config;
     public String version;
     public String SID;
@@ -36,6 +34,8 @@ public class IRC {
     public HashMap<ProxiedPlayer, String> replies = new HashMap<ProxiedPlayer, String>();
     Plugin plugin;
 
+    private Socket sock;
+    private BufferedReader in;
     private PrintWriter out;
 
     public IRC(Socket sock, Configuration config, Plugin plugin) {
@@ -63,6 +63,10 @@ public class IRC {
         write("CAPAB", new String[]{"CAPABILITIES", "PROTOCOL=1202"});
         write("CAPAB", new String[]{"END"});
         while (sock.isConnected()) handleData(in.readLine());
+    }
+
+    public boolean isConnected() {
+        return sock.isConnected();
     }
 
     public void write(Sender sender, String command, String[] params) {

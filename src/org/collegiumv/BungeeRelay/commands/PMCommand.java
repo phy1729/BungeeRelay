@@ -25,7 +25,7 @@ public class PMCommand extends Command {
             Util.sendError(sender, "Usage: /pm <user> <message ...>");
             return;
         }
-        if (!irc.sock.isConnected()) {
+        if (!irc.isConnected()) {
             Util.sendError(sender, "The proxy is not connected to IRC.");
             return;
         }

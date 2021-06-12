@@ -20,7 +20,7 @@ public class IRCNickCommand extends Command {
             Util.sendError(sender, "Usage: /ircnick <nick>");
             return;
         }
-        if (!irc.sock.isConnected()) {
+        if (!irc.isConnected()) {
             Util.sendError(sender, "The proxy is not connected to IRC.");
             return;
         }

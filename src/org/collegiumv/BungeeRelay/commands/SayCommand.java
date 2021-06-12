@@ -22,7 +22,7 @@ public class SayCommand extends Command {
         StringBuilder msg = new StringBuilder();
         for (String a : args) msg.append(a);
         Util.sendAll(irc.config.getString("formats.saycommand").replace("{MESSAGE}", msg.toString()));
-        if (!irc.sock.isConnected()) {
+        if (!irc.isConnected()) {
             Util.sendError(sender, "The proxy is not connected to IRC.");
             return;
         }
