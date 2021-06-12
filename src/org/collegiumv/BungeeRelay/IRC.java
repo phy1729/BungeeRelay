@@ -19,6 +19,7 @@ public class IRC {
     public static Configuration config;
     public static String version;
     public static String SID;
+    public static Sender Sender;
     public static String currentUid;
     public static String prefixModes;
     public static String chanModes;
@@ -42,6 +43,7 @@ public class IRC {
 
         version = plugin.getDescription().getVersion();
         SID = Util.generateSID();
+        Sender = Server.create(config.getString("server.servername"), "0", SID, config.getString("server.realname"));
         currentUid = SID + "AAAAAA";
         authenticated = false;
         capabState = false;
