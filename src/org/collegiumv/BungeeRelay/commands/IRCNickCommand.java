@@ -7,8 +7,11 @@ import net.md_5.bungee.api.CommandSender;
 import net.md_5.bungee.api.plugin.Command;
 
 public class IRCNickCommand extends Command {
-    public IRCNickCommand() {
+    private IRC irc;
+
+    public IRCNickCommand(IRC irc) {
         super("ircnick");
+        this.irc = irc;
     }
 
     @Override
@@ -17,22 +20,22 @@ public class IRCNickCommand extends Command {
             Util.sendError(sender, "Usage: /ircnick <nick>");
             return;
         }
-        if (!IRC.sock.isConnected()) {
+        if (!irc.sock.isConnected()) {
             Util.sendError(sender, "The proxy is not connected to IRC.");
             return;
         }
-        if (!IRC.isValidNick(args[0])) {
+        if (!irc.isValidNick(args[0])) {
             Util.sendError(sender, "The nick " + args[0] + " is invalid.");
             return;
         }
-        if (IRC.getUidByNick(args[0]) != null) {
+        if (irc.getUidByNick(args[0]) != null) {
             Util.sendError(sender, "The nick " + args[0] + " is already in use.");
             return;
         }
 
-        User user = IRC.players.get(sender);
+        User user = irc.players.get(sender);
         user.name = args[0];
         user.nickTime = System.currentTimeMillis() / 1000;
-        IRC.write(user, "NICK", new String[]{user.name, Long.toString(user.nickTime)});
+        irc.write(user, "NICK", new String[]{user.name, Long.toString(user.nickTime)});
     }
 }

@@ -6,8 +6,11 @@ import net.md_5.bungee.api.CommandSender;
 import net.md_5.bungee.api.plugin.Command;
 
 public class SayCommand extends Command {
-    public SayCommand() {
+    private IRC irc;
+
+    public SayCommand(IRC irc) {
         super("say", "irc.say");
+        this.irc = irc;
     }
 
     @Override
@@ -18,11 +21,11 @@ public class SayCommand extends Command {
         }
         StringBuilder msg = new StringBuilder();
         for (String a : args) msg.append(a);
-        Util.sendAll(IRC.config.getString("formats.saycommand").replace("{MESSAGE}", msg.toString()));
-        if (!IRC.sock.isConnected()) {
+        Util.sendAll(irc.config.getString("formats.saycommand").replace("{MESSAGE}", msg.toString()));
+        if (!irc.sock.isConnected()) {
             Util.sendError(sender, "The proxy is not connected to IRC.");
             return;
         }
-        IRC.write(IRC.Sender, "PRIVMSG", new String[]{IRC.channel, msg.toString()});
+        irc.write(irc.Sender, "PRIVMSG", new String[]{irc.channel, msg.toString()});
     }
 }

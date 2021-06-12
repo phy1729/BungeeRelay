@@ -8,10 +8,16 @@ import net.md_5.bungee.api.plugin.Listener;
 import net.md_5.bungee.event.EventHandler;
 
 public class PlayerDisconnectListener implements Listener {
+    private IRC irc;
+
+    public PlayerDisconnectListener(IRC irc) {
+        this.irc = irc;
+    }
+
     @EventHandler
     public void onPlayerDisconnect(PlayerDisconnectEvent event) {
-        User user = IRC.players.get(event.getPlayer());
-        IRC.write(user, "QUIT", new String[]{IRC.config.getString("formats.mcquit").replace("{SENDER}", user.name)});
+        User user = irc.players.get(event.getPlayer());
+        irc.write(user, "QUIT", new String[]{irc.config.getString("formats.mcquit").replace("{SENDER}", user.name)});
         user.delete();
     }
 }

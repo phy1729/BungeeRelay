@@ -6,8 +6,11 @@ import net.md_5.bungee.api.CommandSender;
 import net.md_5.bungee.api.plugin.Command;
 
 public class PMReplyCommand extends Command {
-    public PMReplyCommand() {
+    private IRC irc;
+
+    public PMReplyCommand(IRC irc) {
         super("pmreply");
+        this.irc = irc;
     }
 
     @Override
@@ -16,20 +19,20 @@ public class PMReplyCommand extends Command {
             Util.sendError(sender, "Usage: /pmreply <message ...>");
             return;
         }
-        if (!IRC.sock.isConnected()) {
+        if (!irc.sock.isConnected()) {
             Util.sendError(sender, "The proxy is not connected to IRC.");
             return;
         }
-        if (!IRC.replies.containsKey(sender)) {
+        if (!irc.replies.containsKey(sender)) {
             Util.sendError(sender, "You must be engaged within a conversation to use this.");
             return;
         }
 
         String[] newargs = new String[args.length + 1];
-        newargs[0] = IRC.replies.get(sender);
+        newargs[0] = irc.replies.get(sender);
         for (int i = 0; i < args.length; i++) {
             newargs[i+1] = args[i];
         }
-        new PMCommand().execute(sender, newargs);
+        new PMCommand(irc).execute(sender, newargs);
     }
 }

@@ -9,31 +9,35 @@ public class User extends Sender {
     public boolean local;
     public ProxiedPlayer player;
 
-    private User(ProxiedPlayer player) {
+    private IRC irc;
+
+    private User(IRC irc, ProxiedPlayer player) {
+        this.irc = irc;
         this.player = player;
-        id = IRC.currentUid;
-        IRC.incrementUid();
-        if (IRC.getUidByNick(player.getName()) == null) { // No collison, use their nick
+        id = irc.currentUid;
+        irc.incrementUid();
+        if (irc.getUidByNick(player.getName()) == null) { // No collison, use their nick
             name = player.getName();
         } else {
-            name = IRC.config.getString("server.userprefix") + player.getName() + IRC.config.getString("server.usersuffix");
+            name = irc.config.getString("server.userprefix") + player.getName() + irc.config.getString("server.usersuffix");
         }
         local = true;
         connectTime = System.currentTimeMillis() / 1000;
         nickTime = connectTime;
-        server = IRC.SID;
+        server = irc.SID;
     }
 
-    public static User create(ProxiedPlayer player) {
-        User user = new User(player);
-        IRC.senders.put(user.id, user);
-        IRC.players.put(player, user);
-        IRC.users.put(user.id, user);
+    public static User create(IRC irc, ProxiedPlayer player) {
+        User user = new User(irc, player);
+        irc.senders.put(user.id, user);
+        irc.players.put(player, user);
+        irc.users.put(user.id, user);
         return user;
     }
 
-    private User(String server, String id, String nickTime, String name, String connectTime) {
+    private User(IRC irc, String server, String id, String nickTime, String name, String connectTime) {
         local = false;
+        this.irc = irc;
         this.server = server;
         this.id = id;
         this.name = name;
@@ -41,19 +45,19 @@ public class User extends Sender {
         this.connectTime = Long.parseLong(connectTime);
     }
 
-    public static User create(String server, String id, String nickTime, String name, String connectTime) {
-        User user = new User(server, id, nickTime, name, connectTime);
-        IRC.senders.put(user.id, user);
-        IRC.users.put(user.id, user);
+    public static User create(IRC irc, String server, String id, String nickTime, String name, String connectTime) {
+        User user = new User(irc, server, id, nickTime, name, connectTime);
+        irc.senders.put(user.id, user);
+        irc.users.put(user.id, user);
         return user;
     }
 
     public void delete() {
-        IRC.users.remove(id);
-        IRC.senders.remove(id);
+        irc.users.remove(id);
+        irc.senders.remove(id);
         if (local) {
-            IRC.players.remove(player);
-            IRC.replies.remove(player);
+            irc.players.remove(player);
+            irc.replies.remove(player);
         }
     }
 }

@@ -11,9 +11,9 @@ public class Server extends Sender {
         this.description = description;
     }
 
-    public static Server create(String name, String distance, String id, String description) {
+    public static Server create(IRC irc, String name, String distance, String id, String description) {
         Server server = new Server(name, distance, id, description);
-        IRC.senders.put(id, server);
+        irc.senders.put(id, server);
         return server;
     }
 }

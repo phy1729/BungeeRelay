@@ -8,12 +8,17 @@ import net.md_5.bungee.api.plugin.Listener;
 import net.md_5.bungee.event.EventHandler;
 
 public class PostLoginListener implements Listener {
+    private IRC irc;
+
+    public PostLoginListener(IRC irc) {
+        this.irc = irc;
+    }
+
     @EventHandler
     public void onPostLogin(PostLoginEvent event) {
-        if (!IRC.sock.isConnected()) return;
         ProxiedPlayer player = event.getPlayer();
-        User.create(player);
-        IRC.sendUserConnect(player);
-        IRC.sendChannelJoin(player);
+        User.create(irc, player);
+        irc.sendUserConnect(player);
+        irc.sendChannelJoin(player);
     }
 }

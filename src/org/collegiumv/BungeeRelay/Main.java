@@ -39,45 +39,54 @@ public class Main extends Plugin {
             this.getLogger().severe("Unable to load log file");
         }
 
+        Socket socket;
+        try {
+            socket = new Socket(this.config.getString("server.host"), this.config.getInt("server.port"));
+        } catch (IOException e) {
+            this.getLogger().severe("Unable to connect.");
+            throw new RuntimeException(e);
+        }
+        final IRC irc = new IRC(socket, this.config, this);
+
         // Register listeners
-        getProxy().getPluginManager().registerListener(this, new ChatListener(this));
-        getProxy().getPluginManager().registerListener(this, new PlayerDisconnectListener());
-        getProxy().getPluginManager().registerListener(this, new PostLoginListener());
+        getProxy().getPluginManager().registerListener(this, new ChatListener(this, irc));
+        getProxy().getPluginManager().registerListener(this, new PlayerDisconnectListener(irc));
+        getProxy().getPluginManager().registerListener(this, new PostLoginListener(irc));
 
         // Register commands
-        getProxy().getPluginManager().registerCommand(this, new SayCommand());
-        getProxy().getPluginManager().registerCommand(this, new PMCommand());
-        getProxy().getPluginManager().registerCommand(this, new PMReplyCommand());
-        getProxy().getPluginManager().registerCommand(this, new IRCNickCommand());
+        getProxy().getPluginManager().registerCommand(this, new SayCommand(irc));
+        getProxy().getPluginManager().registerCommand(this, new PMCommand(irc));
+        getProxy().getPluginManager().registerCommand(this, new PMReplyCommand(irc));
+        getProxy().getPluginManager().registerCommand(this, new IRCNickCommand(irc));
 
         // Register aliases
-        getProxy().getPluginManager().registerCommand(this, new PMRCommand());
+        getProxy().getPluginManager().registerCommand(this, new PMRCommand(irc));
 
         // Initiate the connection, which will, in turn, pass the socket to the IRC class
         getProxy().getScheduler().runAsync(this, new Runnable() {
             public void run() {
-                connect();
+                connect(irc);
             }
         });
     }
 
-    public void connect() {
+    public void connect(IRC irc) {
         getLogger().info("Attempting connection...");
         try {
-            new IRC(new Socket(this.config.getString("server.host"), this.config.getInt("server.port")), this.config, this);
+            irc.connect();
         } catch (IOException e) {
-            handleDisconnect();
+            handleDisconnect(irc);
         }
     }
 
-    public void handleDisconnect() {
+    public void handleDisconnect(final IRC irc) {
         getLogger().info("Disconnected from server.");
         int reconnect = this.config.getInt("server.reconnect");
         if (reconnect >= 0) {
             getLogger().info("Reconnecting in " + reconnect / 1000 + " seconds...");
             getProxy().getScheduler().schedule(this, new Runnable() {
                 public void run() {
-                    connect();
+                    connect(irc);
                 }
             }, reconnect, TimeUnit.MILLISECONDS);
         }

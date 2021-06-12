@@ -12,8 +12,11 @@ import java.util.ArrayList;
 import java.util.Arrays;
 
 public class PMCommand extends Command {
-    public PMCommand() {
+    private IRC irc;
+
+    public PMCommand(IRC irc) {
         super("pm");
+        this.irc = irc;
     }
 
     @Override
@@ -22,11 +25,11 @@ public class PMCommand extends Command {
             Util.sendError(sender, "Usage: /pm <user> <message ...>");
             return;
         }
-        if (!IRC.sock.isConnected()) {
+        if (!irc.sock.isConnected()) {
             Util.sendError(sender, "The proxy is not connected to IRC.");
             return;
         }
-        String uid = IRC.getUidByNick(args[0]);
+        String uid = irc.getUidByNick(args[0]);
         if (uid == null) {
             Util.sendError(sender, args[0] + " is not on IRC right now.");
             return;
@@ -36,9 +39,9 @@ public class PMCommand extends Command {
         list.remove(0);
         String msg = String.join(" ", list);
         ProxiedPlayer player = (ProxiedPlayer) sender;
-        IRC.write(player, "PRIVMSG", new String[]{uid, msg});
-        IRC.replies.put(player, args[0]);
-        sender.sendMessage(new TextComponent(ChatColor.translateAlternateColorCodes('&', IRC.config.getString("formats.privatemsg")
+        irc.write(player, "PRIVMSG", new String[]{uid, msg});
+        irc.replies.put(player, args[0]);
+        sender.sendMessage(new TextComponent(ChatColor.translateAlternateColorCodes('&', irc.config.getString("formats.privatemsg")
                 .replace("{SENDER}", sender.getName())
                 .replace("{MESSAGE}", msg))));
     }

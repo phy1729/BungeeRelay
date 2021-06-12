@@ -12,22 +12,22 @@ import java.util.Collection;
 public class Util {
     private static ProxyServer proxy = ProxyServer.getInstance();
 
-    public static void handleMessage(String mode, String senderUID, String target, String message) {
-        String sender = IRC.senders.get(senderUID).name;
+    public static void handleMessage(IRC irc, String mode, String senderUID, String target, String message) {
+        String sender = irc.senders.get(senderUID).name;
         String format="";
         Collection<ProxiedPlayer> players = new ArrayList<ProxiedPlayer>();
         boolean isPM;
         if (target.charAt(0) == '#') { // PRIVMSG is for a channel
             isPM = false;
-            if (target.equals(IRC.channel)) {
+            if (target.equals(irc.channel)) {
                 players = proxy.getPlayers();
             }
         } else {
             isPM = true;
-            ProxiedPlayer to = IRC.getPlayerByUid(target);
+            ProxiedPlayer to = irc.getPlayerByUid(target);
             if (to != null) {
                 players.add(to);
-                IRC.replies.put(to, sender);
+                irc.replies.put(to, sender);
             }
         }
         if (message.charAt(0) == '\001') { // This is a CTCP message
@@ -36,20 +36,20 @@ public class Util {
             if (message.contains(" ")) message = message.split(" ",2)[1]; // Remove subcommand from message
             if (subcommand.equals("ACTION")) {
                 if (isPM) {
-                    format = IRC.config.getString("formats.privateme");
+                    format = irc.config.getString("formats.privateme");
                 } else {
-                    format = IRC.config.getString("formats.me");
+                    format = irc.config.getString("formats.me");
                 }
             } else if (subcommand.equals("VERSION")) {
                 for (ProxiedPlayer player : players) {
-                    IRC.write(player, "NOTICE", new String[]{senderUID, "\001VERSION Minecraft v" + player.getPendingConnection().getVersion() + " proxied by BungeeRelay v" + IRC.version + "\001"});
+                    irc.write(player, "NOTICE", new String[]{senderUID, "\001VERSION Minecraft v" + player.getPendingConnection().getVersion() + " proxied by BungeeRelay v" + irc.version + "\001"});
                 }
             }
         } else {
             if (isPM) {
-                format = IRC.config.getString("formats.privatemsg");
+                format = irc.config.getString("formats.privatemsg");
             } else {
-                format = IRC.config.getString("formats.msg");
+                format = irc.config.getString("formats.msg");
             }
         }
         if (format != "") {
@@ -69,8 +69,8 @@ public class Util {
         player.sendMessage(new TextComponent(ChatColor.RED + message));
     }
 
-    public static void disconnect(ProxiedPlayer player, String mode, String sender, String reason, String target) {
-        player.disconnect(new TextComponent(ChatColor.translateAlternateColorCodes('&', IRC.config.getString("formats.disconnect" + mode)
+    public static void disconnect(IRC irc, ProxiedPlayer player, String mode, String sender, String reason, String target) {
+        player.disconnect(new TextComponent(ChatColor.translateAlternateColorCodes('&', irc.config.getString("formats.disconnect" + mode)
                 .replace("{SENDER}", sender)
                 .replace("{TARGET}", target)
                 .replace("{REASON}", reason))));
