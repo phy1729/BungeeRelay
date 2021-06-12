@@ -14,8 +14,7 @@ public class User extends Sender {
     private User(IRC irc, ProxiedPlayer player) {
         this.irc = irc;
         this.player = player;
-        id = irc.currentUid;
-        irc.incrementUid();
+        id = irc.getNextUid();
         if (irc.getUidByNick(player.getName()) == null) { // No collison, use their nick
             name = player.getName();
         } else {
