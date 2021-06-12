@@ -15,7 +15,6 @@ import java.util.HashMap;
 public class IRC {
     public static Socket sock;
     public static BufferedReader in;
-    public static PrintWriter out;
     public static Configuration config;
     public static String version;
     public static String SID;
@@ -36,6 +35,8 @@ public class IRC {
     public static HashMap<ProxiedPlayer, String> replies = new HashMap<ProxiedPlayer, String>();
     Plugin plugin;
 
+    private static PrintWriter out;
+
     public IRC(Socket sock, Configuration config, Plugin plugin) throws IOException {
         this.sock = sock;
         this.config = config;
@@ -55,10 +56,48 @@ public class IRC {
         out = new PrintWriter(sock.getOutputStream(), true);
 
         // Send our capabilities where we pretend we can do everything
-        out.println("CAPAB START 1202");
-        out.println("CAPAB CAPABILITIES :PROTOCOL=1202");
-        out.println("CAPAB END");
+        write("CAPAB", new String[]{"START", "1202"});
+        write("CAPAB", new String[]{"CAPABILITIES", "PROTOCOL=1202"});
+        write("CAPAB", new String[]{"END"});
         while (sock.isConnected()) handleData(in.readLine());
+    }
+
+    public static void write(Sender sender, String command, String[] params) {
+        if (!IRC.sock.isConnected()) {
+            return;
+        }
+
+        ArrayList<String> parts = new ArrayList<String>();
+        if (sender != null) {
+            parts.add(":" + sender.id);
+        }
+
+        parts.add(command);
+
+        for (int i = 0; i < params.length; i++) {
+            String param = params[i];
+            if (i == params.length - 1) {
+                parts.add(":" + param);
+            } else {
+                if (param.startsWith(":")) {
+                    throw new RuntimeException("Non-terminal param cannot start with :");
+                }
+                if (param.contains(" ")) {
+                    throw new RuntimeException("Non-terminal param cannot contain a space");
+                }
+                parts.add(param);
+            }
+        }
+
+        out.println(String.join(" ", parts));
+    }
+
+    public static void write(ProxiedPlayer player, String command, String[] data) {
+        write(players.get(player), command, data);
+    }
+
+    public static void write(String command, String[] data) {
+        write((Sender)null, command, data);
     }
 
     public void handleData(String data) throws IOException {
@@ -120,7 +159,7 @@ public class IRC {
 
             } else if (!capabState && authenticated) {
                 plugin.getLogger().warning("CAPAB *MUST* start with CAPAB START after authentication");
-                out.println("ERROR :Received CAPAB command without CAPAB START");
+                write("ERROR", new String[]{"Received CAPAB command without CAPAB START"});
 
             } else if (args[1].equals("CAPABILITIES")) {
                 // Dynamically find which modes require arguments
@@ -145,7 +184,7 @@ public class IRC {
                 capabState = false;
                 if (!authenticated) {
                     plugin.getLogger().info("Authenticating with server...");
-                    out.println("SERVER " + config.getString("server.servername") + " " + config.getString("server.sendpass") + " 0 " + SID + " :" + config.getString("server.realname"));
+                    write("SERVER", new String[]{config.getString("server.servername"), config.getString("server.sendpass"), "0", SID, config.getString("server.realname")});
                 }
             }
 
@@ -155,7 +194,7 @@ public class IRC {
                 if (!args[2].equals(config.getString("server.recvpass"))) {
                     plugin.getLogger().warning("The server "+args[1]+" presented the wrong password.");
                     plugin.getLogger().warning("Remember that the recvpass and sendpass are opposite to the ones in your links.conf");
-                    out.println("ERROR :Password received was incorrect");
+                    write("ERROR", new String[]{"Password received was incorrect"});
                     sock.close();
                 }
                 authenticated = true;
@@ -172,7 +211,7 @@ public class IRC {
 
             } else {
                 plugin.getLogger().warning("Unrecognized command during authentication: " + data);
-                out.println("ERROR :Unrecognized command during authentication " + command);
+                write("ERROR", new String[]{"Unrecognized command during authentication " + command});
                 sock.close();
             }
 

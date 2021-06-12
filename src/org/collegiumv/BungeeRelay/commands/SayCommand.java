@@ -23,6 +23,6 @@ public class SayCommand extends Command {
             Util.sendError(sender, "The proxy is not connected to IRC.");
             return;
         }
-        IRC.out.println(":" + IRC.SID + " PRIVMSG " + IRC.channel + " :" + msg.toString());
+        IRC.write(IRC.Sender, "PRIVMSG", new String[]{IRC.channel, msg.toString()});
     }
 }

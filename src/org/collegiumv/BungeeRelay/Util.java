@@ -71,11 +71,11 @@ public class Util {
 
     public static void sendUserConnect(ProxiedPlayer player) {
         User user = IRC.players.get(player);
-        IRC.out.println(":" + IRC.SID + " UID " + user.id + " " + user.nickTime + " " + user.name + " " + player.getAddress().getHostName() + " " + player.getAddress().getHostName() + " " + IRC.config.getString("formats.ident").replace("{IDENT}", player.getName()) + " " + player.getAddress().getAddress().getHostAddress() + " " + user.connectTime + " +r :Minecraft Player");
+        IRC.write(IRC.Sender, "UID", new String[]{user.id, Long.toString(user.nickTime), user.name, player.getAddress().getHostName(), player.getAddress().getHostName(), IRC.config.getString("formats.ident").replace("{IDENT}", player.getName()), player.getAddress().getAddress().getHostAddress(), Long.toString(user.connectTime), "+r", "Minecraft Player"});
     }
 
     public static void sendChannelJoin(ProxiedPlayer player) {
-        IRC.out.println(":" + IRC.SID + " FJOIN " + IRC.channel + " " + IRC.channelTS + " + :," + IRC.players.get(player).id);
+        IRC.write(IRC.Sender, "FJOIN", new String[]{IRC.channel, Long.toString(IRC.channelTS), "+", "," + IRC.players.get(player).id});
     }
 
     public static void handleKickKill(String mode, String senderUID, String targetUID, String reason) {
@@ -131,7 +131,7 @@ public class Util {
                 }
             } else if (subcommand.equals("VERSION")) {
                 for (ProxiedPlayer player : players) {
-                    IRC.out.println(":" + IRC.players.get(player).id + " NOTICE " + senderUID + " :\001VERSION Minecraft v" + player.getPendingConnection().getVersion() + " proxied by BungeeRelay v" + IRC.version + "\001");
+                    IRC.write(player, "NOTICE", new String[]{senderUID, "\001VERSION Minecraft v" + player.getPendingConnection().getVersion() + " proxied by BungeeRelay v" + IRC.version + "\001"});
                 }
             }
         } else {

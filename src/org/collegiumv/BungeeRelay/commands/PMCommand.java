@@ -34,10 +34,10 @@ public class PMCommand extends Command {
 
         ArrayList<String> list = new ArrayList<String>(Arrays.asList(args));
         list.remove(0);
-        StringBuilder msg = new StringBuilder();
-        for (String a : list) msg.append(a).append(" ");
-        IRC.out.println(":" + IRC.players.get(sender).id + " PRIVMSG " + uid + " :" + msg);
-        IRC.replies.put((ProxiedPlayer) sender, args[0]);
+        String msg = String.join(" ", list);
+        ProxiedPlayer player = (ProxiedPlayer) sender;
+        IRC.write(player, "PRIVMSG", new String[]{uid, msg});
+        IRC.replies.put(player, args[0]);
         sender.sendMessage(new TextComponent(ChatColor.translateAlternateColorCodes('&', IRC.config.getString("formats.privatemsg")
                 .replace("{SENDER}", sender.getName())
                 .replace("{MESSAGE}", msg))));
