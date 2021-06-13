@@ -75,7 +75,7 @@ public class Main extends Plugin {
         try {
             irc.connect();
         } catch (IOException e) {
-            handleDisconnect(irc);
+            throw new RuntimeException(e);
         }
     }
 
