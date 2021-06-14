@@ -57,25 +57,15 @@ public class Unreal extends IRC {
             throw new IOException(); // This will make us reconnect
 
         } else if (!authenticated) {
-            if (command.equals("SERVER")) {
-                // <servername> <password> <hopcount> <id> <description>
-                if (!args[2].equals(config.getString("server.recvpass"))) {
-                    plugin.getLogger().warning("The server "+args[1]+" presented the wrong password.");
+            if (command.equals("PASS")) {
+                // <password>
+                if (!args[1].equals(config.getString("server.recvpass"))) {
+                    plugin.getLogger().warning("The server presented the wrong password.");
                     plugin.getLogger().warning("Remember that the recvpass and sendpass are opposite to the ones in your links.conf");
                     write("ERROR", new String[]{"Password received was incorrect"});
                     sock.close();
                 }
                 authenticated = true;
-                Server.create(this, args[1], args[3], args[4], args[5]);
-                plugin.getLogger().info("Authentication successful");
-                plugin.getLogger().info("Bursting");
-                write(this.sender, "BURST", new String[]{Long.toString(startTime)});
-                write(this.sender, "VERSION", new String[]{":BungeeRelay-" + version});
-                for (ProxiedPlayer player : plugin.getProxy().getPlayers()) {
-                    sendUserConnect(player);
-                    sendChannelJoin(player);
-                }
-                write(this.sender, "ENDBURST", new String[]{});
 
             } else {
                 plugin.getLogger().warning("Unrecognized command during authentication: " + command);
