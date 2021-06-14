@@ -16,14 +16,12 @@ public class Unreal extends IRC {
     private int nickMax;
     private long startTime;
     private boolean authenticated;
-    private boolean capabState;
 
     public Unreal(Socket sock, Configuration config, Plugin plugin) {
         super(sock, config, plugin);
 
         currentUid = SID + "AAAAAA";
         authenticated = false;
-        capabState = false;
         startTime = System.currentTimeMillis() / 1000;
         channelTS = startTime;
     }
@@ -53,7 +51,6 @@ public class Unreal extends IRC {
             sock.close();
             plugin.getLogger().warning("Remote ERROR'd with message: " + args[1]);
             authenticated = false;
-            capabState = false;
             throw new IOException(); // This will make us reconnect
 
         } else if (!authenticated) {
