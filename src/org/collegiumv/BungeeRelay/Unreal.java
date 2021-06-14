@@ -125,6 +125,8 @@ public class Unreal extends IRC {
                 // <msgtarget> <text to be sent>
                 Util.handleMessage(this, "privmsg", sender, args[1], args[2]);
 
+            } else if (command.equals("PROTOCTL")) {
+
             } else if (command.equals("QUIT")) {
                 // <reason>
                 String reason;
@@ -139,8 +141,8 @@ public class Unreal extends IRC {
                 users.remove(sender);
 
             } else if (command.equals("SERVER")) {
-                // <servername> <password> <hopcount> <id> <description>
-                Server.create(this, args[1], args[3], args[4], args[5]);
+                // <servername> <hopcount> <description>
+                Server.create(this, args[1], args[2], null, args[3]);
 
             } else if (command.equals("SJOIN")) {
                 // <timestamp> <channel> +[<modes> {mode params}] :buffer
