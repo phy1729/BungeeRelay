@@ -46,7 +46,7 @@ public class Main extends Plugin {
             this.getLogger().severe("Unable to connect.");
             throw new RuntimeException(e);
         }
-        final IRC irc = new InspIRCd(socket, this.config, this);
+        final IRC irc = new Unreal(socket, this.config, this);
 
         // Register listeners
         getProxy().getPluginManager().registerListener(this, new ChatListener(this, irc));
