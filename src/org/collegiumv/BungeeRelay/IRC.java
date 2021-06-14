@@ -123,7 +123,9 @@ abstract public class IRC {
             }
         }
 
-        out.println(String.join(" ", parts));
+        String line = String.join(" ", parts);
+        if (config.getBoolean("server.debug")) plugin.getLogger().info("Sending: " + line);
+        out.println(line);
     }
 
     void write(ProxiedPlayer player, String command, String[] data) {
